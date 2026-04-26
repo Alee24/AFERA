@@ -28,12 +28,76 @@ export default function CourseDetailsPage() {
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const STATIC_COURSE_DETAILS: Record<string, any> = {
+    'masters-resource-mobilization': {
+      id: 'masters-resource-mobilization',
+      title_en: 'Advanced Resource Mobilization',
+      title_fr: 'Mobilisation des ressources avancée',
+      title_pt: 'Mobilização de Recursos Avançada',
+      title_sw: 'Ukusanyaji wa Rasilimali wa Juu',
+      description_en: 'Master the strategies for international resource mobilization for infrastructure projects. This program prepares leaders to bridge the gap between technical infrastructure needs and global capital markets.',
+      description_fr: 'Maîtriser les stratégies de mobilisation de ressources internationales pour les projets d\'infrastructure. Ce programme prépare les leaders à combler le fossé entre les besoins techniques et les marchés de capitaux mondiaux.',
+      description_pt: 'Dominar as estratégias de mobilização de recursos internacionais para projetos de infraestrutura. Este programa prepara líderes para colmatar a lacuna entre as necessidades técnicas e os mercados de capitais globais.',
+      description_sw: 'Bobea katika mikakati ya ukusanyaji wa rasilimali za kimataifa kwa miradi ya miundombinu. Mpango huu huandaa viongozi kuziba pengo kati ya mahitaji ya kiufundi ya miundombinu na masoko ya mitaji ya kimataifa.',
+      price: 1200,
+      duration: '12 Months',
+      modality: 'Hybrid',
+      department: 'Infrastructure Management',
+      course_type: 'Master Degree',
+      outcomes: [
+        "International Donor Relations & Grant Management",
+        "Public-Private Partnership (PPP) Frameworks",
+        "Infrastructure Bond Markets & Green Finance",
+        "Advanced Financial Modeling for Road Projects"
+      ],
+      Modules: [
+        { order: 1, title: 'Strategic Funding Ecosystems', duration_weeks: 4, description: 'Understanding global capital flows and development bank operations.' },
+        { order: 2, title: 'PPP Design & Negotiation', duration_weeks: 6, description: 'Structuring complex contracts between public and private sectors.' },
+        { order: 3, title: 'Advanced Asset Management', duration_weeks: 4, description: 'Maximizing returns on existing infrastructure investments.' }
+      ]
+    },
+    'certificate-rbm': {
+      id: 'certificate-rbm',
+      title_en: 'Results-Based Management',
+      title_fr: 'Gestion axée sur les résultats',
+      title_pt: 'Gestão Baseada em Resultados',
+      title_sw: 'Usimamizi Unaozingatia Matokeo',
+      description_en: 'A high-impact program designed to implement accountability and performance tracking in public sector infrastructure development.',
+      description_fr: 'Un programme à fort impact conçu pour mettre en œuvre la responsabilité et le suivi des performances dans le développement des infrastructures du secteur public.',
+      description_pt: 'Um programa de alto impacto concebido para implementar a responsabilização e o acompanhamento do desempenho no desenvolvimento de infraestruturas do sector público.',
+      description_sw: 'Mpango wenye matokeo makubwa ulioundwa kutekeleza uwajibikaji na ufuatiliaji wa utendaji katika maendeleo ya miundombinu ya sekta ya umma.',
+      price: 850,
+      duration: '6 Months',
+      modality: 'Online',
+      department: 'Public Management',
+      course_type: 'Certificate',
+      outcomes: [
+        "KPI Design & Performance Indicators",
+        "Impact Evaluation & Strategic Reporting",
+        "Logframe Development for Infrastructure",
+        "Accountability Frameworks in Public Projects"
+      ],
+      Modules: [
+        { order: 1, title: 'Foundations of RBM', duration_weeks: 2, description: 'Core concepts of results-oriented project planning.' },
+        { order: 2, title: 'Monitoring & Evaluation Systems', duration_weeks: 3, description: 'Setting up data collection and reporting workflows.' },
+        { order: 3, title: 'Impact Assessment', duration_weeks: 3, description: 'Measuring the long-term socioeconomic value of road projects.' }
+      ]
+    }
+  };
+
   useEffect(() => {
     if (lang && i18n.language !== lang) {
       i18n.changeLanguage(lang as string);
     }
 
     const fetchCourse = async () => {
+      // Check static data first
+      if (typeof id === 'string' && STATIC_COURSE_DETAILS[id]) {
+        setCourse(STATIC_COURSE_DETAILS[id]);
+        setLoading(false);
+        return;
+      }
+
       try {
         const res = await axios.get(`/api/courses/${id}`);
         setCourse(res.data);
@@ -153,14 +217,14 @@ export default function CourseDetailsPage() {
 
               <h3 className="text-xl font-bold text-primary mb-6">Learning Outcomes</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
+                {(course.outcomes || [
                   "Advanced financial modeling for road projects",
                   "Deep understanding of PPP legal frameworks",
                   "Strategic asset management principles",
                   "Resource mobilization in developing economies",
                   "Results-based management applications",
                   "Performance monitoring and evaluation"
-                ].map((item, i) => (
+                ]).map((item: string, i: number) => (
                   <div key={i} className="flex items-start space-x-3 bg-gray-50 p-4 rounded-2xl">
                     <CheckCircle className="text-accent w-5 h-5 flex-shrink-0 mt-1" />
                     <span className="text-sm font-medium text-gray-700">{item}</span>
