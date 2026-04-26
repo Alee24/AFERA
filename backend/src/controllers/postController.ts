@@ -18,7 +18,7 @@ export const getPosts = async (req: Request, res: Response) => {
 
 export const getPostById = async (req: Request, res: Response) => {
   try {
-    const post = await Post.findByPk(req.params.id, {
+    const post = await Post.findByPk(req.params.id as string, {
       include: [
         { model: File, as: 'Files' },
         { model: User, as: 'Author', attributes: ['id', 'name'] }
@@ -42,7 +42,7 @@ export const createPost = async (req: any, res: Response) => {
 
 export const updatePost = async (req: Request, res: Response) => {
   try {
-    const post = await Post.findByPk(req.params.id);
+    const post = await Post.findByPk(req.params.id as string);
     if (!post) return res.status(404).json({ message: 'Post not found' });
     await post.update(req.body);
     res.json(post);
@@ -53,7 +53,7 @@ export const updatePost = async (req: Request, res: Response) => {
 
 export const deletePost = async (req: Request, res: Response) => {
   try {
-    const post = await Post.findByPk(req.params.id);
+    const post = await Post.findByPk(req.params.id as string);
     if (!post) return res.status(404).json({ message: 'Post not found' });
     await post.destroy();
     res.json({ message: 'Post deleted' });

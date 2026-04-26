@@ -19,7 +19,7 @@ export const getCourses = async (req: Request, res: Response) => {
 // GET /api/courses/:id
 export const getCourseById = async (req: Request, res: Response) => {
   try {
-    const course = await Course.findByPk(req.params.id, {
+    const course = await Course.findByPk(req.params.id as string, {
       include: [
         { model: CourseModule, as: 'Modules', order: [['order', 'ASC']] as any },
         { model: Enrollment, as: 'Enrollments', attributes: ['id', 'status'] }
@@ -45,7 +45,7 @@ export const createCourse = async (req: Request, res: Response) => {
 // PUT /api/courses/:id
 export const updateCourse = async (req: Request, res: Response) => {
   try {
-    const course = await Course.findByPk(req.params.id);
+    const course = await Course.findByPk(req.params.id as string);
     if (!course) return res.status(404).json({ message: 'Course not found' });
     await course.update(req.body);
     res.json(course);
@@ -57,7 +57,7 @@ export const updateCourse = async (req: Request, res: Response) => {
 // DELETE /api/courses/:id
 export const deleteCourse = async (req: Request, res: Response) => {
   try {
-    const course = await Course.findByPk(req.params.id);
+    const course = await Course.findByPk(req.params.id as string);
     if (!course) return res.status(404).json({ message: 'Course not found' });
     await course.destroy();
     res.json({ message: 'Course deleted successfully' });
@@ -69,7 +69,7 @@ export const deleteCourse = async (req: Request, res: Response) => {
 // POST /api/courses/:id/modules
 export const addModule = async (req: Request, res: Response) => {
   try {
-    const course = await Course.findByPk(req.params.id);
+    const course = await Course.findByPk(req.params.id as string);
     if (!course) return res.status(404).json({ message: 'Course not found' });
     const module = await CourseModule.create({ ...req.body, course_id: req.params.id });
     res.status(201).json(module);

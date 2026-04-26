@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useNotification } from '@/lib/NotificationContext';
-import api from '@/lib/api';
+import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AdminCoursesPage() {
@@ -43,11 +43,10 @@ export default function AdminCoursesPage() {
 
   const fetchCourses = async () => {
     try {
-      const res = await api.get('/courses');
+      const res = await axios.get('/api/courses');
       setCourses(Array.isArray(res.data) ? res.data : []);
-    } catch (err: any) {
-      const msg = err.response?.data?.message || 'Failed to load courses';
-      showNotification(msg, 'error');
+    } catch (err) {
+      showNotification('Failed to load courses', 'error');
     } finally {
       setLoading(false);
     }
@@ -57,10 +56,10 @@ export default function AdminCoursesPage() {
     e.preventDefault();
     try {
       if (currentCourse) {
-        await api.put(`/courses/${currentCourse.id}`, formData);
+        await axios.put(`/api/courses/${currentCourse.id}`, formData);
         showNotification('Course updated successfully', 'success');
       } else {
-        await api.post('/courses', {
+        await axios.post('/api/courses', {
           ...formData,
           title_fr: formData.title_en,
           title_pt: formData.title_en,
@@ -71,21 +70,19 @@ export default function AdminCoursesPage() {
       }
       setIsModalOpen(false);
       fetchCourses();
-    } catch (err: any) {
-      const msg = err.response?.data?.message || 'Operation failed';
-      showNotification(msg, 'error');
+    } catch (err) {
+      showNotification('Operation failed', 'error');
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this course?')) return;
     try {
-      await api.delete(`/courses/${id}`);
+      await axios.delete(`/api/courses/${id}`);
       showNotification('Course deleted', 'success');
       fetchCourses();
-    } catch (err: any) {
-      const msg = err.response?.data?.message || 'Failed to delete course';
-      showNotification(msg, 'error');
+    } catch (err) {
+      showNotification('Failed to delete course', 'error');
     }
   };
 

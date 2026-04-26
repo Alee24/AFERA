@@ -22,7 +22,6 @@ Permission.init({
   name: { type: DataTypes.STRING, unique: true, allowNull: false }
 }, { sequelize, modelName: 'Permission', tableName: 'permissions', underscored: true });
 
-// Role-Permission Join Table
 export class RolePermission extends Model {}
 RolePermission.init({}, { sequelize, modelName: 'RolePermission', tableName: 'role_permissions', underscored: true });
 
@@ -129,26 +128,7 @@ LessonProgress.init({
   completed: { type: DataTypes.BOOLEAN, defaultValue: false },
 }, { sequelize, modelName: 'LessonProgress', tableName: 'lesson_progress', underscored: true });
 
-// ===== 8. NOTIFICATIONS & LOGS =====
-export class Notification extends Model {}
-Notification.init({
-  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  title: { type: DataTypes.STRING, allowNull: false },
-  message: { type: DataTypes.TEXT, allowNull: false },
-  read_status: { type: DataTypes.BOOLEAN, defaultValue: false },
-}, { sequelize, modelName: 'Notification', tableName: 'notifications', underscored: true, timestamps: true });
-
-export class ActivityLog extends Model {}
-ActivityLog.init({
-  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  action: { type: DataTypes.STRING },
-  entity: { type: DataTypes.STRING },
-  entity_id: { type: DataTypes.STRING },
-}, { sequelize, modelName: 'ActivityLog', tableName: 'activity_logs', underscored: true, timestamps: true });
-
-// ============ ASSOCIATIONS ============
-
-// ===== SUPPORT & SYSTEM =====
+// ===== 8. SUPPORT & SYSTEM =====
 export class Message extends Model {}
 Message.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
@@ -165,7 +145,7 @@ Notification.init({
   title: { type: DataTypes.STRING, allowNull: false },
   message: { type: DataTypes.TEXT, allowNull: false },
   is_read: { type: DataTypes.BOOLEAN, defaultValue: false },
-}, { sequelize, modelName: 'Notification', tableName: 'notifications', underscored: true });
+}, { sequelize, modelName: 'Notification', tableName: 'notifications', underscored: true, timestamps: true });
 
 export class ActivityLog extends Model {}
 ActivityLog.init({
@@ -173,16 +153,13 @@ ActivityLog.init({
   user_id: { type: DataTypes.UUID, allowNull: false },
   action: { type: DataTypes.STRING, allowNull: false },
   details: { type: DataTypes.TEXT },
-}, { sequelize, modelName: 'ActivityLog', tableName: 'activity_logs', underscored: true });
+  entity: { type: DataTypes.STRING },
+  entity_id: { type: DataTypes.STRING },
+}, { sequelize, modelName: 'ActivityLog', tableName: 'activity_logs', underscored: true, timestamps: true });
 
-// ===== RELATIONS (Final Wiring) =====
+// ============ ASSOCIATIONS ============
 
-// Messages
-Message.belongsTo(User, { as: 'Sender', foreignKey: 'sender_id' });
-Message.belongsTo(User, { as: 'Receiver', foreignKey: 'receiver_id' });
-User.hasMany(Message, { as: 'SentMessages', foreignKey: 'sender_id' });
-User.hasMany(Message, { as: 'ReceivedMessages', foreignKey: 'receiver_id' });
-
+// Auth
 User.belongsTo(Role, { foreignKey: 'role_id' });
 Role.hasMany(User, { foreignKey: 'role_id' });
 Role.belongsToMany(Permission, { through: RolePermission });
@@ -250,7 +227,12 @@ LessonProgress.belongsTo(Student, { foreignKey: 'student_id' });
 Lesson.hasMany(LessonProgress, { foreignKey: 'lesson_id' });
 LessonProgress.belongsTo(Lesson, { foreignKey: 'lesson_id' });
 
-// Support & System
+// Messages & Notifications
+Message.belongsTo(User, { as: 'Sender', foreignKey: 'sender_id' });
+Message.belongsTo(User, { as: 'Receiver', foreignKey: 'receiver_id' });
+User.hasMany(Message, { as: 'SentMessages', foreignKey: 'sender_id' });
+User.hasMany(Message, { as: 'ReceivedMessages', foreignKey: 'receiver_id' });
+
 User.hasMany(Notification, { foreignKey: 'user_id' });
 Notification.belongsTo(User, { foreignKey: 'user_id' });
 User.hasMany(ActivityLog, { foreignKey: 'user_id' });
@@ -259,6 +241,7 @@ ActivityLog.belongsTo(User, { foreignKey: 'user_id' });
 export { 
   User, Course, CourseModule, Contact, Faculty, Department, Program, 
   CourseUnit, Class, FeeStructure, Invoice, Payment, Post, File,
-  Message, Notification, ActivityLog, OnlineCourse, Lesson, LessonProgress
+  Message, Notification, ActivityLog, OnlineCourse, Lesson, LessonProgress,
+  Enrollment, Student, Staff, Grade, Assessment, Attendance, CourseRegistration
 };
 export default sequelize;

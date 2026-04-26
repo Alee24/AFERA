@@ -24,7 +24,7 @@ export const updateContactStatus = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    const contact = await Contact.findByPk(id);
+    const contact = await Contact.findByPk(id as string);
     if (!contact) return res.status(404).json({ message: 'Contact not found' });
     await contact.update({ status });
     res.json(contact);

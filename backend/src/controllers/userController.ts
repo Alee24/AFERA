@@ -29,7 +29,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
 // PUT /api/users/:id (admin)
 export const updateUser = async (req: Request, res: Response) => {
   try {
-    const user = await User.findByPk(req.params.id);
+    const user = await User.findByPk(req.params.id as string);
     if (!user) return res.status(404).json({ message: 'User not found' });
     await user.update(req.body);
     res.json({ ...user.toJSON(), password_hash: undefined });
@@ -41,7 +41,7 @@ export const updateUser = async (req: Request, res: Response) => {
 // DELETE /api/users/:id (admin)
 export const deleteUser = async (req: Request, res: Response) => {
   try {
-    const user = await User.findByPk(req.params.id);
+    const user = await User.findByPk(req.params.id as string);
     if (!user) return res.status(404).json({ message: 'User not found' });
     await user.destroy();
     res.json({ message: 'User deleted' });
