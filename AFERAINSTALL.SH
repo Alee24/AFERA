@@ -48,8 +48,11 @@ sudo bash -c "cat << 'EOF' > /etc/apache2/sites-available/afera-sms.conf
     ServerName $DOMAIN
     ServerAlias www.\$DOMAIN
 
-    ProxyPreserveHost On
-    # Connect directly to the Proxy container on port 5454
+    # Route API requests to the Backend (Port 5455)
+    ProxyPass /api http://127.0.0.1:5455/api
+    ProxyPassReverse /api http://127.0.0.1:5455/api
+
+    # Route all other requests to the Frontend (Port 5454)
     ProxyPass / http://127.0.0.1:5454/
     ProxyPassReverse / http://127.0.0.1:5454/
 
