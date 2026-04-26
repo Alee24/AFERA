@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { User, Student } from '../models';
+import { User, Student, Program, Enrollment } from '../models';
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, role, preferred_language, program } = req.body;
+    const { name, email, password, role, preferred_language, program: programName } = req.body;
     
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
@@ -28,11 +28,22 @@ export const register = async (req: Request, res: Response) => {
 
     if (role === 'student' || !role) {
       const admission_number = 'AFR' + Math.floor(100000 + Math.random() * 900000);
-      await Student.create({
+      const student = await Student.create({
         user_id: user.id,
         admission_number,
-        year_of_study: 1
+        status: 'pending'
       });
+
+      // Find the program and create an enrollment
+      const program = await Program.findOne({ where: { name: programName } });
+      if (program) {
+        await Enrollment.create({
+          student_id: student.id,
+          program_id: program.id,
+          status: 'pending_approval',
+          academic_year: '2026'
+        });
+      }
     }
 
     const token = jwt.sign(

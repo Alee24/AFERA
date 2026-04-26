@@ -125,8 +125,12 @@ export default function AdminApplicationsPage() {
                       </td>
                       <td className="px-10 py-8">
                          <div className="flex flex-col">
-                            <span className="text-sm font-bold text-primary dark:text-white line-clamp-1">Infrastructure Finance</span>
-                            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">Master's Degree</span>
+                            <span className="text-sm font-bold text-primary dark:text-white line-clamp-1">
+                               {app.StudentProfile?.Enrollments?.[0]?.Program?.name || 'Program Not Selected'}
+                            </span>
+                            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">
+                               Admissions 2026
+                            </span>
                          </div>
                       </td>
                       <td className="px-10 py-8">

@@ -134,13 +134,15 @@ export default function AdminStudentsPage() {
                       </td>
                       <td className="px-10 py-6">
                          <div className="flex flex-col">
-                            <span className="text-sm font-bold text-primary dark:text-white line-clamp-1">Infrastructure Finance</span>
+                            <span className="text-sm font-bold text-primary dark:text-white line-clamp-1">
+                               {student.StudentProfile?.Enrollments?.[0]?.Program?.name || 'Program Not Assigned'}
+                            </span>
                             <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">Cohort 2026</span>
                          </div>
                       </td>
                       <td className="px-10 py-6">
                          <span className="text-xs font-mono font-bold text-primary dark:text-white bg-gray-50 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-gray-100 dark:border-slate-700">
-                            AFR-8294-2026
+                            {student.StudentProfile?.admission_number || 'Pending'}
                          </span>
                       </td>
                       <td className="px-10 py-6">

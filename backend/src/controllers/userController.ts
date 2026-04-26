@@ -1,12 +1,23 @@
 import { Request, Response } from 'express';
-import { User, Student, Enrollment, Course, Contact } from '../models';
+import { User, Student, Enrollment, Course, Contact, Program } from '../models';
 
 // GET /api/users (admin)
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
     const users = await User.findAll({
       attributes: { exclude: ['password_hash'] },
-      include: [{ model: Student, as: 'StudentProfile' }],
+      include: [
+        { 
+          model: Student, 
+          as: 'StudentProfile',
+          include: [
+            {
+              model: Enrollment,
+              include: [Program]
+            }
+          ]
+        }
+      ],
       order: [['created_at', 'DESC']]
     });
     res.json(users);
