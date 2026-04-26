@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Globe, ChevronDown, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
+import GoogleTranslate from './GoogleTranslate';
 
 const navLinks = [
   { key: 'home', href: '/' },
@@ -89,41 +90,8 @@ export default function Navbar() {
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center space-x-5">
             
-            {/* Language Selector */}
-            <div className="relative">
-              <button 
-                onClick={() => setLangMenuOpen(!langMenuOpen)}
-                className="flex items-center space-x-1 text-xs font-bold text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-white transition-colors uppercase"
-              >
-                <Globe size={14} />
-                <span>{currentLang}</span>
-                <ChevronDown size={12} className={cn("transition-transform", langMenuOpen ? "rotate-180" : "")} />
-              </button>
-              
-              <AnimatePresence>
-                {langMenuOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute top-full right-0 mt-4 w-24 bg-white rounded-lg shadow-xl py-2 border border-gray-100 dark:bg-slate-800 dark:border-slate-700 overflow-hidden"
-                  >
-                    {languages.map((l) => (
-                      <button
-                        key={l.code}
-                        onClick={() => changeLanguage(l.code)}
-                        className={cn(
-                          "w-full text-left px-4 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors",
-                          currentLang === l.code ? "text-accent" : "text-gray-700 dark:text-gray-200"
-                        )}
-                      >
-                        {l.label}
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            {/* Google Translate Widget */}
+            <GoogleTranslate />
 
             <Link href={`/${currentLang}/login`}>
               <button className="flex items-center justify-center space-x-2 bg-primary hover:bg-primary/90 text-white rounded-full px-8 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-md">
@@ -169,22 +137,9 @@ export default function Navbar() {
                 );
               })}
               
-              <div className="py-2 flex items-center space-x-4 border-b border-gray-50 dark:border-slate-800 pb-4">
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Language:</span>
-                <div className="flex space-x-2">
-                  {languages.map(l => (
-                    <button 
-                      key={l.code}
-                      onClick={() => changeLanguage(l.code)}
-                      className={cn(
-                        "px-3 py-1.5 text-xs rounded-md font-bold transition-colors", 
-                        currentLang === l.code ? "bg-accent text-primary" : "bg-gray-100 text-gray-600 dark:bg-slate-800 dark:text-gray-300"
-                      )}
-                    >
-                      {l.label}
-                    </button>
-                  ))}
-                </div>
+              <div className="py-4 border-b border-gray-50 dark:border-slate-800">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-4">Select Language</p>
+                <GoogleTranslate />
               </div>
 
               <div className="pt-4 flex flex-col space-y-3">
