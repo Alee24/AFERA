@@ -6,7 +6,7 @@ import FilePreview from '@/components/FilePreview';
 import '@/styles/blog.css';
 
 export default function BlogPostPage({ params }: { params: Promise<{ id: string, lang: string }> }) {
-  const resolvedParams = React.use(params);
+  const resolvedParams = React.use(params) as any;
   const { id, lang } = resolvedParams;
   const { t } = useTranslation('common');
 

@@ -6,7 +6,7 @@ import { Calendar, User, ArrowRight, BookOpen } from 'lucide-react';
 import '@/styles/blog.css';
 
 export default function BlogPage({ params }: { params: Promise<{ lang: string }> }) {
-  const resolvedParams = React.use(params);
+  const resolvedParams = React.use(params) as any;
   const lang = resolvedParams.lang;
   const { t, i18n } = useTranslation('common');
   const [posts, setPosts] = React.useState<any[]>([]);

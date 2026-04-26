@@ -13,7 +13,7 @@ import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home({ params }: { params: Promise<{ lang: string }> }) {
-  const resolvedParams = React.use(params);
+  const resolvedParams = React.use(params) as any;
   const lang = resolvedParams.lang;
   const { i18n } = useTranslation('common');
 

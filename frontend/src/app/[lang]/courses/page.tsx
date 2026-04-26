@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 
 export default function CoursesPage({ params }: { params: any }) {
-  const resolvedParams = React.use(params);
+  const resolvedParams = React.use(params) as any;
   const lang = resolvedParams.lang;
   const { t, i18n } = useTranslation('common');
   const [courses, setCourses] = useState<any[]>([]);
