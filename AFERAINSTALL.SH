@@ -24,8 +24,18 @@ cd AFERA
 echo "🏗️ Building and launching Docker containers on ports 5454/5455..."
 docker-compose up -d --build
 
-echo "⏳ Waiting for database to be ready..."
-sleep 15
+echo "⏳ Waiting for database to be reachable from backend..."
+MAX_RETRIES=30
+COUNT=0
+while ! docker-compose exec -T backend nc -z db 3306 >/dev/null 2>&1; do
+    if [ $COUNT -ge $MAX_RETRIES ]; then
+        echo "❌ Timeout waiting for database."
+        exit 1
+    fi
+    echo "   ...waiting for db:3306 ($COUNT/$MAX_RETRIES)"
+    sleep 2
+    COUNT=$((COUNT+1))
+done
 
 echo "🗄️ Running Database Migrations & Seeding..."
 docker-compose exec -T backend npm run migrate
