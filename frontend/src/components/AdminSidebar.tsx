@@ -13,7 +13,8 @@ import {
   FileText,
   UserCheck,
   ShieldCheck,
-  Bell
+  Bell,
+  DollarSign
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
