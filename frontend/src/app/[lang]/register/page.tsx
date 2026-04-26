@@ -17,6 +17,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [program, setProgram] = useState("Specialized master's degree in resource Mobilization and Financing of Road Infrastructure Maintenance");
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
   const { showNotification } = useNotification();
   const router = useRouter();
   const { lang } = useParams();
@@ -25,15 +26,15 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await api.post('/auth/register', { name, email, password, program, role: 'student' });
-      const { token, user } = res.data;
+      await api.post('/auth/register', { name, email, password, program, role: 'student' });
+      const res = await api.post('/auth/login', { email, password });
+      const { user, token } = res.data;
+      login(user, token);
+      showNotification('Registration successful! Welcome.', 'success');
       
-      // Save token and user info
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      
-      showNotification('Registration successful! Please complete your biodata.', 'success');
-      router.push(`/${lang}/onboarding`);
+      // Use role-based routing
+      const target = user.role === 'admin' ? 'admin' : 'dashboard';
+      router.push(`/${i18n.language || 'en'}/${target}`);
     } catch (err: any) {
       // Strict requirement: show actual errors
       const errMsg = err.response?.data?.message || err.message || 'Registration failed. Please try again.';

@@ -25,9 +25,13 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const res = await api.post('/auth/login', { email, password });
-      login(res.data.user, res.data.token);
+      const { user, token } = res.data;
+      login(user, token);
       showNotification('Login successful! Welcome back.', 'success');
-      router.push(`/${i18n.language}/${res.data.user.role === 'admin' ? 'admin' : 'dashboard'}`);
+      
+      // Use role-based routing
+      const target = user.role === 'admin' ? 'admin' : 'dashboard';
+      router.push(`/${i18n.language || 'en'}/${target}`);
     } catch (err: any) {
       // Strict requirement: show actual errors
       const errMsg = err.response?.data?.message || err.message || 'An error occurred during login.';
