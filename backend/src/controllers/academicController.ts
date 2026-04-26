@@ -28,6 +28,55 @@ export const createFaculty = async (req: Request, res: Response) => {
   }
 };
 
+// GET /api/academic/programs
+export const getPrograms = async (req: Request, res: Response) => {
+  try {
+    const programs = await Program.findAll({
+      include: [
+        { model: Department, include: [Faculty] },
+        { model: Course }
+      ]
+    });
+    res.json(programs);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// POST /api/academic/programs
+export const createProgram = async (req: Request, res: Response) => {
+  try {
+    const program = await Program.create(req.body);
+    res.status(201).json(program);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// PUT /api/academic/programs/:id
+export const updateProgram = async (req: Request, res: Response) => {
+  try {
+    const program = await Program.findByPk(req.params.id);
+    if (!program) return res.status(404).json({ message: 'Program not found' });
+    await program.update(req.body);
+    res.json(program);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// DELETE /api/academic/programs/:id
+export const deleteProgram = async (req: Request, res: Response) => {
+  try {
+    const program = await Program.findByPk(req.params.id);
+    if (!program) return res.status(404).json({ message: 'Program not found' });
+    await program.destroy();
+    res.json({ message: 'Program deleted' });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // GET /api/academic/stats
 export const getAcademicStats = async (req: Request, res: Response) => {
   try {
@@ -39,8 +88,8 @@ export const getAcademicStats = async (req: Request, res: Response) => {
     res.json({
       faculties: facultiesCount,
       departments: departmentsCount,
-      degreeLevels: 3, // Hardcoded for now
-      activePrograms: activeCoursesCount // Using courses count as programs for now based on UI
+      degreeLevels: 3, 
+      activePrograms: programsCount
     });
   } catch (error: any) {
     res.status(500).json({ message: error.message });

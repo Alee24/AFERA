@@ -9,6 +9,7 @@ class User extends Model {
   public phone!: string;
   public password_hash!: string;
   public role_id!: string;
+  public role!: string;
   public status!: 'active' | 'inactive';
   public preferred_language!: string;
   public readonly created_at!: Date;

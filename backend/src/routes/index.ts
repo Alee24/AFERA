@@ -50,6 +50,10 @@ router.put('/contacts/:id', authenticateJWT, authorizeRole(['admin']), contactCo
 // ===== ACADEMIC =====
 router.get('/academic/faculties', academicController.getFaculties);
 router.post('/academic/faculties', authenticateJWT, authorizeRole(['admin']), academicController.createFaculty);
+router.get('/academic/programs', academicController.getPrograms);
+router.post('/academic/programs', authenticateJWT, authorizeRole(['admin']), academicController.createProgram);
+router.put('/academic/programs/:id', authenticateJWT, authorizeRole(['admin']), academicController.updateProgram);
+router.delete('/academic/programs/:id', authenticateJWT, authorizeRole(['admin']), academicController.deleteProgram);
 router.get('/academic/stats', academicController.getAcademicStats);
 
 export default router;
