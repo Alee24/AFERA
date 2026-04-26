@@ -3,6 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, Globe } from 'lucide-react';
 
+declare global {
+  interface Window {
+    google: any;
+    googleTranslateElementInit: any;
+  }
+}
+
 const languages = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
   { code: 'fr', name: 'Français', flag: '🇫🇷' },
