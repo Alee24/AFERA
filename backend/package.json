@@ -8,6 +8,7 @@
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "migrate": "ts-node src/migrations/init.ts",
+    "db-fix": "ts-node src/migrations/db-fix.ts",
     "seed": "ts-node src/seed.ts"
   },
   "keywords": [],

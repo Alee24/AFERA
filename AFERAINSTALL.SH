@@ -30,8 +30,9 @@ while ! docker-compose exec -T backend nc -z db 3306 >/dev/null 2>&1; do
     sleep 2; COUNT=$((COUNT+1))
 done
 
-echo "🗄️ Running Migrations & Seeding (Including Admin: Digital2025)..."
+echo "🗄️ Running Migrations & Schema Fixes..."
 docker-compose exec -T backend npm run migrate
+docker-compose exec -T backend npm run db-fix
 docker-compose exec -T backend npm run seed
 
 echo "🗑️ Wiping all OLD Apache configurations to prevent conflicts..."

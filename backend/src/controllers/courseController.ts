@@ -102,7 +102,11 @@ export const enrollInCourse = async (req: any, res: Response) => {
       return res.status(400).json({ message: 'Already enrolled in this course' });
     }
 
-    const enrollment = await Enrollment.create({ student_id: student.id, course_id: courseId, status: 'active' });
+    const enrollment = await Enrollment.create({ 
+      student_id: student.id, 
+      course_id: courseId, 
+      status: 'pending_approval' 
+    });
     res.status(201).json({ message: 'Successfully enrolled!', enrollment });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
