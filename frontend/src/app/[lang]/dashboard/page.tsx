@@ -13,33 +13,53 @@ import {
   Search,
   Settings,
   ChevronRight,
-  PlayCircle
+  PlayCircle,
+  PlusCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import api from '@/lib/api';
+import { useNotification } from '@/lib/NotificationContext';
 import Image from 'next/image';
 
 export default function StudentDashboard() {
   const { user } = useAuth();
   const { t, i18n } = useTranslation('common');
+  const { showNotification } = useNotification();
   const [enrollments, setEnrollments] = useState<any[]>([]);
+  const [availableCourses, setAvailableCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [enrollingId, setEnrollingId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchEnrollments();
+    fetchDashboardData();
   }, []);
 
-  const fetchEnrollments = async () => {
+  const fetchDashboardData = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get('/api/enrollments/my', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setEnrollments(res.data);
+      const [enrollRes, coursesRes] = await Promise.all([
+        api.get('/enrollments/my'),
+        api.get('/courses')
+      ]);
+      setEnrollments(enrollRes.data);
+      setAvailableCourses(coursesRes.data);
     } catch (err) {
-      console.error('Failed to fetch enrollments');
+      showNotification('Failed to fetch dashboard data', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEnroll = async (courseId: string) => {
+    setEnrollingId(courseId);
+    try {
+      await api.post(`/courses/${courseId}/enroll`);
+      showNotification('Successfully enrolled in course!', 'success');
+      fetchDashboardData(); // Refresh data
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Enrollment failed';
+      showNotification(msg, 'error');
+    } finally {
+      setEnrollingId(null);
     }
   };
 
@@ -110,15 +130,15 @@ export default function StudentDashboard() {
                <div className="space-y-6">
                  {loading ? (
                    [1, 2].map(i => <div key={i} className="h-24 bg-gray-50 animate-pulse rounded-2xl"></div>)
-                 ) : enrollments.length > 0 ? (
-                    enrollments.map((enrollment, i) => (
+                 ) : enrollments.flatMap(e => e.Program?.Courses || []).length > 0 ? (
+                    enrollments.flatMap(e => e.Program?.Courses || []).map((course: any, i) => (
                       <div key={i} className="group flex flex-col sm:flex-row items-center bg-gray-50/50 dark:bg-slate-800/50 p-4 rounded-2xl border border-transparent hover:border-accent/20 hover:bg-white transition-all cursor-pointer">
-                        <div className="w-full sm:w-24 h-24 sm:h-16 bg-primary/10 rounded-xl mb-4 sm:mb-0 sm:mr-6 flex items-center justify-center overflow-hidden">
-                           <BookOpen size={24} className="text-primary" />
+                        <div className="w-full sm:w-24 h-24 sm:h-16 bg-primary/10 rounded-xl mb-4 sm:mb-0 sm:mr-6 flex items-center justify-center overflow-hidden text-primary font-bold">
+                           <BookOpen size={24} />
                         </div>
                         <div className="flex-1 text-center sm:text-left">
-                           <h4 className="font-bold text-primary dark:text-white group-hover:text-accent transition-colors">{enrollment.Course?.title_en || 'Course Title'}</h4>
-                           <p className="text-xs text-gray-400 mt-1">Next lesson: Module 2 - Advanced Concepts</p>
+                           <h4 className="font-bold text-primary dark:text-white group-hover:text-accent transition-colors">{course.title_en || 'Course Title'}</h4>
+                           <p className="text-xs text-gray-400 mt-1">Status: Active &bull; Code: {course.course_code || 'N/A'}</p>
                            <div className="mt-3 w-full max-w-[200px] h-1.5 bg-gray-200 rounded-full overflow-hidden mx-auto sm:mx-0">
                               <div className="h-full bg-accent" style={{ width: '45%' }}></div>
                            </div>
@@ -134,8 +154,55 @@ export default function StudentDashboard() {
                    <div className="text-center py-10 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
                       <GraduationCap size={40} className="mx-auto text-gray-300 mb-4" />
                       <p className="text-gray-500 font-medium">You haven't enrolled in any courses yet.</p>
-                      <button className="mt-4 text-accent font-bold uppercase text-xs tracking-widest hover:underline">Explore Programs</button>
+                      <button className="mt-4 text-accent font-bold uppercase text-xs tracking-widest hover:underline">Explore Programs Below</button>
                    </div>
+                 )}
+               </div>
+            </div>
+
+            {/* Available Courses Section */}
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-[32px] shadow-sm border border-gray-50 dark:border-slate-800">
+               <div className="flex items-center justify-between mb-8">
+                 <h3 className="text-xl font-bold text-primary dark:text-white">Available Courses</h3>
+                 <button className="text-xs font-bold text-accent hover:underline uppercase tracking-widest">Browse Catalog</button>
+               </div>
+
+               <div className="space-y-6">
+                 {loading ? (
+                   [1, 2].map(i => <div key={i} className="h-24 bg-gray-50 animate-pulse rounded-2xl"></div>)
+                 ) : availableCourses.length > 0 ? (
+                    availableCourses.map((course: any, i) => {
+                      const isEnrolled = enrollments.some(e => e.Program?.Courses?.some((c: any) => c.id === course.id));
+                      return (
+                      <div key={course.id} className="group flex flex-col sm:flex-row items-center bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 p-4 rounded-2xl hover:shadow-md transition-all">
+                        <div className="flex-1 text-center sm:text-left sm:pr-4">
+                           <h4 className="font-bold text-primary dark:text-white">{course.title_en}</h4>
+                           <p className="text-xs text-gray-500 mt-1 line-clamp-2">{course.description_en || 'No description available.'}</p>
+                           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2">{course.credits || 3} Credits</p>
+                        </div>
+                        <div className="mt-4 sm:mt-0">
+                           {isEnrolled ? (
+                              <button disabled className="px-6 py-2.5 bg-gray-100 text-gray-400 font-bold text-sm rounded-xl cursor-not-allowed">
+                                 Enrolled
+                              </button>
+                           ) : (
+                              <button 
+                                onClick={() => handleEnroll(course.id)}
+                                disabled={enrollingId === course.id}
+                                className="px-6 py-2.5 bg-primary text-white font-bold text-sm rounded-xl hover:bg-accent transition-colors flex items-center"
+                              >
+                                {enrollingId === course.id ? 'Processing...' : (
+                                  <>
+                                    <PlusCircle size={16} className="mr-2" /> Enroll
+                                  </>
+                                )}
+                              </button>
+                           )}
+                        </div>
+                      </div>
+                    )})
+                 ) : (
+                   <p className="text-gray-500 text-center">No available courses at the moment.</p>
                  )}
                </div>
             </div>

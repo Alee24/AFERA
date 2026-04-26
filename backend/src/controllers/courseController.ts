@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Course, CourseModule, Enrollment, Student, User } from '../models';
+import { Course, CourseModule, Enrollment, Student, User, Program } from '../models';
 
 // GET /api/courses
 export const getCourses = async (req: Request, res: Response) => {
@@ -118,7 +118,12 @@ export const getMyEnrollments = async (req: any, res: Response) => {
 
     const enrollments = await Enrollment.findAll({
       where: { student_id: student.id },
-      include: [{ model: Course, as: 'Course', include: [{ model: CourseModule, as: 'Modules' }] }]
+      include: [
+        { 
+          model: Program, 
+          include: [{ model: Course }] 
+        }
+      ]
     });
     res.json(enrollments);
   } catch (error: any) {
