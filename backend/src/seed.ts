@@ -1,10 +1,28 @@
-import { Course, Program, Department, Faculty } from './models';
+import { Course, Program, Department, Faculty, User } from './models';
 import sequelize from './models';
+import bcrypt from 'bcryptjs';
 
 const seed = async () => {
   try {
     await sequelize.authenticate();
     console.log('Database connection established for seeding.');
+
+    // 0. Create Default Admin
+    const adminPassword = 'Digital2025';
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
+    
+    await User.findOrCreate({
+      where: { email: 'admin@aferainnov.africa' },
+      defaults: {
+        first_name: 'System',
+        last_name: 'Admin',
+        email: 'admin@aferainnov.africa',
+        password_hash: hashedPassword,
+        role: 'admin',
+        status: 'active'
+      }
+    });
+    console.log(`👤 Default admin created: admin@aferainnov.africa / ${adminPassword}`);
 
     // 1. Create a Faculty
     const [faculty] = await Faculty.findOrCreate({

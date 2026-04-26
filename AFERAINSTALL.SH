@@ -1,30 +1,28 @@
 #!/bin/bash
 set -e
-echo "🚀 Starting AFERA VPS Installation (Main Domain Setup)..."
+echo "🚀 Starting COMPLETE AFERA REINSTALLATION..."
 
 # Configuration
-MAIN_DOMAIN="aferainnov.africa"
-MOODLE_DOMAIN="lms.aferainnov.africa"
+DOMAIN="aferainnov.africa"
 
 # System Updates
 sudo apt update && sudo apt upgrade -y
 
-echo "🔧 Configuring Apache Modules..."
-sudo a2enmod proxy || true
-sudo a2enmod proxy_http || true
-sudo a2enmod ssl || true
-sudo a2enmod rewrite || true
+echo "🛑 Stopping and Removing all previous containers and data..."
+cd /var/www/AFERA/AFERA || true
+docker-compose down -v --remove-orphans || true
 
-echo "📂 Pulling latest code from GitHub..."
-[ -d "AFERA" ] && sudo rm -rf AFERA
+echo "📂 Pulling absolute latest code from GitHub..."
+cd /var/www/AFERA
+sudo rm -rf AFERA
 git clone https://github.com/Alee24/AFERA.git
 cd AFERA
 
-echo "🏗️ Building and launching Docker containers..."
+echo "🏗️ Building and launching Docker (Fresh Build)..."
 docker-compose up -d --build
 
 echo "⏳ Waiting for database to be reachable..."
-MAX_RETRIES=30
+MAX_RETRIES=40
 COUNT=0
 while ! docker-compose exec -T backend nc -z db 3306 >/dev/null 2>&1; do
     if [ $COUNT -ge $MAX_RETRIES ]; then echo "❌ Timeout waiting for database."; exit 1; fi
@@ -32,49 +30,47 @@ while ! docker-compose exec -T backend nc -z db 3306 >/dev/null 2>&1; do
     sleep 2; COUNT=$((COUNT+1))
 done
 
-echo "🗄️ Running Database Migrations & Seeding..."
+echo "🗄️ Running Migrations & Seeding (Including Admin: Digital2025)..."
 docker-compose exec -T backend npm run migrate
 docker-compose exec -T backend npm run seed
 
-echo "🌐 Creating Apache Virtual Host for $MAIN_DOMAIN (Afera SMS)..."
-sudo bash -c "cat << 'EOF' > /etc/apache2/sites-available/afera-main.conf
+echo "🌐 Overwriting Apache Virtual Host for $DOMAIN..."
+sudo bash -c "cat << 'EOF' > /etc/apache2/sites-available/afera-sms.conf
 <VirtualHost *:80>
-    ServerName $MAIN_DOMAIN
-    ServerAlias www.$MAIN_DOMAIN
-
-    ProxyPreserveHost On
-    ProxyPass / http://127.0.0.1:5454/
-    ProxyPassReverse / http://127.0.0.1:5454/
-
-    # Redirect HTTP to HTTPS (uncomment after SSL is configured)
-    # RewriteEngine On
-    # RewriteCond %{HTTPS} off
-    # RewriteRule ^(.*)$ https://%{HTTP_HOST}\$1 [R=301,L]
+    ServerName $DOMAIN
+    ServerAlias www.\$DOMAIN
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}\$1 [R=301,L]
 </VirtualHost>
 
 <VirtualHost *:443>
-    ServerName $MAIN_DOMAIN
-    ServerAlias www.$MAIN_DOMAIN
+    ServerName $DOMAIN
+    ServerAlias www.\$DOMAIN
 
     ProxyPreserveHost On
-    ProxyPass / http://127.0.0.1:5455/
-    ProxyPassReverse / http://127.0.0.1:5455/
+    # Connect directly to the Proxy container on port 5454
+    ProxyPass / http://127.0.0.1:5454/
+    ProxyPassReverse / http://127.0.0.1:5454/
 
     SSLEngine on
-    SSLCertificateFile /etc/letsencrypt/live/$MAIN_DOMAIN/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/$MAIN_DOMAIN/privkey.pem
+    SSLCertificateFile /etc/letsencrypt/live/$DOMAIN/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/$DOMAIN/privkey.pem
 
     ErrorLog \${APACHE_LOG_DIR}/afera_error.log
     CustomLog \${APACHE_LOG_DIR}/afera_access.log combined
 </VirtualHost>
 EOF"
 
-echo "⚠️  NOTE: We are enabling Afera on $MAIN_DOMAIN."
-echo "⚠️  Ensure you have moved Moodle to $MOODLE_DOMAIN in its config file."
+# Ensure modules are enabled
+sudo a2enmod proxy proxy_http ssl rewrite || true
+sudo a2ensite afera-sms.conf || true
 
-sudo a2ensite afera-main.conf
+echo "🔄 Restarting Apache..."
 sudo systemctl restart apache2
 
-echo "✅ Afera SMS is now taking over $MAIN_DOMAIN!"
-echo "🌐 URL: https://$MAIN_DOMAIN"
-echo "🛠️ Admin: https://$MAIN_DOMAIN/en/admin"
+echo "✅ AFERA REINSTALLATION COMPLETE!"
+echo "🌐 App URL: https://$DOMAIN"
+echo "👤 Admin Email: admin@aferainnov.africa"
+echo "🔑 Admin Password: Digital2025"
+echo "🌍 Languages: EN, FR, PT, SW"
