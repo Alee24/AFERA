@@ -8,11 +8,32 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
+const STATIC_COURSES = [
+  {
+    id: 'masters-resource-mobilization',
+    title_en: 'Advanced Resource Mobilization',
+    description_en: 'Master the strategies for international resource mobilization for infrastructure projects.',
+    price: 1200,
+    duration: '12 Months',
+    modality: 'Hybrid',
+    course_type: 'Master Degree',
+  },
+  {
+    id: 'certificate-rbm',
+    title_en: 'Results-Based Management',
+    description_en: 'Implementing results-based frameworks in public sector infrastructure development.',
+    price: 850,
+    duration: '6 Months',
+    modality: 'Online',
+    course_type: 'Certificate',
+  }
+];
+
 export default function CoursesPage({ params }: { params: any }) {
   const resolvedParams = React.use(params) as any;
   const lang = resolvedParams.lang;
   const { t, i18n } = useTranslation('common');
-  const [courses, setCourses] = useState<any[]>([]);
+  const [courses, setCourses] = useState<any[]>(STATIC_COURSES);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,10 +44,15 @@ export default function CoursesPage({ params }: { params: any }) {
     const fetchCourses = async () => {
       try {
         const res = await axios.get('/api/courses');
-        setCourses(Array.isArray(res.data) ? res.data : []);
+        const dynamicCourses = Array.isArray(res.data) ? res.data : [];
+        // Filter out static courses if they also come from API to avoid duplicates
+        const filteredDynamic = dynamicCourses.filter(dc => 
+          !STATIC_COURSES.some(sc => sc.title_en === dc.title_en)
+        );
+        setCourses([...STATIC_COURSES, ...filteredDynamic]);
       } catch (err) {
         console.error('Failed to fetch courses', err);
-        setCourses([]);
+        setCourses(STATIC_COURSES);
       } finally {
         setLoading(false);
       }

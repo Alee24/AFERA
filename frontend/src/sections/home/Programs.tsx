@@ -9,8 +9,29 @@ import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 
+const STATIC_COURSES = [
+  {
+    id: 'masters-resource-mobilization',
+    title_en: 'Advanced Resource Mobilization',
+    description_en: 'Master the strategies for international resource mobilization for infrastructure projects.',
+    price: 1200,
+    duration: '12 Months',
+    modality: 'Hybrid',
+    course_type: 'Master Degree',
+  },
+  {
+    id: 'certificate-rbm',
+    title_en: 'Results-Based Management',
+    description_en: 'Implementing results-based frameworks in public sector infrastructure development.',
+    price: 850,
+    duration: '6 Months',
+    modality: 'Online',
+    course_type: 'Certificate',
+  }
+];
+
 export default function Programs() {
-  const [courses, setCourses] = useState<any[]>([]);
+  const [courses, setCourses] = useState<any[]>(STATIC_COURSES);
   const { i18n } = useTranslation('common');
   const lang = i18n.language || 'en';
 
@@ -18,9 +39,14 @@ export default function Programs() {
     const fetchCourses = async () => {
       try {
         const res = await axios.get('/api/courses');
-        setCourses(Array.isArray(res.data) ? res.data.slice(0, 3) : []);
+        const dynamicCourses = Array.isArray(res.data) ? res.data : [];
+        const filteredDynamic = dynamicCourses.filter(dc => 
+          !STATIC_COURSES.some(sc => sc.title_en === dc.title_en)
+        );
+        setCourses([...STATIC_COURSES, ...filteredDynamic].slice(0, 4));
       } catch (err) {
         console.error('Failed to fetch programs', err);
+        setCourses(STATIC_COURSES);
       }
     };
     fetchCourses();
