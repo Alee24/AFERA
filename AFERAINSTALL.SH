@@ -34,8 +34,14 @@ echo "🗄️ Running Migrations & Seeding (Including Admin: Digital2025)..."
 docker-compose exec -T backend npm run migrate
 docker-compose exec -T backend npm run seed
 
-echo "🌐 Overwriting Apache Virtual Host for $DOMAIN..."
-sudo bash -c "cat << 'EOF' > /etc/apache2/sites-available/afera-sms.conf
+echo "🗑️ Wiping all OLD Apache configurations to prevent conflicts..."
+sudo a2dissite afera-main.conf || true
+sudo a2dissite afera-sms.conf || true
+sudo rm -f /etc/apache2/sites-available/afera-*.conf
+sudo rm -f /etc/apache2/sites-enabled/afera-*.conf
+
+echo "🌐 Creating the SINGLE CLEAN Apache Virtual Host..."
+sudo bash -c "cat << 'EOF' > /etc/apache2/sites-available/afera-final.conf
 <VirtualHost *:80>
     ServerName $DOMAIN
     ServerAlias www.\$DOMAIN
@@ -48,13 +54,15 @@ sudo bash -c "cat << 'EOF' > /etc/apache2/sites-available/afera-sms.conf
     ServerName $DOMAIN
     ServerAlias www.\$DOMAIN
 
-    # Route API requests to the Backend (Port 5455)
-    ProxyPass /api http://127.0.0.1:5455/api
-    ProxyPassReverse /api http://127.0.0.1:5455/api
+    ProxyPreserveHost On
+    
+    # API Direct Route (Priority)
+    ProxyPass /api http://localhost:5455/api
+    ProxyPassReverse /api http://localhost:5455/api
 
-    # Route all other requests to the Frontend (Port 5454)
-    ProxyPass / http://127.0.0.1:5454/
-    ProxyPassReverse / http://127.0.0.1:5454/
+    # Frontend Direct Route
+    ProxyPass / http://localhost:5454/
+    ProxyPassReverse / http://localhost:5454/
 
     SSLEngine on
     SSLCertificateFile /etc/letsencrypt/live/$DOMAIN/fullchain.pem
@@ -65,9 +73,9 @@ sudo bash -c "cat << 'EOF' > /etc/apache2/sites-available/afera-sms.conf
 </VirtualHost>
 EOF"
 
-# Ensure modules are enabled
+# Ensure modules and site are enabled
 sudo a2enmod proxy proxy_http ssl rewrite || true
-sudo a2ensite afera-sms.conf || true
+sudo a2ensite afera-final.conf || true
 
 echo "🔄 Restarting Apache..."
 sudo systemctl restart apache2
