@@ -5,13 +5,14 @@ import { NotificationProvider } from '@/lib/NotificationContext';
 import I18nProvider from '@/lib/I18nProvider';
 import { AuthProvider } from '@/lib/AuthContext';
 
-export default function Layout({
+export default async function Layout({
   children,
   params,
 }: {
   children: React.ReactNode;
-  params: { lang: string };
+  params: any;
 }) {
+  const { lang } = await params;
   return (
     <>
       <AuthProvider>

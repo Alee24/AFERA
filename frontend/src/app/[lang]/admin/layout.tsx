@@ -10,7 +10,7 @@ export default function AdminLayout({
   params 
 }: { 
   children: ReactNode;
-  params: { lang: string };
+  params: any;
 }) {
   const resolvedParams = React.use(params);
   const lang = resolvedParams.lang;
