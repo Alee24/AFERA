@@ -2,20 +2,18 @@ version: '3.8'
 
 services:
   db:
-    image: mysql:8.0
+    image: mysql:5.7
     container_name: afera_db
     restart: always
+    command: --innodb-buffer-pool-size=64M --max-connections=50
     environment:
       MYSQL_DATABASE: afera_sms
       MYSQL_ROOT_PASSWORD: root_password
-    # Removed host port mapping to avoid conflict with Moodle/Host MySQL
-    # ports:
-    #   - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
-      interval: 5s
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 10s
       timeout: 5s
       retries: 5
 
