@@ -56,25 +56,29 @@ export default function AdminCoursesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const dataToSave = {
+        ...formData,
+        // Sync localizations during update if they are just defaults or empty
+        title_fr: formData.title_en,
+        title_pt: formData.title_en,
+        title_sw: formData.title_en,
+        description_fr: formData.description_en,
+        description_pt: formData.description_en,
+        description_sw: formData.description_en,
+        content_fr: formData.content_en,
+        content_pt: formData.content_en,
+        content_sw: formData.content_en
+      };
+
       if (currentCourse) {
-        await api.put(`/courses/${currentCourse.id}`, formData);
+        await api.put(`/courses/${currentCourse.id}`, dataToSave);
         showNotification('Course updated successfully', 'success');
       } else {
-        await api.post('/courses', {
-          ...formData,
-          title_fr: formData.title_en,
-          title_pt: formData.title_en,
-          title_sw: formData.title_en,
-          description_fr: formData.description_en,
-          description_pt: formData.description_en,
-          description_sw: formData.description_en,
-          content_fr: formData.content_en,
-          content_pt: formData.content_en,
-          content_sw: formData.content_en
-        });
+        await api.post('/courses', dataToSave);
         showNotification('Course created successfully', 'success');
       }
       setIsModalOpen(false);
+      // Clear cache and refetch
       fetchCourses();
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Operation failed';
