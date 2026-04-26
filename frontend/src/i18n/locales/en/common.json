@@ -1,0 +1,49 @@
+{
+  "common": {
+    "welcome": "Welcome to AFERA INNOV ACADEMY",
+    "apply_now": "Apply Now",
+    "register": "Register",
+    "login": "Login",
+    "courses": "Courses",
+    "workshops": "Workshops",
+    "contact": "Contact",
+    "about_us": "About Us",
+    "home": "Home",
+    "student_portal": "Student Portal",
+    "admin": "Admin Panel",
+    "student": "Student Dashboard",
+    "language": "Language",
+    "read_more": "Read More"
+  },
+  "navbar": {
+    "home": "Home",
+    "about": "About Us",
+    "courses": "Courses",
+    "workshops": "Workshops",
+    "contact": "Contact",
+    "login": "Login",
+    "apply": "Apply Now"
+  },
+  "hero": {
+    "welcome": "Welcome to AFERA INNOV ACADEMY",
+    "title1": "Learn Today.",
+    "title2": "Lead Tomorrow.",
+    "subtitle": "Quality education that transforms you— on campus and online.",
+    "apply": "APPLY NOW",
+    "view_programs": "EXPLORE PROGRAMS",
+    "stat_faculty": "EXPERT FACULTY",
+    "stat_alumni": "ACCREDITED PROGRAMS",
+    "stat_research": "FLEXIBLE LEARNING",
+    "stat_global": "AFRICAN ROOTS, GLOBAL VISION"
+  },
+  "about_preview": {
+    "tagline": "About AFERA INNOV ACADEMY",
+    "title": "A Legacy of Excellence in Higher Learning",
+    "desc1": "Founded on the principles of innovation and integrity, AFERA INNOV ACADEMY has been a beacon of knowledge for over two decades. We believe in nurturing talent and providing our students with the tools they need to succeed in a rapidly changing world.",
+    "bullet1": "State-of-the-art research facilities",
+    "bullet2": "Industry-aligned curriculum",
+    "bullet3": "Global exchange programs",
+    "learn_more": "Learn More About Us",
+    "years_experience": "Years of Academic Excellence"
+  }
+}

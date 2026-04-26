@@ -1,0 +1,48 @@
+{
+  "common": {
+    "welcome": "Bem-vindo à AFERA INNOV ACADEMY",
+    "apply_now": "Inscreva-se Agora",
+    "register": "Registrar",
+    "login": "Entrar",
+    "courses": "Cursos",
+    "workshops": "Workshops",
+    "contact": "Contato",
+    "about_us": "Sobre Nós",
+    "home": "Início",
+    "student_portal": "Portal do Aluno",
+    "admin": "Painel de Administração",
+    "student": "Painel do Aluno",
+    "language": "Idioma",
+    "read_more": "Leia Mais"
+  },
+  "navbar": {
+    "home": "Início",
+    "about": "Sobre Nós",
+    "courses": "Cursos",
+    "workshops": "Workshops",
+    "contact": "Contato",
+    "login": "Entrar",
+    "apply": "Inscreva-se"
+  },
+  "hero": {
+    "welcome": "Bem-vindo à AFERA INNOV ACADEMY",
+    "title1": "Comece sua carreira &",
+    "title2": "siga sua paixão",
+    "subtitle": "Descubra um mundo de oportunidades com nossos programas de ponta projetados para o futuro. Junte-se a uma comunidade que promove a inovação e a excelência.",
+    "apply": "Inscreva-se Agora",
+    "view_programs": "Ver Programas",
+    "stat_faculty": "Corpo Docente Especializado",
+    "stat_alumni": "Ex-alunos Globais",
+    "stat_research": "Centros de Pesquisa"
+  },
+  "about_preview": {
+    "tagline": "Sobre a AFERA INNOV ACADEMY",
+    "title": "Um Legado de Excelência no Ensino Superior",
+    "desc1": "Fundada nos princípios de inovação e integridade, a AFERA INNOV ACADEMY é um farol de conhecimento há mais de duas décadas. Acreditamos em nutrir talentos e fornecer aos nossos alunos as ferramentas de que precisam para ter sucesso em um mundo em rápida mudança.",
+    "bullet1": "Instalações de pesquisa de última geração",
+    "bullet2": "Currículo alinhado com a indústria",
+    "bullet3": "Programas de intercâmbio global",
+    "learn_more": "Saiba Mais Sobre Nós",
+    "years_experience": "Anos de Excelência Acadêmica"
+  }
+}

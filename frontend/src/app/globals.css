@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy-50: #e6e9ed;
+  --color-navy-100: #ccd2db;
+  --color-navy-200: #99a5b7;
+  --color-navy-300: #667893;
+  --color-navy-400: #334b6f;
+  --color-navy-500: #001e4b;
+  --color-navy-600: #00183c;
+  --color-navy-700: #00122d;
+  --color-navy-800: #000c1e;
+  --color-navy-900: #00060f;
+
+  --color-primary: #051A31;
+  --color-primary-foreground: #ffffff;
+  --color-accent: #E7AB33;
+  --color-accent-foreground: #051A31;
+  --color-muted: #F3F4F6;
+  --color-muted-foreground: #64748b;
+  --color-background: #ffffff;
+  --color-foreground: #020617;
+
+  --font-inter: var(--font-inter);
+  --font-poppins: var(--font-poppins);
+
+  --shadow-premium: 0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 4px 10px -5px rgba(0, 0, 0, 0.05);
+
+  --radius-lg: 0.5rem;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #020617;
+  --primary: #051A31;
+  --primary-foreground: #ffffff;
+  --accent: #E7AB33;
+  --accent-foreground: #051A31;
+  --muted: #F3F4F6;
+  --muted-foreground: #64748b;
+}
+
+.dark {
+  --background: #020617;
+  --foreground: #f8fafc;
+  --primary: #1e293b;
+  --primary-foreground: #f8fafc;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+}
+
+@layer base {
+  * {
+    @apply border-gray-200;
+  }
+  body {
+    @apply bg-background text-foreground font-inter antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-poppins font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+  .glass-nav {
+    @apply sticky top-0 z-50 w-full border-b border-white/10 bg-white/70 backdrop-blur-md dark:bg-slate-900/70;
+  }
+  
+  .container-custom {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .premium-card {
+    @apply overflow-hidden rounded-xl border bg-white shadow-premium transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:bg-slate-900;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all hover:bg-navy-600 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center rounded-lg bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-all hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2;
+  }
+}

@@ -1,0 +1,2 @@
+Admin: admin@afera.edu / admin123
+Professor: john@afera.edu / lecturer123
