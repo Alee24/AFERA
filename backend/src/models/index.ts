@@ -10,23 +10,23 @@ import CourseModule from './CourseModule';
 import Contact from './Contact';
 
 // ===== 1. AUTH & ROLES =====
-export class Role extends Model { public id!: string; public name!: string; }
+class Role extends Model { public id!: string; public name!: string; }
 Role.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   name: { type: DataTypes.STRING, unique: true, allowNull: false }
 }, { sequelize, modelName: 'Role', tableName: 'roles', underscored: true });
 
-export class Permission extends Model { public id!: string; public name!: string; }
+class Permission extends Model { public id!: string; public name!: string; }
 Permission.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   name: { type: DataTypes.STRING, unique: true, allowNull: false }
 }, { sequelize, modelName: 'Permission', tableName: 'permissions', underscored: true });
 
-export class RolePermission extends Model {}
+class RolePermission extends Model {}
 RolePermission.init({}, { sequelize, modelName: 'RolePermission', tableName: 'role_permissions', underscored: true });
 
 // ===== 2. STUDENT MANAGEMENT =====
-export class Student extends Model {
+class Student extends Model {
   public id!: string;
   public user_id!: string;
   public admission_number!: string;
@@ -43,7 +43,7 @@ Student.init({
   status: { type: DataTypes.ENUM('active', 'graduated', 'suspended'), defaultValue: 'active' },
 }, { sequelize, modelName: 'Student', tableName: 'students', underscored: true });
 
-export class StudentDocument extends Model {}
+class StudentDocument extends Model {}
 StudentDocument.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   document_type: { type: DataTypes.STRING },
@@ -51,7 +51,7 @@ StudentDocument.init({
 }, { sequelize, modelName: 'StudentDocument', tableName: 'student_documents', underscored: true });
 
 // ===== 3. STAFF =====
-export class Staff extends Model {
+class Staff extends Model {
   public id!: string;
   public user_id!: string;
   public staff_number!: string;
@@ -64,7 +64,7 @@ Staff.init({
 }, { sequelize, modelName: 'Staff', tableName: 'staff', underscored: true });
 
 // ===== 4. ENROLLMENT & REGISTRATION =====
-export class Enrollment extends Model {
+class Enrollment extends Model {
   public id!: string;
   public student_id!: string;
   public program_id!: string;
@@ -76,21 +76,21 @@ Enrollment.init({
   status: { type: DataTypes.STRING, defaultValue: 'enrolled' },
 }, { sequelize, modelName: 'Enrollment', tableName: 'enrollments', underscored: true });
 
-export class CourseRegistration extends Model {}
+class CourseRegistration extends Model {}
 CourseRegistration.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   registration_date: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
 }, { sequelize, modelName: 'CourseRegistration', tableName: 'course_registrations', underscored: true });
 
 // ===== 5. GRADING =====
-export class Assessment extends Model {}
+class Assessment extends Model {}
 Assessment.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   type: { type: DataTypes.ENUM('CAT', 'Exam', 'Assignment'), allowNull: false },
   total_marks: { type: DataTypes.INTEGER, defaultValue: 100 },
 }, { sequelize, modelName: 'Assessment', tableName: 'assessments', underscored: true });
 
-export class Grade extends Model {}
+class Grade extends Model {}
 Grade.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   score: { type: DataTypes.DECIMAL(5, 2) },
@@ -99,7 +99,7 @@ Grade.init({
 }, { sequelize, modelName: 'Grade', tableName: 'grades', underscored: true });
 
 // ===== 6. ATTENDANCE =====
-export class Attendance extends Model {}
+class Attendance extends Model {}
 Attendance.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   date: { type: DataTypes.DATEONLY, allowNull: false },
@@ -107,14 +107,14 @@ Attendance.init({
 }, { sequelize, modelName: 'Attendance', tableName: 'attendance', underscored: true });
 
 // ===== 7. ONLINE LEARNING (LMS) =====
-export class OnlineCourse extends Model { public id!: string; public is_active!: boolean; }
+class OnlineCourse extends Model { public id!: string; public is_active!: boolean; }
 OnlineCourse.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   platform_link: { type: DataTypes.STRING },
   is_active: { type: DataTypes.BOOLEAN, defaultValue: true },
 }, { sequelize, modelName: 'OnlineCourse', tableName: 'online_courses', underscored: true });
 
-export class Lesson extends Model {}
+class Lesson extends Model {}
 Lesson.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   title: { type: DataTypes.STRING, allowNull: false },
@@ -122,14 +122,14 @@ Lesson.init({
   content: { type: DataTypes.TEXT },
 }, { sequelize, modelName: 'Lesson', tableName: 'lessons', underscored: true });
 
-export class LessonProgress extends Model {}
+class LessonProgress extends Model {}
 LessonProgress.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   completed: { type: DataTypes.BOOLEAN, defaultValue: false },
 }, { sequelize, modelName: 'LessonProgress', tableName: 'lesson_progress', underscored: true });
 
 // ===== 8. SUPPORT & SYSTEM =====
-export class Message extends Model {}
+class Message extends Model {}
 Message.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   sender_id: { type: DataTypes.UUID, allowNull: false },
@@ -138,7 +138,7 @@ Message.init({
   is_read: { type: DataTypes.BOOLEAN, defaultValue: false },
 }, { sequelize, modelName: 'Message', tableName: 'messages', underscored: true });
 
-export class Notification extends Model {}
+class Notification extends Model {}
 Notification.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   user_id: { type: DataTypes.UUID, allowNull: false },
@@ -147,7 +147,7 @@ Notification.init({
   is_read: { type: DataTypes.BOOLEAN, defaultValue: false },
 }, { sequelize, modelName: 'Notification', tableName: 'notifications', underscored: true, timestamps: true });
 
-export class ActivityLog extends Model {}
+class ActivityLog extends Model {}
 ActivityLog.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   user_id: { type: DataTypes.UUID, allowNull: false },
@@ -242,6 +242,7 @@ export {
   User, Course, CourseModule, Contact, Faculty, Department, Program, 
   CourseUnit, Class, FeeStructure, Invoice, Payment, Post, File,
   Message, Notification, ActivityLog, OnlineCourse, Lesson, LessonProgress,
-  Enrollment, Student, Staff, Grade, Assessment, Attendance, CourseRegistration
+  Enrollment, Student, Staff, Grade, Assessment, Attendance, CourseRegistration,
+  Role, Permission, RolePermission, StudentDocument
 };
 export default sequelize;
