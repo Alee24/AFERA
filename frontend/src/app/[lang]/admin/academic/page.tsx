@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ShieldCheck, 
   Plus, 
@@ -16,12 +16,35 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { motion } from 'framer-motion';
+import api from '@/lib/api';
 
 export default function AdminAcademicPage() {
-  const [faculties, setFaculties] = useState([
-    { id: '1', name: 'Faculty of Road Infrastructure & Finance', departments: 2, programs: 5 },
-    { id: '2', name: 'Faculty of Transport Technology', departments: 1, programs: 3 },
-  ]);
+  const [faculties, setFaculties] = useState<any[]>([]);
+  const [stats, setStats] = useState({
+    faculties: 0,
+    departments: 0,
+    degreeLevels: 0,
+    activePrograms: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [facsRes, statsRes] = await Promise.all([
+          api.get('/academic/faculties'),
+          api.get('/academic/stats')
+        ]);
+        setFaculties(facsRes.data);
+        setStats(statsRes.data);
+      } catch (err) {
+        console.error('Failed to fetch academic data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="space-y-10">
@@ -41,10 +64,10 @@ export default function AdminAcademicPage() {
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
          {[
-           { label: 'Faculties', count: '02', icon: Building2 },
-           { label: 'Departments', count: '06', icon: Box },
-           { label: 'Degree Levels', count: '03', icon: ShieldCheck },
-           { label: 'Active Programs', count: '14', icon: GraduationCap }
+           { label: 'Faculties', count: stats.faculties.toString().padStart(2, '0'), icon: Building2 },
+           { label: 'Departments', count: stats.departments.toString().padStart(2, '0'), icon: Box },
+           { label: 'Degree Levels', count: stats.degreeLevels.toString().padStart(2, '0'), icon: ShieldCheck },
+           { label: 'Active Programs', count: stats.activePrograms.toString().padStart(2, '0'), icon: GraduationCap }
          ].map((stat, i) => (
             <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center space-x-4">
                <div className="w-12 h-12 bg-gray-50 dark:bg-slate-800 rounded-xl flex items-center justify-center text-primary">
@@ -71,8 +94,12 @@ export default function AdminAcademicPage() {
             </div>
          </div>
 
-         <div className="p-8 space-y-6">
-            {faculties.map((faculty, i) => (
+          <div className="p-8 space-y-6">
+            {loading ? (
+              <div className="text-center py-10 text-gray-400 font-bold uppercase tracking-widest animate-pulse">Loading Institutional Data...</div>
+            ) : faculties.length === 0 ? (
+              <div className="text-center py-10 text-gray-400 font-bold uppercase tracking-widest">No faculties defined.</div>
+            ) : faculties.map((faculty, i) => (
               <div key={faculty.id} className="group border border-gray-50 dark:border-slate-800 rounded-[32px] overflow-hidden hover:border-primary/20 transition-all">
                  <div className="p-6 flex items-center justify-between bg-white dark:bg-slate-900">
                     <div className="flex items-center space-x-6">
@@ -82,8 +109,8 @@ export default function AdminAcademicPage() {
                        <div>
                           <h4 className="text-lg font-bold text-primary dark:text-white">{faculty.name}</h4>
                           <div className="flex items-center space-x-4 mt-1">
-                             <span className="text-xs text-gray-400 font-medium flex items-center"><Box size={14} className="mr-1.5" /> {faculty.departments} Departments</span>
-                             <span className="text-xs text-gray-400 font-medium flex items-center"><GraduationCap size={14} className="mr-1.5" /> {faculty.programs} Active Programs</span>
+                             <span className="text-xs text-gray-400 font-medium flex items-center"><Box size={14} className="mr-1.5" /> {faculty.Departments?.length || 0} Departments</span>
+                             <span className="text-xs text-gray-400 font-medium flex items-center"><GraduationCap size={14} className="mr-1.5" /> {faculty.Departments?.reduce((acc: number, dept: any) => acc + (dept.Programs?.length || 0), 0)} Active Programs</span>
                           </div>
                        </div>
                     </div>
@@ -94,28 +121,23 @@ export default function AdminAcademicPage() {
                     </div>
                  </div>
                  
-                 {/* Visual Hierarchy Line - Simplified for Preview */}
-                 {i === 0 && (
+                 {/* Visual Hierarchy Line - Rendering departments if any */}
+                 {faculty.Departments && faculty.Departments.length > 0 && (
                    <div className="px-10 pb-8 space-y-4 border-t border-gray-50 dark:border-slate-800 bg-gray-50/20 pt-6">
-                      <div className="flex items-center space-x-4 ml-8">
-                         <div className="w-8 h-8 border-l-2 border-b-2 border-gray-200 rounded-bl-xl"></div>
-                         <div className="flex-1 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-50 flex items-center justify-between">
-                            <span className="text-sm font-bold text-primary">Department of Infrastructure Finance</span>
-                            <span className="text-[10px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded font-black uppercase">Active</span>
-                         </div>
-                      </div>
-                      <div className="flex items-center space-x-4 ml-8">
-                         <div className="w-8 h-8 border-l-2 border-b-2 border-gray-200 rounded-bl-xl"></div>
-                         <div className="flex-1 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-50 flex items-center justify-between">
-                            <span className="text-sm font-bold text-primary">Department of Public Policy</span>
-                            <span className="text-[10px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded font-black uppercase">Active</span>
-                         </div>
-                      </div>
+                      {faculty.Departments.map((dept: any) => (
+                        <div key={dept.id} className="flex items-center space-x-4 ml-8">
+                           <div className="w-8 h-8 border-l-2 border-b-2 border-gray-200 rounded-bl-xl"></div>
+                           <div className="flex-1 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-50 flex items-center justify-between">
+                              <span className="text-sm font-bold text-primary">{dept.name}</span>
+                              <span className="text-[10px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded font-black uppercase">Active</span>
+                           </div>
+                        </div>
+                      ))}
                    </div>
                  )}
               </div>
             ))}
-         </div>
+          </div>
       </div>
 
       {/* Information Panel */}

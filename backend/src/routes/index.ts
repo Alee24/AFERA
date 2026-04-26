@@ -47,4 +47,9 @@ router.post('/contacts', contactController.submitContact);
 router.get('/contacts', authenticateJWT, authorizeRole(['admin']), contactController.getContacts);
 router.put('/contacts/:id', authenticateJWT, authorizeRole(['admin']), contactController.updateContactStatus);
 
+// ===== ACADEMIC =====
+router.get('/academic/faculties', academicController.getFaculties);
+router.post('/academic/faculties', authenticateJWT, authorizeRole(['admin']), academicController.createFaculty);
+router.get('/academic/stats', academicController.getAcademicStats);
+
 export default router;
