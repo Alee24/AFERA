@@ -40,7 +40,7 @@ Student.init({
   gender: { type: DataTypes.STRING },
   nationality: { type: DataTypes.STRING },
   enrollment_date: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-  status: { type: DataTypes.ENUM('active', 'graduated', 'suspended'), defaultValue: 'active' },
+  status: { type: DataTypes.ENUM('active', 'pending', 'graduated', 'suspended', 'inactive'), defaultValue: 'pending' },
 }, { sequelize, modelName: 'Student', tableName: 'students', underscored: true });
 
 class StudentDocument extends Model {}
@@ -73,7 +73,7 @@ class Enrollment extends Model {
 Enrollment.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   academic_year: { type: DataTypes.STRING },
-  status: { type: DataTypes.STRING, defaultValue: 'enrolled' },
+  status: { type: DataTypes.ENUM('enrolled', 'pending_approval', 'withdrawn', 'completed'), defaultValue: 'pending_approval' },
 }, { sequelize, modelName: 'Enrollment', tableName: 'enrollments', underscored: true });
 
 class CourseRegistration extends Model {}
