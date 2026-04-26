@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useNotification } from '@/lib/NotificationContext';
-import axios from 'axios';
+import api from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AdminCoursesPage() {
@@ -43,7 +43,7 @@ export default function AdminCoursesPage() {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get('/api/courses');
+      const res = await api.get('/courses');
       setCourses(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       showNotification('Failed to load courses', 'error');
@@ -56,10 +56,10 @@ export default function AdminCoursesPage() {
     e.preventDefault();
     try {
       if (currentCourse) {
-        await axios.put(`/api/courses/${currentCourse.id}`, formData);
+        await api.put(`/courses/${currentCourse.id}`, formData);
         showNotification('Course updated successfully', 'success');
       } else {
-        await axios.post('/api/courses', {
+        await api.post('/courses', {
           ...formData,
           title_fr: formData.title_en,
           title_pt: formData.title_en,
@@ -70,19 +70,21 @@ export default function AdminCoursesPage() {
       }
       setIsModalOpen(false);
       fetchCourses();
-    } catch (err) {
-      showNotification('Operation failed', 'error');
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Operation failed';
+      showNotification(msg, 'error');
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this course?')) return;
     try {
-      await axios.delete(`/api/courses/${id}`);
+      await api.delete(`/courses/${id}`);
       showNotification('Course deleted', 'success');
       fetchCourses();
-    } catch (err) {
-      showNotification('Failed to delete course', 'error');
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Failed to delete course';
+      showNotification(msg, 'error');
     }
   };
 

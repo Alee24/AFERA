@@ -184,6 +184,8 @@ CourseUnit.hasMany(Class, { foreignKey: 'course_unit_id' });
 Class.belongsTo(CourseUnit, { foreignKey: 'course_unit_id' });
 Staff.hasMany(Class, { foreignKey: 'lecturer_id' });
 Class.belongsTo(Staff, { foreignKey: 'lecturer_id' });
+Course.hasMany(CourseModule, { foreignKey: 'course_id', as: 'Modules' });
+CourseModule.belongsTo(Course, { foreignKey: 'course_id' });
 
 // Enrollment
 Student.hasMany(Enrollment, { foreignKey: 'student_id' });
