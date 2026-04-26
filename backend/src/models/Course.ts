@@ -11,9 +11,11 @@ class Course extends Model {
   public title_en!: string;
   public title_fr!: string;
   public title_pt!: string;
+  public title_sw!: string;
   public description_en!: string;
   public description_fr!: string;
   public description_pt!: string;
+  public description_sw!: string;
   public price!: number;
   public duration!: string;
   public modality!: string;
@@ -32,9 +34,11 @@ Course.init({
   title_en: { type: DataTypes.STRING, allowNull: false },
   title_fr: { type: DataTypes.STRING },
   title_pt: { type: DataTypes.STRING },
+  title_sw: { type: DataTypes.STRING },
   description_en: { type: DataTypes.TEXT, allowNull: false },
   description_fr: { type: DataTypes.TEXT },
   description_pt: { type: DataTypes.TEXT },
+  description_sw: { type: DataTypes.TEXT },
   
   // Metadata (Existing)
   price: { type: DataTypes.DECIMAL(10, 2), defaultValue: 800.00 },
