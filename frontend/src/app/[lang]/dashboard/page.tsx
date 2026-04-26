@@ -143,7 +143,27 @@ export default function StudentDashboard() {
                               <div className="h-full bg-accent" style={{ width: '45%' }}></div>
                            </div>
                         </div>
-                        <div className="mt-4 sm:mt-0 sm:ml-6">
+                        <div className="mt-4 sm:mt-0 sm:ml-6 flex items-center space-x-3">
+                           {/* LMS Link Integration */}
+                           {course.title_en?.includes('Results-Based Management') && (
+                              <a 
+                                href="https://aferaacademy.africa/course/view.php?id=26" 
+                                target="_blank" 
+                                className="px-4 py-2 bg-accent/10 text-accent font-bold text-xs rounded-xl hover:bg-accent hover:text-white transition-all whitespace-nowrap"
+                              >
+                                Go to Learning Portal
+                              </a>
+                           )}
+                           {course.title_en?.includes('Resource Mobilization') && (
+                              <a 
+                                href="https://aferaacademy.africa/course/view.php?id=34" 
+                                target="_blank" 
+                                className="px-4 py-2 bg-accent/10 text-accent font-bold text-xs rounded-xl hover:bg-accent hover:text-white transition-all whitespace-nowrap"
+                              >
+                                Go to Learning Portal
+                              </a>
+                           )}
+                           
                            <button className="p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm text-primary hover:bg-primary hover:text-white transition-all">
                               <PlayCircle size={20} />
                            </button>
