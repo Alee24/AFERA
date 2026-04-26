@@ -30,6 +30,7 @@ export default function AdminCoursesPage() {
   const [formData, setFormData] = useState({
     title_en: '',
     description_en: '',
+    content_en: '',
     department: '',
     duration: '',
     price: 800,
@@ -63,8 +64,13 @@ export default function AdminCoursesPage() {
           ...formData,
           title_fr: formData.title_en,
           title_pt: formData.title_en,
+          title_sw: formData.title_en,
           description_fr: formData.description_en,
-          description_pt: formData.description_en
+          description_pt: formData.description_en,
+          description_sw: formData.description_en,
+          content_fr: formData.content_en,
+          content_pt: formData.content_en,
+          content_sw: formData.content_en
         });
         showNotification('Course created successfully', 'success');
       }
@@ -91,13 +97,14 @@ export default function AdminCoursesPage() {
   const openEdit = (course: any) => {
     setCurrentCourse(course);
     setFormData({
-      title_en: course.title_en,
-      description_en: course.description_en,
-      department: course.department,
-      duration: course.duration,
-      price: course.price,
-      course_type: course.course_type,
-      modality: course.modality
+      title_en: course.title_en || '',
+      description_en: course.description_en || '',
+      content_en: course.content_en || '',
+      department: course.department || '',
+      duration: course.duration || '',
+      price: course.price || 800,
+      course_type: course.course_type || 'Certificate',
+      modality: course.modality || 'Online'
     });
     setIsModalOpen(true);
   };
@@ -107,6 +114,7 @@ export default function AdminCoursesPage() {
     setFormData({
       title_en: '',
       description_en: '',
+      content_en: '',
       department: '',
       duration: '',
       price: 800,
@@ -249,13 +257,23 @@ export default function AdminCoursesPage() {
                     </div>
                     
                     <div className="md:col-span-2">
-                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Description (EN)</label>
+                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Description (Short)</label>
                        <textarea 
-                         required
-                         className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[100px]" 
-                         placeholder="Describe the program objectives..."
-                         value={formData.description_en}
-                         onChange={(e) => setFormData({...formData, description_en: e.target.value})}
+                          required
+                          className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[80px]" 
+                          placeholder="Brief summary..."
+                          value={formData.description_en}
+                          onChange={(e) => setFormData({...formData, description_en: e.target.value})}
+                       />
+                    </div>
+
+                    <div className="md:col-span-2">
+                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Full Program Content (Syllabus/Details)</label>
+                       <textarea 
+                          className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[150px]" 
+                          placeholder="Enter full course details, syllabus, or academic content..."
+                          value={formData.content_en}
+                          onChange={(e) => setFormData({...formData, content_en: e.target.value})}
                        />
                     </div>
 

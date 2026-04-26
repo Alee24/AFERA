@@ -15,10 +15,13 @@ router.post('/auth/login', authController.login);
 
 // ===== USER =====
 router.get('/users/me', authenticateJWT, userController.getMe);
+router.put('/users/profile', authenticateJWT, userController.updateProfile);
 router.get('/users', authenticateJWT, authorizeRole(['admin']), userController.getAllUsers);
 router.put('/users/:id', authenticateJWT, authorizeRole(['admin']), userController.updateUser);
 router.delete('/users/:id', authenticateJWT, authorizeRole(['admin']), userController.deleteUser);
 router.get('/admin/stats', authenticateJWT, authorizeRole(['admin']), userController.getAdminStats);
+router.get('/admin/admissions', authenticateJWT, authorizeRole(['admin']), courseController.getAdmissions);
+router.put('/admin/admissions/:id', authenticateJWT, authorizeRole(['admin']), courseController.updateEnrollmentStatus);
 
 // ===== COURSES =====
 router.get('/courses', courseController.getCourses);

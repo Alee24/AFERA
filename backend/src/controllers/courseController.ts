@@ -130,3 +130,36 @@ export const getMyEnrollments = async (req: any, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// GET /api/admin/admissions
+export const getAdmissions = async (req: Request, res: Response) => {
+  try {
+    const enrollments = await Enrollment.findAll({
+      include: [
+        {
+          model: Student,
+          include: [{ model: User, attributes: ['first_name', 'last_name', 'email', 'phone'] }]
+        },
+        { model: Program }
+      ],
+      order: [['created_at', 'DESC']]
+    });
+    res.json(enrollments);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// PUT /api/admin/admissions/:id
+export const updateEnrollmentStatus = async (req: Request, res: Response) => {
+  try {
+    const { status } = req.body;
+    const enrollment = await Enrollment.findByPk(req.params.id as string);
+    if (!enrollment) return res.status(404).json({ message: 'Enrollment not found' });
+
+    await enrollment.update({ status });
+    res.json({ message: `Enrollment ${status} successfully` });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};

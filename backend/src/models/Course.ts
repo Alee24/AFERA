@@ -16,6 +16,10 @@ class Course extends Model {
   public description_fr!: string;
   public description_pt!: string;
   public description_sw!: string;
+  public content_en!: string;
+  public content_fr!: string;
+  public content_pt!: string;
+  public content_sw!: string;
   public price!: number;
   public duration!: string;
   public modality!: string;
@@ -39,6 +43,10 @@ Course.init({
   description_fr: { type: DataTypes.TEXT },
   description_pt: { type: DataTypes.TEXT },
   description_sw: { type: DataTypes.TEXT },
+  content_en: { type: DataTypes.TEXT },
+  content_fr: { type: DataTypes.TEXT },
+  content_pt: { type: DataTypes.TEXT },
+  content_sw: { type: DataTypes.TEXT },
   
   // Metadata (Existing)
   price: { type: DataTypes.DECIMAL(10, 2), defaultValue: 800.00 },

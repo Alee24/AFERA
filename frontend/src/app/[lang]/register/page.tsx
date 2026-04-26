@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useNotification } from '@/lib/NotificationContext';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/Button';
@@ -19,14 +19,21 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const { showNotification } = useNotification();
   const router = useRouter();
+  const { lang } = useParams();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post('/auth/register', { name, email, password, program, role: 'student' });
-      showNotification('Application submitted successfully! You can now log in to check your status.', 'success');
-      router.push(`/${i18n.language}/login`);
+      const res = await api.post('/auth/register', { name, email, password, program, role: 'student' });
+      const { token, user } = res.data;
+      
+      // Save token and user info
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      showNotification('Registration successful! Please complete your biodata.', 'success');
+      router.push(`/${lang}/onboarding`);
     } catch (err: any) {
       // Strict requirement: show actual errors
       const errMsg = err.response?.data?.message || err.message || 'Registration failed. Please try again.';

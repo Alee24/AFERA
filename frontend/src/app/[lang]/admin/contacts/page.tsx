@@ -139,28 +139,33 @@ export default function AdminContactsPage() {
                  </div>
               </div>
 
-              {/* Header */}
-              <div className="p-10 border-b border-gray-50">
-                 <div className="flex items-start justify-between mb-8">
-                    <div className="flex items-center space-x-6">
-                       <div className="w-16 h-16 bg-accent text-white rounded-3xl flex items-center justify-center text-2xl font-black shadow-xl shadow-accent/20">
-                          {selectedContact.name[0]}
-                       </div>
-                       <div>
-                          <h2 className="text-2xl font-bold text-primary dark:text-white mb-1">{selectedContact.name}</h2>
-                          <p className="text-sm text-gray-400 flex items-center">
-                             <Mail size={14} className="mr-2" /> {selectedContact.email}
-                          </p>
-                       </div>
-                    </div>
-                    <div className="text-right">
-                       <p className="text-sm font-bold text-primary dark:text-white">
-                          {new Date(selectedContact.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-                       </p>
-                       <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1">Received • System Portal</p>
-                    </div>
-                 </div>
-              </div>
+               {/* Header */}
+               <div className="p-10 border-b border-gray-50">
+                  <div className="flex items-start justify-between mb-8">
+                     <div className="flex items-center space-x-6">
+                        <div className="w-16 h-16 bg-accent text-white rounded-3xl flex items-center justify-center text-2xl font-black shadow-xl shadow-accent/20">
+                           {selectedContact.name[0]}
+                        </div>
+                        <div>
+                           <h2 className="text-2xl font-bold text-primary dark:text-white mb-1">{selectedContact.name}</h2>
+                           <p className="text-sm text-gray-400 flex items-center">
+                              <Mail size={14} className="mr-2" /> {selectedContact.email}
+                           </p>
+                        </div>
+                     </div>
+                     <div className="text-right">
+                        <p className="text-sm font-bold text-primary dark:text-white">
+                           {new Date(selectedContact.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </p>
+                        <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1">Received • System Portal</p>
+                     </div>
+                  </div>
+                  
+                  <div className="bg-primary/5 rounded-2xl p-6 border border-primary/5">
+                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Subject</p>
+                     <h4 className="text-xl font-bold text-primary">{selectedContact.subject}</h4>
+                  </div>
+               </div>
 
               {/* Body */}
               <div className="p-12 flex-1 overflow-y-auto">

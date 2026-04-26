@@ -32,11 +32,8 @@ export default function AdminApplicationsPage() {
 
   const fetchApplications = async () => {
     try {
-      // In a real system, we'd fetch from /api/admin/applications
-      // For now, we fetch users with 'student' role as they represent applicants
-      const res = await api.get('/users');
-      const students = res.data.filter((u: any) => u.role === 'student');
-      setApplications(students);
+      const res = await api.get('/admin/admissions');
+      setApplications(res.data);
     } catch (err) {
       showNotification('Failed to load applications', 'error');
     } finally {
@@ -46,8 +43,8 @@ export default function AdminApplicationsPage() {
 
   const handleStatusUpdate = async (id: string, status: string) => {
     try {
-      await api.put(`/users/${id}`, { status });
-      showNotification(`Application ${status === 'active' ? 'approved' : 'rejected'} successfully`, 'success');
+      await api.put(`/admin/admissions/${id}`, { status });
+      showNotification(`Application ${status} successfully`, 'success');
       fetchApplications();
     } catch (err) {
       showNotification('Operation failed', 'error');
@@ -56,6 +53,87 @@ export default function AdminApplicationsPage() {
 
   return (
     <div className="space-y-10">
+      {/* Detail Modal */}
+      <AnimatePresence>
+        {selectedApp && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-primary/40 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[40px] shadow-2xl overflow-hidden"
+            >
+              <div className="p-8 md:p-12">
+                <div className="flex justify-between items-start mb-10">
+                   <div className="flex items-center space-x-6">
+                      <div className="w-20 h-20 bg-primary text-white rounded-3xl flex items-center justify-center text-3xl font-black shadow-xl">
+                         {selectedApp.Student?.User?.first_name?.[0]}{selectedApp.Student?.User?.last_name?.[0]}
+                      </div>
+                      <div>
+                         <h2 className="text-3xl font-bold text-primary dark:text-white">
+                            {selectedApp.Student?.User?.first_name} {selectedApp.Student?.User?.last_name}
+                         </h2>
+                         <p className="text-gray-400 font-medium">Applied for {selectedApp.Program?.name}</p>
+                      </div>
+                   </div>
+                   <button 
+                     onClick={() => setSelectedApp(null)}
+                     className="w-12 h-12 bg-gray-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-gray-400 hover:text-primary transition-colors"
+                   >
+                      <XCircle size={24} />
+                   </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-8 mb-10">
+                   <div className="space-y-1">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email Address</p>
+                      <p className="font-bold text-primary dark:text-white">{selectedApp.Student?.User?.email}</p>
+                   </div>
+                   <div className="space-y-1">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Phone Number</p>
+                      <p className="font-bold text-primary dark:text-white">{selectedApp.Student?.User?.phone || 'N/A'}</p>
+                   </div>
+                   <div className="space-y-1">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nationality</p>
+                      <p className="font-bold text-primary dark:text-white">{selectedApp.Student?.nationality || 'N/A'}</p>
+                   </div>
+                   <div className="space-y-1">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Gender</p>
+                      <p className="font-bold text-primary dark:text-white capitalize">{selectedApp.Student?.gender || 'N/A'}</p>
+                   </div>
+                   <div className="space-y-1">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Date of Birth</p>
+                      <p className="font-bold text-primary dark:text-white">
+                         {selectedApp.Student?.date_of_birth ? new Date(selectedApp.Student.date_of_birth).toLocaleDateString() : 'N/A'}
+                      </p>
+                   </div>
+                   <div className="space-y-1">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Admission Number</p>
+                      <p className="font-bold text-accent">{selectedApp.Student?.admission_number}</p>
+                   </div>
+                </div>
+
+                <div className="flex space-x-4">
+                   <Button 
+                     onClick={() => { handleStatusUpdate(selectedApp.id, 'enrolled'); setSelectedApp(null); }}
+                     className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl py-4 font-bold uppercase tracking-widest shadow-lg shadow-emerald-600/20"
+                   >
+                      Approve & Enroll
+                   </Button>
+                   <Button 
+                     onClick={() => { handleStatusUpdate(selectedApp.id, 'withdrawn'); setSelectedApp(null); }}
+                     variant="outline"
+                     className="flex-1 border-red-100 text-red-600 hover:bg-red-50 rounded-2xl py-4 font-bold uppercase tracking-widest"
+                   >
+                      Reject Application
+                   </Button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
@@ -115,18 +193,20 @@ export default function AdminApplicationsPage() {
                       <td className="px-10 py-8">
                          <div className="flex items-center space-x-4">
                             <div className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center font-bold text-lg shadow-inner">
-                               {app.first_name?.[0]}{app.last_name?.[0]}
+                               {app.Student?.User?.first_name?.[0]}{app.Student?.User?.last_name?.[0]}
                             </div>
                             <div>
-                               <p className="font-bold text-primary dark:text-white">{app.first_name} {app.last_name}</p>
-                               <p className="text-xs text-gray-400 mt-0.5">{app.email}</p>
+                               <p className="font-bold text-primary dark:text-white">
+                                  {app.Student?.User?.first_name} {app.Student?.User?.last_name}
+                               </p>
+                               <p className="text-xs text-gray-400 mt-0.5">{app.Student?.User?.email}</p>
                             </div>
                          </div>
                       </td>
                       <td className="px-10 py-8">
                          <div className="flex flex-col">
                             <span className="text-sm font-bold text-primary dark:text-white line-clamp-1">
-                               {app.StudentProfile?.Enrollments?.[0]?.Program?.name || 'Program Not Selected'}
+                               {app.Program?.name || 'Program Not Selected'}
                             </span>
                             <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">
                                Admissions 2026
@@ -141,29 +221,32 @@ export default function AdminApplicationsPage() {
                       </td>
                       <td className="px-10 py-8">
                          <span className={`text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest ${
-                            app.status === 'active' ? 'bg-emerald-100 text-emerald-600' : 
-                            app.status === 'inactive' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'
+                            app.status === 'enrolled' ? 'bg-emerald-100 text-emerald-600' : 
+                            app.status === 'withdrawn' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'
                          }`}>
-                            {app.status === 'active' ? 'Approved' : app.status === 'inactive' ? 'Rejected' : 'Pending Review'}
+                            {app.status === 'enrolled' ? 'Approved' : app.status === 'withdrawn' ? 'Rejected' : 'Pending Review'}
                          </span>
                       </td>
                       <td className="px-10 py-8 text-right">
                          <div className="flex items-center justify-end space-x-2">
                             <button 
-                              onClick={() => handleStatusUpdate(app.id, 'active')}
+                              onClick={() => handleStatusUpdate(app.id, 'enrolled')}
                               className="p-2.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-xl transition-all shadow-sm"
                               title="Approve Admission"
                             >
                                <CheckCircle2 size={20} />
                             </button>
                             <button 
-                              onClick={() => handleStatusUpdate(app.id, 'inactive')}
+                              onClick={() => handleStatusUpdate(app.id, 'withdrawn')}
                               className="p-2.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-xl transition-all shadow-sm"
                               title="Reject Application"
                             >
                                <XCircle size={20} />
                             </button>
-                            <button className="p-2.5 bg-gray-50 text-gray-400 hover:bg-primary hover:text-white rounded-xl transition-all shadow-sm">
+                            <button 
+                              onClick={() => setSelectedApp(app)}
+                              className="p-2.5 bg-gray-50 text-gray-400 hover:bg-primary hover:text-white rounded-xl transition-all shadow-sm"
+                            >
                                <Eye size={20} />
                             </button>
                          </div>

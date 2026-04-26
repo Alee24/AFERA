@@ -77,3 +77,46 @@ export const getAdminStats = async (req: Request, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// PUT /api/users/profile
+export const updateProfile = async (req: any, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const { first_name, last_name, phone, nationality, gender, date_of_birth } = req.body;
+
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    await user.update({ first_name, last_name, phone });
+
+    let student = await Student.findOne({ where: { user_id: userId } });
+    if (student) {
+      await student.update({ nationality, gender, date_of_birth });
+    }
+
+    res.json({ message: 'Profile updated successfully' });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+// PUT /api/users/profile
+export const updateProfile = async (req: any, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const { first_name, last_name, phone, nationality, gender, date_of_birth } = req.body;
+
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    await user.update({ first_name, last_name, phone });
+
+    let student = await Student.findOne({ where: { user_id: userId } });
+    if (student) {
+      await student.update({ nationality, gender, date_of_birth });
+    }
+
+    res.json({ message: 'Profile updated successfully' });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};

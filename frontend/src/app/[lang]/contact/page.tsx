@@ -5,21 +5,38 @@ import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Mail, Phone, MapPin, Send, CheckCircle2 } from 'lucide-react';
+import axios from '@/lib/api';
 
 export default function ContactPage() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    subject: 'General Inquiry',
+    message: ''
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await axios.post('/api/contacts', {
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message
+      });
       setSubmitted(true);
-      // Reset after 3 seconds
-      setTimeout(() => setSubmitted(false), 3000);
-    }, 1500);
+      // Reset after 5 seconds
+      setTimeout(() => setSubmitted(false), 5000);
+      setFormData({ firstName: '', lastName: '', email: '', subject: 'General Inquiry', message: '' });
+    } catch (err) {
+      console.error('Failed to submit contact form', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -110,6 +127,8 @@ export default function ContactPage() {
                           type="text" 
                           required
                           placeholder="John" 
+                          value={formData.firstName}
+                          onChange={(e) => setFormData({...formData, firstName: e.target.value})}
                           className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
                         />
                       </div>
@@ -119,6 +138,8 @@ export default function ContactPage() {
                           type="text" 
                           required
                           placeholder="Doe" 
+                          value={formData.lastName}
+                          onChange={(e) => setFormData({...formData, lastName: e.target.value})}
                           className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
                         />
                       </div>
@@ -130,13 +151,19 @@ export default function ContactPage() {
                         type="email" 
                         required
                         placeholder="john@example.com" 
+                        value={formData.email}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
                         className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
                       />
                     </div>
 
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Subject</label>
-                      <select className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all">
+                      <select 
+                        value={formData.subject}
+                        onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
+                      >
                         <option>General Inquiry</option>
                         <option>Admissions</option>
                         <option>Academic Programs</option>
@@ -150,6 +177,8 @@ export default function ContactPage() {
                         required
                         rows={5} 
                         placeholder="How can we help you?" 
+                        value={formData.message}
+                        onChange={(e) => setFormData({...formData, message: e.target.value})}
                         className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all resize-none"
                       ></textarea>
                     </div>
