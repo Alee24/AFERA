@@ -1,13 +1,13 @@
 #!/bin/bash
 set -e
-echo "🚀 Starting AFERA VPS Installation..."
+echo "🚀 Starting AFERA VPS Installation with Multi-LMS Compatibility..."
 
 # System Updates
 sudo apt update && sudo apt upgrade -y
 
-echo "🛑 Stopping Apache to free ports for Docker..."
-sudo systemctl stop apache2 || true
-sudo systemctl disable apache2 || true
+echo "✅ Ensuring Apache (Moodle) is running..."
+sudo systemctl start apache2 || true
+sudo systemctl enable apache2 || true
 
 echo "🐳 Installing Docker & Docker Compose..."
 if ! [ -x "$(command -v docker)" ]; then
@@ -21,16 +21,18 @@ echo "📂 Pulling latest code from GitHub..."
 git clone https://github.com/Alee24/AFERA.git
 cd AFERA
 
-echo "🏗️ Building and launching Docker containers..."
+echo "🏗️ Building and launching Docker containers on ports 5454/5455..."
 docker-compose up -d --build
 
 echo "⏳ Waiting for database to be ready..."
-sleep 10
+sleep 15
 
 echo "🗄️ Running Database Migrations & Seeding..."
 docker-compose exec -T backend npm run migrate
 docker-compose exec -T backend npm run seed
 
-echo "✅ AFERA SMS is now fully functional in Docker!"
-echo "🌐 App is available at: https://aferainnov.africa"
-echo "🛠️ Admin Portal: https://aferainnov.africa/en/admin"
+echo "✅ AFERA SMS is now live on secondary ports!"
+echo "🎓 Moodle (Apache) is also back online."
+echo "🌐 App available at: http://aferainnov.africa:5454"
+echo "🌐 Secure URL: https://aferainnov.africa:5455"
+echo "🛠️ Admin Portal: https://aferainnov.africa:5455/en/admin"

@@ -46,8 +46,8 @@ services:
     container_name: afera_proxy
     restart: always
     ports:
-      - "80:80"
-      - "443:443"
+      - "5454:80"
+      - "5455:443"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - certbot_etc:/etc/letsencrypt
