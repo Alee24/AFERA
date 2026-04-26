@@ -55,14 +55,16 @@ sudo bash -c "cat << 'EOF' > /etc/apache2/sites-available/afera-final.conf
     ServerAlias www.\$DOMAIN
 
     ProxyPreserveHost On
+    ProxyAddHeaders On
+    RequestHeader set X-Forwarded-Proto "https"
     
     # API Direct Route (Priority)
-    ProxyPass /api http://localhost:5455/api
-    ProxyPassReverse /api http://localhost:5455/api
+    ProxyPass /api http://127.0.0.1:5455/api
+    ProxyPassReverse /api http://127.0.0.1:5455/api
 
     # Frontend Direct Route
-    ProxyPass / http://localhost:5454/
-    ProxyPassReverse / http://localhost:5454/
+    ProxyPass / http://127.0.0.1:5454/
+    ProxyPassReverse / http://127.0.0.1:5454/
 
     SSLEngine on
     SSLCertificateFile /etc/letsencrypt/live/$DOMAIN/fullchain.pem
