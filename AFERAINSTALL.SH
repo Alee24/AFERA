@@ -18,51 +18,31 @@ sudo apt-get upgrade -y
 if ! [ -x "$(command -v docker)" ]; then
     echo "🐳 Installing Docker..."
     curl -fsSL https://get.docker.com -o get-docker.sh
-    sudo sh get-docker.sh
+    sudo sh get-docker.sh## Error Type
+Runtime ReferenceError
+
+## Error Message
+DollarSign is not defined
+
+
+    at module evaluation (src/components/AdminSidebar.tsx:27:11)
+    at module evaluation (src/app/[lang]/admin/layout.tsx:4:1)
+
+## Code Frame
+  25 |   { icon: BookOpen, label: 'Programs & Courses', href: '/admin/courses' },
+  26 |   { icon: ShieldCheck, label: 'Academic Structure', href: '/admin/academic' },
+> 27 |   { icon: DollarSign, label: 'Finance & Billing', href: '/admin/finance' },
+     |           ^
+  28 |   { icon: MessageSquare, label: 'Contact Inbox', href: '/admin/contacts' },
+  29 |   { icon: FileText, label: 'Strategic Reports', href: '/admin/reports' },
+  30 | ];
+
+Next.js version: 16.2.4 (Turbopack)
+
     sudo usermod -aG docker $USER
 fi
 
-# 3. Install Docker Compose
-if ! [ -x "$(command -v docker-compose)" ]; then
-    echo "📦 Installing Docker Compose..."
-    sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-fi
-
-# 4. Install Apache & Certbot
-echo "🌐 Installing Apache & SSL Tools..."
-sudo apt-get install -y apache2 certbot python3-certbot-apache
-
-# 5. Enable Apache Modules for Reverse Proxy
-sudo a2enmod proxy
-sudo a2enmod proxy_http
-sudo a2enmod ssl
-sudo a2enmod rewrite
-
-# 6. Configure Apache VirtualHost
-echo "⚙️ Configuring Apache Reverse Proxy for aferainnov.africa..."
-cat <<EOF | sudo tee /etc/apache2/sites-available/afera.conf
-<VirtualHost *:80>
-    ServerName aferainnov.africa
-    ServerAlias www.aferainnov.africa
-
-    ProxyPreserveHost On
-    ProxyPass /api http://localhost:5000/api
-    ProxyPassReverse /api http://localhost:5000/api
-    
-    ProxyPass / http://localhost:3000/
-    ProxyPassReverse / http://localhost:3000/
-
-    ErrorLog \${APACHE_LOG_DIR}/afera-error.log
-    CustomLog \${APACHE_LOG_DIR}/afera-access.log combined
-</VirtualHost>
-EOF
-
-sudo a2ensite afera.conf
-sudo a2dissite 000-default.conf
-sudo systemctl restart apache2
-
-# 7. Clone Repository
+# 4. Clone Repository
 echo "📂 Pulling latest code from GitHub..."
 if [ -d "AFERA" ]; then
     sudo rm -rf AFERA
@@ -70,7 +50,7 @@ fi
 git clone https://github.com/Alee24/AFERA.git
 cd AFERA
 
-# 8. Create Production .env files
+# 5. Create Production .env files
 echo "📝 Configuring environment variables..."
 cat <<EOF > backend/.env
 DB_DIALECT=mysql
