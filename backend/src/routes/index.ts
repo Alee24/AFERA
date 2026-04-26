@@ -5,6 +5,7 @@ import * as postController from '../controllers/postController';
 import * as messageController from '../controllers/messageController';
 import * as contactController from '../controllers/contactController';
 import * as userController from '../controllers/userController';
+import * as academicController from '../controllers/academicController';
 import { authenticateJWT, authorizeRole } from '../middleware/auth';
 
 const router = Router();
