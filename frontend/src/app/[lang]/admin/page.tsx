@@ -1,3 +1,19 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { 
+  Users, 
+  UserCheck, 
+  BookOpen, 
+  MessageSquare, 
+  TrendingUp,
+  Clock,
+  MoreVertical,
+  Calendar as CalendarIcon,
+  DollarSign
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useNotification } from '@/lib/NotificationContext';
 import api from '@/lib/api';
 import { cn } from '@/lib/utils';
 
