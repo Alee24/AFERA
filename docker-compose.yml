@@ -8,8 +8,9 @@ services:
     environment:
       MYSQL_DATABASE: afera_sms
       MYSQL_ROOT_PASSWORD: root_password
-    ports:
-      - "3306:3306"
+    # Removed host port mapping to avoid conflict with Moodle/Host MySQL
+    # ports:
+    #   - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
