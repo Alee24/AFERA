@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
 interface User {
@@ -16,6 +15,9 @@ interface User {
     nationality?: string;
     admission_number?: string;
     gender?: string;
+    date_of_birth?: string;
+    status?: string;
+    enrollment_date?: string;
     professional_profile?: string;
   };
 }
@@ -24,6 +26,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (userData: User, token: string) => void;
+  updateUser: (userData: Partial<User>) => void;
   logout: () => void;
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -47,8 +50,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
         setToken(storedToken);
-        // Set axios default header
-        axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
       } catch (err) {
         console.error('Failed to parse stored user', err);
         localStorage.removeItem('afera_user');
@@ -63,7 +64,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(authToken);
     localStorage.setItem('afera_user', JSON.stringify(userData));
     localStorage.setItem('afera_token', authToken);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+  };
+
+  const updateUser = (userData: Partial<User>) => {
+    if (user) {
+      const updatedUser = { ...user, ...userData };
+      setUser(updatedUser);
+      localStorage.setItem('afera_user', JSON.stringify(updatedUser));
+    }
   };
 
   const logout = () => {
@@ -71,7 +79,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(null);
     localStorage.removeItem('afera_user');
     localStorage.removeItem('afera_token');
-    delete axios.defaults.headers.common['Authorization'];
     router.push('/');
   };
 
@@ -80,6 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       user, 
       token, 
       login, 
+      updateUser,
       logout, 
       isLoading, 
       isAuthenticated: !!token 

@@ -8,7 +8,7 @@ const api = axios.create({
 
 // Add a request interceptor to include the JWT token
 api.interceptors.request.use((config) => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  const token = typeof window !== 'undefined' ? localStorage.getItem('afera_token') : null;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

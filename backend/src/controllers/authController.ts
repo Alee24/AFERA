@@ -57,7 +57,13 @@ export const register = async (req: Request, res: Response) => {
     // Send notification email to CEO
     sendApplicationNotification({ name, email, program: programName });
 
-    res.status(201).json({ user, token });
+    // Refresh user to include StudentProfile
+    const userWithProfile = await User.findByPk(user.id, {
+      attributes: { exclude: ['password_hash'] },
+      include: [{ model: Student, as: 'StudentProfile' }]
+    });
+
+    res.status(201).json({ user: userWithProfile, token });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -78,7 +84,12 @@ export const login = async (req: Request, res: Response) => {
       { expiresIn: '24h' }
     );
 
-    res.json({ user, token });
+    const userWithProfile = await User.findByPk(user.id, {
+      attributes: { exclude: ['password_hash'] },
+      include: [{ model: Student, as: 'StudentProfile' }]
+    });
+
+    res.json({ user: userWithProfile, token });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }

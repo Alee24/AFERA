@@ -31,6 +31,9 @@ class Student extends Model {
   public user_id!: string;
   public admission_number!: string;
   public professional_profile!: string;
+  public nationality!: string;
+  public gender!: string;
+  public date_of_birth!: string;
   public status!: 'active' | 'graduated' | 'suspended';
   public enrollment_date!: Date;
 }

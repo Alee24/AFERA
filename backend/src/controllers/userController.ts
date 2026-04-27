@@ -96,7 +96,12 @@ export const updateProfile = async (req: any, res: Response) => {
       await student.update({ nationality, gender, date_of_birth });
     }
 
-    res.json({ message: 'Profile updated successfully' });
+    const updatedUser = await User.findByPk(userId, {
+      attributes: { exclude: ['password_hash'] },
+      include: [{ model: Student, as: 'StudentProfile' }]
+    });
+    
+    res.json({ message: 'Profile updated successfully', user: updatedUser });
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }

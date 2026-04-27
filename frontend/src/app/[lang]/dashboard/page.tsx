@@ -32,7 +32,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 
 export default function StudentDashboard() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { t, i18n } = useTranslation('common');
   const router = useRouter();
   const { showNotification } = useNotification();
@@ -59,8 +59,8 @@ export default function StudentDashboard() {
       setAvailableCourses(coursesRes.data);
       setInvoices(invoiceRes.data);
       setResources(resourceRes.data);
-    } catch (err) {
-      showNotification('Failed to fetch dashboard data', 'error');
+    } catch (err: any) {
+      showNotification(err.response?.data?.message || 'Failed to fetch dashboard data', 'error');
     } finally {
       setLoading(false);
     }
@@ -486,8 +486,11 @@ export default function StudentDashboard() {
                         const formData = new FormData(e.currentTarget);
                         const data = Object.fromEntries(formData.entries());
                         api.put('/users/profile', data)
-                          .then(() => showNotification('Profile updated successfully!', 'success'))
-                          .catch(() => showNotification('Failed to update profile', 'error'));
+                          .then((res) => {
+                            showNotification('Profile updated successfully!', 'success');
+                            if (res.data.user) updateUser(res.data.user);
+                          })
+                          .catch((err) => showNotification(err.response?.data?.message || 'Failed to update profile', 'error'));
                       }}>
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-2">

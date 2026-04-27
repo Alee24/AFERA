@@ -36,8 +36,8 @@ export default function AdminStudentsPage() {
       const res = await api.get('/users');
       const studentUsers = res.data.filter((u: any) => u.role === 'student');
       setStudents(studentUsers);
-    } catch (err) {
-      showNotification('Failed to load student directory', 'error');
+    } catch (err: any) {
+      showNotification(err.response?.data?.message || 'Failed to load student directory', 'error');
     } finally {
       setLoading(false);
     }
@@ -148,7 +148,7 @@ export default function AdminStudentsPage() {
                       <td className="px-10 py-6">
                          <div className="flex items-center text-gray-500 text-sm font-medium">
                             <MapPin size={14} className="mr-2 text-accent" />
-                            Namibia
+                            {student.StudentProfile?.nationality || 'Not Specified'}
                          </div>
                       </td>
                       <td className="px-10 py-6 text-right">
