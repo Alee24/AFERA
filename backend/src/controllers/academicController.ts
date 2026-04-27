@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Faculty, Department, Program } from '../models';
+import { Faculty, Department, Program, Grade, Assessment, Student, Course, CourseUnit, Class } from '../models';
 
 // ===== FACULTIES =====
 export const getFaculties = async (req: Request, res: Response) => {
@@ -75,5 +75,83 @@ export const createProgram = async (req: Request, res: Response) => {
     res.status(201).json(program);
   } catch (error: any) {
     res.status(400).json({ message: error.message });
+  }
+};
+
+// ===== GRADES & TRANSCRIPTS =====
+export const getMyGrades = async (req: any, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const student = await Student.findOne({ where: { user_id: userId } });
+    
+    if (!student) {
+      return res.status(404).json({ message: 'Student profile not found' });
+    }
+
+    const grades = await Grade.findAll({
+      where: { student_id: student.id },
+      include: [{
+        model: Assessment,
+        include: [{
+          model: Class,
+          include: [{
+            model: CourseUnit,
+            include: [Course]
+          }]
+        }]
+      }],
+      order: [['created_at', 'DESC']]
+    });
+
+    res.json(grades);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const generateTranscript = async (req: any, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const student = await Student.findOne({ 
+      where: { user_id: userId },
+      include: ['User']
+    });
+    
+    if (!student) {
+      return res.status(404).json({ message: 'Student profile not found' });
+    }
+
+    const grades = await Grade.findAll({
+      where: { student_id: student.id },
+      include: [{
+        model: Assessment,
+        include: [{
+          model: Class,
+          include: [{
+            model: CourseUnit,
+            include: [Course]
+          }]
+        }]
+      }]
+    });
+
+    // Simplify for transcript
+    const transcriptData = {
+      student_name: `${(student as any).User.first_name} ${(student as any).User.last_name}`,
+      admission_number: student.admission_number,
+      generated_at: new Date(),
+      grades: grades.map((g: any) => ({
+        course_code: g.Assessment?.Class?.CourseUnit?.Course?.course_code || 'N/A',
+        course_name: g.Assessment?.Class?.CourseUnit?.Course?.title_en || 'N/A',
+        unit_name: g.Assessment?.Class?.CourseUnit?.name || 'N/A',
+        score: g.score,
+        grade: g.grade,
+        credits: g.Assessment?.Class?.CourseUnit?.Course?.credits || 3
+      }))
+    };
+
+    res.json(transcriptData);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
   }
 };

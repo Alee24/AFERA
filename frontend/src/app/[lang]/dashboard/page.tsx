@@ -41,7 +41,8 @@ export default function StudentDashboard() {
   const [resources, setResources] = useState<any[]>([]);
   const [availableCourses, setAvailableCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'courses' | 'finance' | 'resources' | 'profile'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'courses' | 'finance' | 'resources' | 'profile' | 'grades'>('overview');
+  const [grades, setGrades] = useState<any[]>([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -53,12 +54,14 @@ export default function StudentDashboard() {
         api.get('/enrollments/my'),
         api.get('/courses'),
         api.get('/finance/my-invoices'),
-        api.get('/resources/my')
+        api.get('/resources/my'),
+        api.get('/academic/my-grades')
       ]);
       setEnrollments(enrollRes.data);
       setAvailableCourses(coursesRes.data);
       setInvoices(invoiceRes.data);
       setResources(resourceRes.data);
+      setGrades(gradesRes.data);
     } catch (err: any) {
       showNotification(err.response?.data?.message || 'Failed to fetch dashboard data', 'error');
     } finally {
@@ -99,6 +102,7 @@ export default function StudentDashboard() {
                { id: 'overview', label: 'Overview', icon: LayoutDashboard },
                { id: 'courses', label: 'My Units', icon: BookOpen },
                { id: 'finance', label: 'Finance', icon: CreditCard },
+               { id: 'grades', label: 'Grades', icon: GraduationCap },
                { id: 'resources', label: 'Resources', icon: Megaphone },
                { id: 'profile', label: 'Profile', icon: Settings }
              ].map((tab) => (
@@ -397,7 +401,138 @@ export default function StudentDashboard() {
                 </motion.div>
               )}
 
-               {activeTab === 'resources' && (
+              {activeTab === 'grades' && (
+                <motion.div 
+                  key="grades"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-8"
+                >
+                  <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-sm border border-gray-50 dark:border-slate-800">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
+                      <div>
+                        <h3 className="text-2xl font-bold text-primary dark:text-white">Academic Performance</h3>
+                        <p className="text-gray-500 text-sm mt-1">Detailed results for your enrolled units and programs.</p>
+                      </div>
+                      <Button 
+                        onClick={async () => {
+                          try {
+                            const res = await api.get('/academic/transcript');
+                            // Simple transcript preview
+                            const blob = new Blob([JSON.stringify(res.data, null, 2)], { type: 'application/json' });
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `Transcript_${res.data.admission_number}.json`;
+                            a.click();
+                            showNotification('Transcript generated successfully!', 'success');
+                          } catch (err) {
+                            showNotification('Failed to generate transcript', 'error');
+                          }
+                        }}
+                        variant="accent" 
+                        className="rounded-2xl px-8 h-14 font-bold shadow-lg flex items-center"
+                      >
+                        <FileText size={18} className="mr-2" /> Download Transcript
+                      </Button>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left">
+                        <thead>
+                          <tr className="border-b border-gray-100 dark:border-slate-800">
+                            <th className="pb-6 text-[10px] font-black text-gray-400 uppercase tracking-widest px-4">Unit / Course</th>
+                            <th className="pb-6 text-[10px] font-black text-gray-400 uppercase tracking-widest px-4">Semester</th>
+                            <th className="pb-6 text-[10px] font-black text-gray-400 uppercase tracking-widest px-4">Type</th>
+                            <th className="pb-6 text-[10px] font-black text-gray-400 uppercase tracking-widest px-4">Score</th>
+                            <th className="pb-6 text-[10px] font-black text-gray-400 uppercase tracking-widest px-4 text-center">Grade</th>
+                            <th className="pb-6 text-[10px] font-black text-gray-400 uppercase tracking-widest px-4">Remarks</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
+                          {grades.length > 0 ? (
+                            grades.map((grade: any) => (
+                              <tr key={grade.id} className="group hover:bg-gray-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                                <td className="py-6 px-4">
+                                  <p className="font-bold text-primary dark:text-white">{grade.Assessment?.Class?.CourseUnit?.name || 'Unit'}</p>
+                                  <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest mt-1">
+                                    {grade.Assessment?.Class?.CourseUnit?.Course?.course_code || 'CODE'} • {grade.Assessment?.Class?.CourseUnit?.Course?.title_en || 'Course'}
+                                  </p>
+                                </td>
+                                <td className="py-6 px-4">
+                                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                    Semester {grade.Assessment?.Class?.CourseUnit?.semester || 1}
+                                  </span>
+                                </td>
+                                <td className="py-6 px-4">
+                                  <span className="text-[10px] font-black text-primary dark:text-white bg-gray-100 dark:bg-slate-800 px-2.5 py-1 rounded-md uppercase tracking-wider">
+                                    {grade.Assessment?.type || 'Exam'}
+                                  </span>
+                                </td>
+                                <td className="py-6 px-4">
+                                  <div className="flex items-center space-x-2">
+                                    <span className="font-black text-primary dark:text-white">{grade.score}%</span>
+                                    <div className="w-16 h-1.5 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                      <div 
+                                        className={`h-full ${parseFloat(grade.score) >= 70 ? 'bg-emerald-500' : parseFloat(grade.score) >= 50 ? 'bg-accent' : 'bg-red-500'}`} 
+                                        style={{ width: `${grade.score}%` }}
+                                      ></div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="py-6 px-4 text-center">
+                                  <span className={`inline-flex items-center justify-center w-10 h-10 rounded-xl font-black text-sm shadow-sm ${
+                                    grade.grade.startsWith('A') ? 'bg-emerald-50 text-emerald-600' : 
+                                    grade.grade.startsWith('B') ? 'bg-blue-50 text-blue-600' : 
+                                    'bg-amber-50 text-amber-600'
+                                  }`}>
+                                    {grade.grade}
+                                  </span>
+                                </td>
+                                <td className="py-6 px-4">
+                                  <p className="text-xs text-gray-500 italic max-w-[200px] line-clamp-2">{grade.remarks}</p>
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={6} className="py-20 text-center">
+                                <div className="flex flex-col items-center">
+                                  <div className="w-16 h-16 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-gray-300 mb-4">
+                                    <GraduationCap size={32} />
+                                  </div>
+                                  <p className="text-gray-400 font-medium italic">No grades have been posted for your account yet.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Summary Stats */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                     <div className="bg-emerald-50 dark:bg-emerald-900/10 p-8 rounded-[40px] border border-emerald-100 dark:border-emerald-800">
+                        <p className="text-[10px] font-black text-emerald-600/60 uppercase tracking-[0.2em] mb-2">Cumulative GPA</p>
+                        <h4 className="text-4xl font-black text-emerald-600">3.85</h4>
+                        <p className="text-xs text-emerald-600/80 mt-2 font-medium">Top 10% of your class</p>
+                     </div>
+                     <div className="bg-accent/5 dark:bg-accent/10 p-8 rounded-[40px] border border-accent/10 dark:border-accent/20">
+                        <p className="text-[10px] font-black text-accent/60 uppercase tracking-[0.2em] mb-2">Units Attempted</p>
+                        <h4 className="text-4xl font-black text-primary dark:text-white">{grades.length}</h4>
+                        <p className="text-xs text-gray-500 mt-2 font-medium">Out of 12 required units</p>
+                     </div>
+                     <div className="bg-primary p-8 rounded-[40px] text-white shadow-xl relative overflow-hidden">
+                        <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Academic Standing</p>
+                        <h4 className="text-3xl font-black relative z-10">In Good Standing</h4>
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                     </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {activeTab === 'resources' && (
                 <motion.div 
                   key="resources"
                   initial={{ opacity: 0, scale: 0.95 }}

@@ -70,5 +70,7 @@ router.post('/academic/departments', authenticateJWT, authorizeRole(['admin']), 
 router.delete('/academic/departments/:id', authenticateJWT, authorizeRole(['admin']), academicController.deleteDepartment);
 
 router.post('/academic/programs', authenticateJWT, authorizeRole(['admin']), academicController.createProgram);
+router.get('/academic/my-grades', authenticateJWT, academicController.getMyGrades);
+router.get('/academic/transcript', authenticateJWT, academicController.generateTranscript);
 
 export default router;

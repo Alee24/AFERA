@@ -96,14 +96,26 @@ CourseRegistration.init({
 }, { sequelize, modelName: 'CourseRegistration', tableName: 'course_registrations', underscored: true });
 
 // ===== 5. GRADING =====
-class Assessment extends Model {}
+class Assessment extends Model {
+  public id!: string;
+  public class_id!: string;
+  public type!: 'CAT' | 'Exam' | 'Assignment';
+  public total_marks!: number;
+}
 Assessment.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   type: { type: DataTypes.ENUM('CAT', 'Exam', 'Assignment'), allowNull: false },
   total_marks: { type: DataTypes.INTEGER, defaultValue: 100 },
 }, { sequelize, modelName: 'Assessment', tableName: 'assessments', underscored: true });
 
-class Grade extends Model {}
+class Grade extends Model {
+  public id!: string;
+  public student_id!: string;
+  public assessment_id!: string;
+  public score!: number;
+  public grade!: string;
+  public remarks!: string;
+}
 Grade.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   score: { type: DataTypes.DECIMAL(5, 2) },
