@@ -20,6 +20,15 @@ import { useParams } from 'next/navigation';
 
 const workshopDocs = [
   {
+    id: 9,
+    title: "TREPP 2026 PRESENTATION - Dr Ali Alkassoum (SE-AFERA)",
+    filename: "TREPP-2026-PRESENTATION-Dr-Ali-Alkassoum.pptx",
+    type: "PPTX",
+    category: "Case Study",
+    date: "April 2026",
+    thumbnail: "/trepp-thumbnail.png"
+  },
+  {
     id: 1,
     title: "ARMFA 22nd AGM Liberia - Namibia Case Study",
     filename: "ARMFA-22nd-AGM-Liberia-17-21-Nov-2025-Sophia-Tekie-Namibia.pptx",
@@ -157,36 +166,54 @@ export default function WorkshopsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="bg-white rounded-[32px] p-8 shadow-sm hover:shadow-xl transition-all border border-gray-100 group flex flex-col"
+                className="bg-white rounded-[32px] p-0 shadow-sm hover:shadow-xl transition-all border border-gray-100 group flex flex-col overflow-hidden"
               >
-                 <div className="flex items-center justify-between mb-6">
-                    <div className="w-12 h-12 bg-primary/5 rounded-2xl flex items-center justify-center text-primary group-hover:bg-accent group-hover:text-white transition-all">
-                       {doc.type === 'PPTX' ? <Presentation size={24} /> : <FileText size={24} />}
+                 {/* Thumbnail / Icon Header */}
+                 <div className="relative h-48 bg-gray-100 overflow-hidden">
+                    {doc.thumbnail ? (
+                       <img 
+                         src={doc.thumbnail} 
+                         alt={doc.title} 
+                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                       />
+                    ) : (
+                       <div className="w-full h-full flex items-center justify-center text-primary/20 bg-primary/5">
+                          {doc.type === 'PPTX' ? <Presentation size={64} /> : <FileText size={64} />}
+                       </div>
+                    )}
+                    <div className="absolute top-4 left-4">
+                       <div className="w-10 h-10 bg-white/90 backdrop-blur shadow-sm rounded-xl flex items-center justify-center text-primary group-hover:bg-accent group-hover:text-white transition-all">
+                          {doc.type === 'PPTX' ? <Presentation size={18} /> : <FileText size={18} />}
+                       </div>
                     </div>
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{doc.date}</span>
+                    <div className="absolute bottom-4 right-4 bg-primary/80 backdrop-blur text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
+                       {doc.date}
+                    </div>
                  </div>
                  
-                 <div className="flex-1">
+                 <div className="p-8 flex-1 flex flex-col">
                     <span className="text-[10px] font-bold text-accent uppercase tracking-widest mb-2 block">{doc.category}</span>
-                    <h3 className="text-lg font-bold text-primary mb-4 leading-snug group-hover:text-accent transition-colors">
+                    <h3 className="text-lg font-bold text-primary mb-4 leading-snug group-hover:text-accent transition-colors line-clamp-2">
                       {doc.title}
                     </h3>
-                    <p className="text-xs text-gray-400 font-medium mb-8">
-                       Format: <span className="text-gray-600">{doc.type} Presentation</span>
-                    </p>
-                 </div>
+                    <div className="mt-auto">
+                       <p className="text-xs text-gray-400 font-medium mb-6">
+                          Format: <span className="text-gray-600">{doc.type} Presentation</span>
+                       </p>
 
-                 <div className="flex items-center space-x-3 pt-6 border-t border-gray-50">
-                    <Button 
-                      variant="primary" 
-                      className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl flex items-center justify-center"
-                      onClick={() => openViewer(doc)}
-                    >
-                       <Eye size={14} className="mr-2" /> View Online
-                    </Button>
-                    <a href={`/${doc.filename}`} download className="p-3 bg-gray-50 hover:bg-primary hover:text-white rounded-xl transition-all text-gray-400">
-                       <Download size={18} />
-                    </a>
+                       <div className="flex items-center space-x-3 pt-6 border-t border-gray-50">
+                          <Button 
+                            variant="primary" 
+                            className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl flex items-center justify-center"
+                            onClick={() => openViewer(doc)}
+                          >
+                             <Eye size={14} className="mr-2" /> View Online
+                          </Button>
+                          <a href={`/${doc.filename}`} download className="p-3 bg-gray-50 hover:bg-primary hover:text-white rounded-xl transition-all text-gray-400">
+                             <Download size={18} />
+                          </a>
+                       </div>
+                    </div>
                  </div>
               </motion.div>
             ))}
