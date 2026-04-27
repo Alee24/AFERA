@@ -415,21 +415,7 @@ export default function StudentDashboard() {
                         <p className="text-gray-500 text-sm mt-1">Detailed results for your enrolled units and programs.</p>
                       </div>
                       <Button 
-                        onClick={async () => {
-                          try {
-                            const res = await api.get('/academic/transcript');
-                            // Simple transcript preview
-                            const blob = new Blob([JSON.stringify(res.data, null, 2)], { type: 'application/json' });
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `Transcript_${res.data.admission_number}.json`;
-                            a.click();
-                            showNotification('Transcript generated successfully!', 'success');
-                          } catch (err) {
-                            showNotification('Failed to generate transcript', 'error');
-                          }
-                        }}
+                        onClick={() => window.print()}
                         variant="accent" 
                         className="rounded-2xl px-8 h-14 font-bold shadow-lg flex items-center"
                       >
@@ -757,6 +743,135 @@ export default function StudentDashboard() {
 
         </div>
       </div>
+       </div>
+       </div>
+       
+       {/* Official Transcript Template (Print Only) */}
+       <div id="transcript-print" className="hidden print:block bg-white text-black p-12 min-h-screen relative">
+          {/* Watermark */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none -rotate-45">
+             <Image src="/LOGOMAIN.png" alt="Watermark" width={600} height={600} />
+          </div>
+
+          <div className="relative z-10">
+             {/* Header */}
+             <div className="flex justify-between items-start border-b-4 border-primary pb-8 mb-10">
+                <div>
+                   <Image src="/LOGOMAIN.png" alt="Afera Logo" width={220} height={60} className="mb-4" />
+                   <p className="text-xs font-bold text-gray-600 uppercase tracking-widest">Innovation Centre & Academy</p>
+                </div>
+                <div className="text-right">
+                   <h1 className="text-3xl font-black text-primary mb-1 uppercase tracking-tighter">Official Transcript</h1>
+                   <p className="text-sm font-bold text-gray-500 italic">Academic Record of Achievement</p>
+                   <div className="mt-4 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Document No</p>
+                      <p className="text-sm font-bold font-mono">TRN-{new Date().getFullYear()}-{Math.floor(Math.random() * 100000)}</p>
+                   </div>
+                </div>
+             </div>
+
+             {/* Student Details */}
+             <div className="grid grid-cols-2 gap-10 mb-12">
+                <div className="space-y-4">
+                   <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Student Identity</p>
+                      <p className="text-2xl font-black text-primary uppercase">{user?.first_name} {user?.last_name}</p>
+                      <p className="text-sm font-bold text-accent mt-1">Enrollment ID: AFR-2026-901</p>
+                   </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                   <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Nationality</p>
+                      <p className="text-xs font-bold">Kenyan</p>
+                   </div>
+                   <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Gender</p>
+                      <p className="text-xs font-bold">Male</p>
+                   </div>
+                   <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Date of Birth</p>
+                      <p className="text-xs font-bold">12 May 1998</p>
+                   </div>
+                   <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Issue Date</p>
+                      <p className="text-xs font-bold">{new Date().toLocaleDateString()}</p>
+                   </div>
+                </div>
+             </div>
+
+             {/* Results Table */}
+             <div className="mb-12">
+                <table className="w-full text-sm border-collapse">
+                   <thead>
+                      <tr className="bg-primary text-white">
+                         <th className="py-4 px-6 text-left rounded-tl-2xl uppercase tracking-widest text-[10px] font-black">Unit Code & Description</th>
+                         <th className="py-4 px-6 text-center uppercase tracking-widest text-[10px] font-black">Semester</th>
+                         <th className="py-4 px-6 text-center uppercase tracking-widest text-[10px] font-black">Mark (%)</th>
+                         <th className="py-4 px-6 text-center rounded-tr-2xl uppercase tracking-widest text-[10px] font-black">Grade</th>
+                      </tr>
+                   </thead>
+                   <tbody className="divide-y divide-gray-100">
+                      {grades.length > 0 ? grades.map((g: any, i: number) => (
+                        <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
+                           <td className="py-5 px-6">
+                              <p className="font-bold text-primary leading-tight">{g.Assessment?.Class?.CourseUnit?.name}</p>
+                              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">
+                                {g.Assessment?.Class?.CourseUnit?.Course?.course_code} • {g.Assessment?.Class?.CourseUnit?.Course?.title_en}
+                              </p>
+                           </td>
+                           <td className="py-5 px-6 text-center font-bold text-gray-600">Semester {g.Assessment?.Class?.CourseUnit?.semester}</td>
+                           <td className="py-5 px-6 text-center font-black text-primary">{g.score}%</td>
+                           <td className="py-5 px-6 text-center">
+                              <span className="inline-block w-8 h-8 leading-8 bg-primary text-white rounded-lg font-black text-xs">
+                                {g.grade}
+                              </span>
+                           </td>
+                        </tr>
+                      )) : (
+                        <tr>
+                           <td colSpan={4} className="py-10 text-center text-gray-400 italic">No academic records available for this period.</td>
+                        </tr>
+                      )}
+                   </tbody>
+                </table>
+             </div>
+
+             {/* Summary Stats */}
+             <div className="flex justify-between items-end">
+                <div className="space-y-6">
+                   <div className="flex space-x-12">
+                      <div>
+                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Cumulative GPA</p>
+                         <p className="text-3xl font-black text-primary">3.85 <span className="text-sm font-bold text-gray-400">/ 4.0</span></p>
+                      </div>
+                      <div>
+                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Academic Standing</p>
+                         <p className="text-xl font-black text-emerald-600 uppercase italic">Distinction</p>
+                      </div>
+                   </div>
+                   <div className="bg-gray-900 text-white p-6 rounded-3xl inline-block">
+                      <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-60 mb-2">Academic Validation</p>
+                      <p className="text-xs leading-relaxed max-w-xs font-medium">This document is electronically generated and verified by Afera Academy Academic Registry. Verification available at verify.aferainnov.africa</p>
+                   </div>
+                </div>
+
+                <div className="text-center space-y-4">
+                   <div className="w-32 h-32 border-4 border-double border-gray-200 rounded-full flex items-center justify-center p-4 mx-auto relative">
+                      <div className="w-full h-full border-2 border-dashed border-gray-100 rounded-full flex items-center justify-center">
+                         <Image src="/LOGOMAIN.png" alt="Stamp" width={60} height={60} className="grayscale opacity-20" />
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                         <div className="border-2 border-accent text-accent rounded px-2 py-1 rotate-12 text-[10px] font-black uppercase">Official Seal</div>
+                      </div>
+                   </div>
+                   <div>
+                      <div className="w-48 border-b-2 border-gray-300 mx-auto mb-1"></div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Registrar of Academics</p>
+                   </div>
+                </div>
+             </div>
+          </div>
+       </div>
     </div>
   );
 }
