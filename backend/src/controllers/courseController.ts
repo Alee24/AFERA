@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Course, CourseModule, Enrollment, Student, User, Program } from '../models';
+import { Course, CourseModule, Enrollment, Student, User, Program, CourseResource } from '../models';
 import * as mailService from '../services/mailService';
 
 // GET /api/courses
@@ -44,9 +44,8 @@ export const getMyResources = async (req: any, res: Response) => {
       where: { student_id: student.id, status: 'enrolled' }
     });
 
-    const courseIds = enrollments.map(e => e.course_id).filter(id => !!id);
+    const courseIds = enrollments.map((e: any) => e.course_id).filter(id => !!id);
     
-    const { CourseResource } = require('../models');
     const resources = await CourseResource.findAll({
       where: { course_id: courseIds },
       include: [{ model: Course, as: 'Course', attributes: ['title_en'] }]
@@ -225,11 +224,12 @@ export const updateEnrollmentStatus = async (req: Request, res: Response) => {
     }
 
     // Send email notification to student
-    if (enrollment.Student?.User) {
+    const e = enrollment as any;
+    if (e.Student?.User) {
       await mailService.sendAdmissionStatusUpdate(
-        enrollment.Student.User, 
+        e.Student.User, 
         status, 
-        enrollment.Program?.name || 'Selected Program'
+        e.Program?.name || 'Selected Program'
       );
     }
 
