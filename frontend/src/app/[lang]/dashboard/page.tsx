@@ -31,7 +31,7 @@ import { Button } from '@/components/ui/Button';
 
 export default function StudentDashboard() {
   const { user } = useAuth();
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const { showNotification } = useNotification();
   const [enrollments, setEnrollments] = useState<any[]>([]);
   const [invoices, setInvoices] = useState<any[]>([]);
