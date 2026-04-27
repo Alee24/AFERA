@@ -58,29 +58,36 @@ export default function CourseDetailsPage() {
     },
     'certificate-rbm': {
       id: 'certificate-rbm',
-      title_en: 'Results-Based Management',
-      title_fr: 'Gestion axée sur les résultats',
-      title_pt: 'Gestão Baseada em Resultados',
-      title_sw: 'Usimamizi Unaozingatia Matokeo',
-      description_en: 'A high-impact program designed to implement accountability and performance tracking in public sector infrastructure development.',
-      description_fr: 'Un programme à fort impact conçu pour mettre en œuvre la responsabilité et le suivi des performances dans le développement des infrastructures du secteur public.',
-      description_pt: 'Um programa de alto impacto concebido para implementar a responsabilização e o acompanhamento do desempenho no desenvolvimento de infraestruturas do sector público.',
-      description_sw: 'Mpango wenye matokeo makubwa ulioundwa kutekeleza uwajibikaji na ufuatiliaji wa utendaji katika maendeleo ya miundombinu ya sekta ya umma.',
-      price: 850,
-      duration: '6 Months',
-      modality: 'Online',
-      department: 'Public Management',
-      course_type: 'Certificate',
+      title_en: 'Specialist Certification in Results-Based Management (RBM)',
+      title_fr: 'Certification de spécialiste en gestion axée sur les résultats (GAR)',
+      title_pt: 'Certificação de Especialista em Gestão Baseada em Resultados (RBM)',
+      title_sw: 'Udhibitisho wa Mtaalam katika Usimamizi Unaozingatia Matokeo (RBM)',
+      description_en: 'This flagship programme equips professionals in the road sector with practical tools to design, implement, and manage RBM systems—a critical approach for improving performance, accountability, and sustainability in road infrastructure management across Africa.',
+      description_fr: 'Ce programme phare équipe les professionnels du secteur routier d\'outils pratiques pour concevoir, mettre en œuvre et gérer des systèmes de GAR—une approche critique pour améliorer la performance, la responsabilité et la durabilité.',
+      description_pt: 'Este programa emblemático equipa os profissionais do sector rodoviário com ferramentas práticas para conceber, implementar e gerir sistemas de RBM.',
+      description_sw: 'Mpango huu mkuu huwapa wataalamu katika sekta ya barabara zana za vitendo za kubuni, kutekeleza, na kusimamia mifumo ya RBM.',
+      price: "Starting Soon",
+      duration: '13 Weeks + Seminar',
+      modality: 'Hybrid (Online + Residential)',
+      department: 'Infrastructure Management',
+      course_type: 'Professional Certificate',
       outcomes: [
-        "KPI Design & Performance Indicators",
-        "Impact Evaluation & Strategic Reporting",
-        "Logframe Development for Infrastructure",
-        "Accountability Frameworks in Public Projects"
+        "Apply RBM principles in real institutional contexts",
+        "Conduct situational and stakeholder analysis",
+        "Design logical frameworks and results chains",
+        "Build SMART performance indicators",
+        "Develop and manage monitoring & evaluation systems",
+        "Translate strategy into performance contracts"
       ],
       Modules: [
-        { order: 1, title: 'Foundations of RBM', duration_weeks: 2, description: 'Core concepts of results-oriented project planning.' },
-        { order: 2, title: 'Monitoring & Evaluation Systems', duration_weeks: 3, description: 'Setting up data collection and reporting workflows.' },
-        { order: 3, title: 'Impact Assessment', duration_weeks: 3, description: 'Measuring the long-term socioeconomic value of road projects.' }
+        { order: 1, title: 'RBM Foundations', duration_weeks: 2, description: 'Core concepts, historical context, and the shift from inputs to results.' },
+        { order: 2, title: 'Situational & Stakeholder Analysis', duration_weeks: 2, description: 'Identifying gaps and mapping the road maintenance ecosystem.' },
+        { order: 3, title: 'Logical Frameworks & Results Chains', duration_weeks: 2, description: 'Building the visual map of impact and accountability.' },
+        { order: 4, title: 'Risk Management', duration_weeks: 1, description: 'Mitigating internal and external threats to infrastructure goals.' },
+        { order: 5, title: 'Operational Planning', duration_weeks: 2, description: 'Translating high-level strategy into actionable work plans.' },
+        { order: 6, title: 'Performance Indicators (SMART)', duration_weeks: 2, description: 'Designing data-driven metrics for road quality and funding.' },
+        { order: 7, title: 'Monitoring & Evaluation Systems', duration_weeks: 2, description: 'Techniques for real-time tracking and strategic reporting.' },
+        { order: 8, title: 'RBM Implementation (Residential)', duration_weeks: 1, description: 'Final project presentation and networking seminar in person.' }
       ]
     }
   };
