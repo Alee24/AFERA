@@ -39,6 +39,13 @@ const fixDatabase = async () => {
       await queryInterface.addColumn('users', 'phone', { type: 'STRING' });
     }
 
+    // 4. Fix enrollments table (Add course_id)
+    const enrollmentCols = await queryInterface.describeTable('enrollments');
+    if (!enrollmentCols['course_id']) {
+      console.log('➕ Adding column course_id to enrollments...');
+      await queryInterface.addColumn('enrollments', 'course_id', { type: 'UUID' });
+    }
+
     console.log('✅ Database Schema Fix COMPLETED!');
     process.exit(0);
   } catch (error) {

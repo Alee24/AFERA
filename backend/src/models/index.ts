@@ -68,6 +68,7 @@ class Enrollment extends Model {
   public id!: string;
   public student_id!: string;
   public program_id!: string;
+  public course_id!: string;
   public status!: string;
 }
 Enrollment.init({
@@ -192,6 +193,8 @@ Student.hasMany(Enrollment, { foreignKey: 'student_id' });
 Enrollment.belongsTo(Student, { foreignKey: 'student_id' });
 Program.hasMany(Enrollment, { foreignKey: 'program_id' });
 Enrollment.belongsTo(Program, { foreignKey: 'program_id' });
+Course.hasMany(Enrollment, { foreignKey: 'course_id', as: 'Enrollments' });
+Enrollment.belongsTo(Course, { foreignKey: 'course_id' });
 Student.hasMany(CourseRegistration, { foreignKey: 'student_id' });
 CourseRegistration.belongsTo(Student, { foreignKey: 'student_id' });
 Class.hasMany(CourseRegistration, { foreignKey: 'class_id' });
