@@ -34,11 +34,7 @@ export default function AboutPreview() {
               <div className="absolute inset-0 bg-navy-900/10"></div>
             </div>
             
-            {/* Floating Experience Card */}
-            <div className="absolute -bottom-10 -right-10 hidden md:block bg-accent p-8 rounded-2xl shadow-xl text-white max-w-[200px]">
-              <div className="text-4xl font-bold mb-2">25+</div>
-              <div className="text-sm font-medium opacity-90">{t('about_preview.years_experience')}</div>
-            </div>
+
           </motion.div>
 
           {/* Content Side */}
