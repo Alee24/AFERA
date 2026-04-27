@@ -1,5 +1,5 @@
 import { Course } from '../models';
-import sequelize from './init'; // Using the sequelize instance from init or index
+import sequelize from '../models'; 
 
 const cleanup = async () => {
   try {
