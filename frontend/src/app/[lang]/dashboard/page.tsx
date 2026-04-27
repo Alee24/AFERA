@@ -50,7 +50,7 @@ export default function StudentDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const [enrollRes, coursesRes, invoiceRes, resourceRes] = await Promise.all([
+      const [enrollRes, coursesRes, invoiceRes, resourceRes, gradesRes] = await Promise.all([
         api.get('/enrollments/my'),
         api.get('/courses'),
         api.get('/finance/my-invoices'),
