@@ -1,20 +1,16 @@
 import nodemailer from 'nodemailer';
 
+// Use local sendmail on the VPS for zero-config email sending
+const transporter = nodemailer.createTransport({
+  sendmail: true,
+  newline: 'unix',
+  path: '/usr/sbin/sendmail',
+});
+
 export const sendApplicationNotification = async (userData: any) => {
   try {
-    // Basic SMTP configuration - ideally these should be in .env
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-
     const mailOptions = {
-      from: `"AFERA Application Portal" <${process.env.SMTP_USER}>`,
+      from: '"AFERA Application" <noreply@aferainnov.africa>',
       to: 'ceo@armfa.info',
       subject: `New Student Application: ${userData.name}`,
       html: `
@@ -40,13 +36,8 @@ export const sendApplicationNotification = async (userData: any) => {
       `,
     };
 
-    // Only attempt to send if SMTP credentials exist
-    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-      await transporter.sendMail(mailOptions);
-      console.log(`Notification email sent to ceo@armfa.info for ${userData.email}`);
-    } else {
-      console.warn('SMTP credentials missing. Email notification skipped but application saved.');
-    }
+    await transporter.sendMail(mailOptions);
+    console.log(`Notification email sent via local sendmail to ceo@armfa.info for ${userData.email}`);
   } catch (error) {
     console.error('Error sending application notification:', error);
   }
@@ -54,18 +45,8 @@ export const sendApplicationNotification = async (userData: any) => {
 
 export const sendContactNotification = async (contactData: any) => {
   try {
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-
     const mailOptions = {
-      from: `"AFERA Contact Portal" <${process.env.SMTP_USER}>`,
+      from: '"AFERA Contact" <noreply@aferainnov.africa>',
       to: 'ceo@armfa.info',
       subject: `New Inquiry: ${contactData.subject}`,
       html: `
@@ -92,12 +73,11 @@ export const sendContactNotification = async (contactData: any) => {
       `,
     };
 
-    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-      await transporter.sendMail(mailOptions);
-      console.log(`Contact notification email sent to ceo@armfa.info from ${contactData.email}`);
-    }
+    await transporter.sendMail(mailOptions);
+    console.log(`Contact notification email sent via local sendmail to ceo@armfa.info from ${contactData.email}`);
   } catch (error) {
     console.error('Error sending contact notification:', error);
   }
 };
+
 
