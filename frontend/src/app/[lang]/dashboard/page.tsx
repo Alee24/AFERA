@@ -743,10 +743,8 @@ export default function StudentDashboard() {
 
         </div>
       </div>
-       </div>
-       </div>
        
-       {/* Official Transcript Template (Print Only) */}
+
        <div id="transcript-print" className="hidden print:block bg-white text-black p-12 min-h-screen relative">
           {/* Watermark */}
           <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none -rotate-45">
