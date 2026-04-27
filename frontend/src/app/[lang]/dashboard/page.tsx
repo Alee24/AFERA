@@ -44,6 +44,13 @@ export default function StudentDashboard() {
   const [activeTab, setActiveTab] = useState<'overview' | 'courses' | 'finance' | 'resources' | 'profile' | 'grades'>('overview');
   const [grades, setGrades] = useState<any[]>([]);
 
+  // Payment States
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+  const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
+  const [mpesaPhone, setMpesaPhone] = useState('');
+  const [paying, setPaying] = useState(false);
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -381,12 +388,25 @@ export default function StudentDashboard() {
                                           {inv.status}
                                        </span>
                                     </div>
-                                    <button 
-                                      onClick={() => window.print()}
-                                      className="p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm text-gray-400 hover:text-primary transition-all"
-                                    >
-                                       <Download size={18} />
-                                    </button>
+                                    <div className="flex items-center space-x-3">
+                                      {inv.status === 'pending' && (
+                                        <Button 
+                                          onClick={() => {
+                                            setSelectedInvoice(inv);
+                                            setIsPaymentModalOpen(true);
+                                          }}
+                                          className="h-10 rounded-xl px-4 text-[10px] font-black uppercase tracking-widest bg-primary text-white"
+                                        >
+                                          Pay Now
+                                        </Button>
+                                      )}
+                                      <button 
+                                        onClick={() => window.print()}
+                                        className="p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm text-gray-400 hover:text-primary transition-all"
+                                      >
+                                         <Download size={18} />
+                                      </button>
+                                    </div>
                                  </div>
                               </div>
                             );
@@ -400,6 +420,103 @@ export default function StudentDashboard() {
                   </div>
                 </motion.div>
               )}
+
+              <AnimatePresence>
+                {isPaymentModalOpen && selectedInvoice && (
+                  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-primary/20 backdrop-blur-sm">
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[40px] shadow-2xl overflow-hidden"
+                    >
+                      <div className="p-8 bg-primary text-white flex justify-between items-center">
+                        <div>
+                          <h3 className="text-xl font-bold">Secure Checkout</h3>
+                          <p className="text-xs opacity-60 font-medium">Invoice ID: {selectedInvoice.id.slice(0, 8)}</p>
+                        </div>
+                        <button onClick={() => setIsPaymentModalOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-all">
+                          <X size={20} />
+                        </button>
+                      </div>
+
+                      <div className="p-10 space-y-8">
+                        <div className="bg-gray-50 dark:bg-slate-800 p-6 rounded-3xl border border-gray-100 dark:border-slate-700 flex justify-between items-center">
+                          <span className="font-bold text-gray-500">Amount Due</span>
+                          <span className="text-2xl font-black text-primary dark:text-white">${parseFloat(selectedInvoice.total_amount).toLocaleString()}</span>
+                        </div>
+
+                        <div className="space-y-4">
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Select Gateway</p>
+                          <div className="grid grid-cols-1 gap-3">
+                            {[
+                              { id: 'mpesa', name: 'M-Pesa STK Push', icon: Smartphone, color: 'emerald' },
+                              { id: 'paypal', name: 'PayPal Global', icon: Globe, color: 'blue' },
+                              { id: 'pesapal', name: 'PesaPal v3', icon: CreditCard, color: 'orange' }
+                            ].map((g) => (
+                              <button 
+                                key={g.id}
+                                onClick={() => setPaymentMethod(g.id)}
+                                className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all ${
+                                  paymentMethod === g.id 
+                                    ? `border-${g.color}-500 bg-${g.color}-50/50 dark:bg-${g.color}-900/10` 
+                                    : 'border-gray-100 dark:border-slate-800 hover:border-gray-200'
+                                }`}
+                              >
+                                <div className="flex items-center space-x-4">
+                                  <div className={`w-10 h-10 bg-${g.color}-500 rounded-xl flex items-center justify-center text-white`}>
+                                    <g.icon size={20} />
+                                  </div>
+                                  <span className="font-bold text-primary dark:text-white">{g.name}</span>
+                                </div>
+                                {paymentMethod === g.id && <CheckCircle2 size={20} className={`text-${g.color}-500`} />}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {paymentMethod === 'mpesa' && (
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">M-Pesa Phone Number</label>
+                            <input 
+                              type="text" 
+                              value={mpesaPhone}
+                              onChange={(e) => setMpesaPhone(e.target.value)}
+                              className="w-full h-14 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-6 font-bold"
+                              placeholder="e.g. 254712345678"
+                            />
+                          </div>
+                        )}
+
+                        <Button 
+                          onClick={async () => {
+                            try {
+                              setPaying(true);
+                              const res = await api.post('/payments/initiate', {
+                                invoice_id: selectedInvoice.id,
+                                gateway: paymentMethod,
+                                phone: mpesaPhone
+                              });
+                              showNotification(res.data.message, 'success');
+                              if (res.data.url) window.location.href = res.data.url;
+                              setIsPaymentModalOpen(false);
+                            } catch (err: any) {
+                              showNotification(err.response?.data?.message || 'Payment initiation failed', 'error');
+                            } finally {
+                              setPaying(false);
+                            }
+                          }}
+                          disabled={!paymentMethod || paying || (paymentMethod === 'mpesa' && !mpesaPhone)}
+                          className="w-full h-16 bg-primary text-white rounded-2xl font-black uppercase tracking-widest shadow-xl"
+                        >
+                          {paying ? <Loader2 className="animate-spin" /> : `Complete Payment via ${paymentMethod?.toUpperCase()}`}
+                        </Button>
+                      </div>
+                    </motion.div>
+                  </div>
+                )}
+              </AnimatePresence>
+
 
               {activeTab === 'grades' && (
                 <motion.div 

@@ -60,7 +60,10 @@ export const register = async (req: Request, res: Response) => {
     // Refresh user to include StudentProfile
     const userWithProfile = await User.findByPk(user.id, {
       attributes: { exclude: ['password_hash'] },
-      include: [{ model: Student, as: 'StudentProfile' }]
+      include: [
+        { model: Student, as: 'StudentProfile' },
+        { model: Staff, as: 'StaffProfile' }
+      ]
     });
 
     res.status(201).json({ user: userWithProfile, token });
@@ -86,7 +89,10 @@ export const login = async (req: Request, res: Response) => {
 
     const userWithProfile = await User.findByPk(user.id, {
       attributes: { exclude: ['password_hash'] },
-      include: [{ model: Student, as: 'StudentProfile' }]
+      include: [
+        { model: Student, as: 'StudentProfile' },
+        { model: Staff, as: 'StaffProfile' }
+      ]
     });
 
     res.json({ user: userWithProfile, token });

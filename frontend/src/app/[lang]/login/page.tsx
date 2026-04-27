@@ -30,7 +30,10 @@ export default function LoginPage() {
       showNotification('Login successful! Welcome back.', 'success');
       
       // Use role-based routing
-      const target = user.role === 'admin' ? 'admin' : 'dashboard';
+      let target = 'dashboard'; // student default
+      if (user.role === 'admin') target = 'admin';
+      if (user.role === 'lecturer') target = 'lecturer';
+      
       router.push(`/${i18n.language || 'en'}/${target}`);
     } catch (err: any) {
       // Strict requirement: show actual errors

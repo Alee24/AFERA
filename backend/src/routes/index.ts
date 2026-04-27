@@ -8,6 +8,8 @@ import * as userController from '../controllers/userController';
 import * as financeController from '../controllers/financeController';
 import * as academicController from '../controllers/academicController';
 import * as workshopController from '../controllers/workshopController';
+import * as paymentController from '../controllers/paymentController';
+import * as lecturerController from '../controllers/lecturerController';
 import { authenticateJWT, authorizeRole } from '../middleware/auth';
 
 const router = Router();
@@ -74,15 +76,28 @@ router.post('/academic/programs', authenticateJWT, authorizeRole(['admin']), aca
 router.get('/academic/my-grades', authenticateJWT, academicController.getMyGrades);
 router.get('/academic/transcript', authenticateJWT, academicController.generateTranscript);
 router.get('/academic/students/:studentId/grades', authenticateJWT, authorizeRole(['admin']), academicController.getStudentGrades);
-router.post('/academic/grades', authenticateJWT, authorizeRole(['admin']), academicController.upsertGrade);
+router.post('/academic/grades', authenticateJWT, authorizeRole(['admin', 'lecturer']), academicController.upsertGrade);
 router.get('/academic/structure', authenticateJWT, authorizeRole(['admin']), academicController.getFullAcademicStructure);
 router.get('/academic/classes/:classId/assessments', authenticateJWT, authorizeRole(['admin']), academicController.getAssessmentsByClass);
-router.post('/academic/assessments', authenticateJWT, authorizeRole(['admin']), academicController.createAssessment);
+router.post('/academic/assessments', authenticateJWT, authorizeRole(['admin', 'lecturer']), academicController.createAssessment);
 
 // Workshops
 router.get('/workshops', workshopController.getWorkshops);
 router.post('/workshops', authenticateJWT, authorizeRole(['admin']), workshopController.createWorkshop);
 router.put('/workshops/:id', authenticateJWT, authorizeRole(['admin']), workshopController.updateWorkshop);
 router.delete('/workshops/:id', authenticateJWT, authorizeRole(['admin']), workshopController.deleteWorkshop);
+
+// ===== PAYMENTS =====
+router.get('/payments/settings', authenticateJWT, authorizeRole(['admin']), paymentController.getGatewaySettings);
+router.post('/payments/settings', authenticateJWT, authorizeRole(['admin']), paymentController.updateGatewaySetting);
+router.post('/payments/initiate', authenticateJWT, paymentController.initiatePayment);
+// Public callback
+router.post('/payments/callback/:gateway', paymentController.handleCallback);
+
+// ===== LECTURER PORTAL =====
+router.get('/lecturer/dashboard', authenticateJWT, authorizeRole(['lecturer', 'admin']), lecturerController.getLecturerDashboard);
+router.get('/lecturer/classes', authenticateJWT, authorizeRole(['lecturer', 'admin']), lecturerController.getLecturerClasses);
+router.get('/lecturer/classes/:classId/students', authenticateJWT, authorizeRole(['lecturer', 'admin']), lecturerController.getClassStudents);
+router.post('/lecturer/attendance', authenticateJWT, authorizeRole(['lecturer', 'admin']), lecturerController.markAttendance);
 
 export default router;
