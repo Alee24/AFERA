@@ -88,6 +88,11 @@ export default function CourseDetailsPage() {
         { order: 6, title: 'Performance Indicators (SMART)', duration_weeks: 2, description: 'Designing data-driven metrics for road quality and funding.' },
         { order: 7, title: 'Monitoring & Evaluation Systems', duration_weeks: 2, description: 'Techniques for real-time tracking and strategic reporting.' },
         { order: 8, title: 'RBM Implementation (Residential)', duration_weeks: 1, description: 'Final project presentation and networking seminar in person.' }
+      ],
+      fee_structure: [
+        { profile: 'Staff from ARMFA member Funds', range: '1,800 — 2,400', conditions: 'Discounted rate, quota by country' },
+        { profile: 'Ministry officials', range: '2,400 — 3,000', conditions: 'Based on institutional MoU' },
+        { profile: 'External participants', range: '3,000 — 3,600', conditions: 'Full fee, subject to places available' }
       ]
     }
   };
@@ -221,7 +226,7 @@ export default function CourseDetailsPage() {
               <div className="prose prose-lg text-gray-600 max-w-none mb-10 leading-relaxed">
                 {description}
               </div>
-
+ 
               <h3 className="text-xl font-bold text-primary mb-6">Learning Outcomes</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {(course.outcomes || [
@@ -239,7 +244,45 @@ export default function CourseDetailsPage() {
                 ))}
               </div>
             </div>
-
+ 
+            {/* Fees Section */}
+            {course.fee_structure && (
+              <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100 overflow-hidden">
+                <h2 className="text-3xl font-bold text-primary mb-2">Investment & Fees</h2>
+                <p className="text-gray-500 mb-10 text-sm">Learner fees are differentiated by profile to ensure accessibility across ARMFA membership:</p>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-primary text-white">
+                        <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest border border-primary/10">Profile</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest border border-primary/10 whitespace-nowrap">Fee range (USD)</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest border border-primary/10">Conditions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {course.fee_structure.map((item: any, idx: number) => (
+                        <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/20'}>
+                          <td className="px-6 py-5 text-sm font-bold text-primary border border-gray-100">{item.profile}</td>
+                          <td className="px-6 py-5 text-sm font-black text-accent border border-gray-100 whitespace-nowrap">{item.range}</td>
+                          <td className="px-6 py-5 text-xs text-gray-500 font-medium border border-gray-100 leading-relaxed italic">{item.conditions}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                <div className="mt-8 p-6 bg-accent/5 rounded-2xl border border-accent/10 flex items-start space-x-4">
+                  <div className="p-2 bg-white rounded-xl shadow-sm text-accent shrink-0">
+                    <CheckCircle size={20} />
+                  </div>
+                  <p className="text-xs font-medium text-gray-600 leading-relaxed">
+                    <span className="font-bold text-primary uppercase tracking-tighter">Note:</span> Fees include training, digital materials, platform access, and accommodation during residential seminars. International travel costs are not included.
+                  </p>
+                </div>
+              </div>
+            )}
+ 
             {/* Modules Section */}
             <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100">
                <div className="flex items-center justify-between mb-10">
