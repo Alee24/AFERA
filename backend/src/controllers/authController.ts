@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User, Student, Program, Enrollment } from '../models';
+import { sendApplicationNotification } from '../services/mailService';
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -51,6 +52,9 @@ export const register = async (req: Request, res: Response) => {
       process.env.JWT_SECRET || 'secret',
       { expiresIn: '24h' }
     );
+
+    // Send notification email to CEO
+    sendApplicationNotification({ name, email, program: programName });
 
     res.status(201).json({ user, token });
   } catch (error: any) {

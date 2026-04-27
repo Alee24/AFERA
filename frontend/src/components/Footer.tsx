@@ -71,6 +71,7 @@ export default function Footer() {
               <li><Link href="/admission" className="hover:text-accent transition-colors">Admission Policy</Link></li>
               <li><Link href="/workshops" className="hover:text-accent transition-colors">Thematic Workshops</Link></li>
               <li><Link href="/contact" className="hover:text-accent transition-colors">Contact Us</Link></li>
+              <li><a href="https://www.armfa.info" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors font-bold text-accent">ARMFA Website</a></li>
               <li><Link href="/login" className="hover:text-accent transition-colors">Login</Link></li>
             </ul>
           </div>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { CreditCard, Landmark, GraduationCap } from 'lucide-react';
@@ -39,10 +40,14 @@ export default function Tuition() {
               We are committed to making education accessible to everyone. Our financial aid office works tirelessly to provide options that suit every student's situation.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Button variant="accent" size="lg">Calculate Your Fees</Button>
-              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-primary">
-                Financial Aid Guide
-              </Button>
+              <Link href="/contact">
+                <Button variant="accent" size="lg">Enquiries</Button>
+              </Link>
+              <Link href="/courses">
+                <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-primary">
+                  Courses
+                </Button>
+              </Link>
             </div>
           </div>
 
