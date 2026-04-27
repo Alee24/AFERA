@@ -21,7 +21,7 @@ export const createWorkshop = async (req: Request, res: Response) => {
 
 export const updateWorkshop = async (req: Request, res: Response) => {
   try {
-    const workshop = await Workshop.findByPk(req.params.id);
+    const workshop = await Workshop.findByPk(req.params.id as string);
     if (!workshop) return res.status(404).json({ message: 'Workshop not found' });
     await workshop.update(req.body);
     res.json(workshop);
@@ -32,7 +32,7 @@ export const updateWorkshop = async (req: Request, res: Response) => {
 
 export const deleteWorkshop = async (req: Request, res: Response) => {
   try {
-    const workshop = await Workshop.findByPk(req.params.id);
+    const workshop = await Workshop.findByPk(req.params.id as string);
     if (!workshop) return res.status(404).json({ message: 'Workshop not found' });
     await workshop.destroy();
     res.json({ message: 'Workshop deleted successfully' });
