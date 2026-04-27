@@ -103,6 +103,11 @@ export default function CourseDetailsPage() {
     }
   };
 
+  const { isAuthenticated, user } = useAuth();
+  const { showNotification } = useNotification();
+  const [enrolling, setEnrolling] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false);
+
   useEffect(() => {
     if (lang && i18n.language !== lang) {
       i18n.changeLanguage(lang as string);
@@ -119,6 +124,12 @@ export default function CourseDetailsPage() {
       try {
         const res = await axios.get(`/api/courses/${id}`);
         setCourse(res.data);
+        
+        // Check if user is already enrolled
+        if (isAuthenticated && res.data.Enrollments) {
+          const enrolled = res.data.Enrollments.some((e: any) => e.student_id === user?.id);
+          setIsEnrolled(enrolled);
+        }
       } catch (err) {
         console.error('Failed to fetch course details', err);
       } finally {
@@ -127,17 +138,36 @@ export default function CourseDetailsPage() {
     };
 
     fetchCourse();
-  }, [lang, id, i18n]);
+  }, [lang, id, i18n, isAuthenticated, user]);
+
+  const handleEnroll = async () => {
+    if (!isAuthenticated) {
+      router.push(`/${lang}/register?program=${encodeURIComponent(title)}`);
+      return;
+    }
+
+    setEnrolling(true);
+    try {
+      await api.post(`/courses/${course.id}/enroll`);
+      showNotification('Application submitted successfully!', 'success');
+      setIsEnrolled(true);
+      router.push(`/${lang}/dashboard`);
+    } catch (err: any) {
+      showNotification(err.response?.data?.message || 'Enrollment failed', 'error');
+    } finally {
+      setEnrolling(false);
+    }
+  };
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center pt-24 bg-white">
+    <div className="min-h-screen flex items-center justify-center pt-24 bg-white dark:bg-slate-900">
        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
     </div>
   );
 
   if (!course) return (
-    <div className="min-h-screen flex flex-col items-center justify-center pt-24 text-center px-4 bg-white">
-      <h2 className="text-3xl font-bold text-primary mb-4">Course Not Found</h2>
+    <div className="min-h-screen flex flex-col items-center justify-center pt-24 text-center px-4 bg-white dark:bg-slate-900">
+      <h2 className="text-3xl font-bold text-primary dark:text-white mb-4">Course Not Found</h2>
       <p className="text-gray-500 mb-8">The program you are looking for might have been moved or renamed.</p>
       <Link href={`/${lang}/courses`}>
         <Button variant="primary">Back to Academic Catalog</Button>
@@ -150,7 +180,7 @@ export default function CourseDetailsPage() {
   const description = course[`description_${currentLang}`] || course.description_en || course.description || '';
 
   return (
-    <main className="pt-24 min-h-screen bg-gray-50/50 pb-20 overflow-hidden">
+    <main className="pt-24 min-h-screen bg-gray-50/50 dark:bg-slate-950 pb-20 overflow-hidden">
       
       {/* Hero Header */}
       <section className="bg-primary pt-20 pb-40 text-white relative">
@@ -218,7 +248,7 @@ export default function CourseDetailsPage() {
         </div>
 
         {/* Decorative Wave Background */}
-        <div className="absolute bottom-0 left-0 w-full h-24 bg-gray-50/50" style={{ clipPath: 'polygon(0 100%, 100% 100%, 100% 0, 0 100%)' }}></div>
+        <div className="absolute bottom-0 left-0 w-full h-24 bg-gray-50/50 dark:bg-slate-950" style={{ clipPath: 'polygon(0 100%, 100% 100%, 100% 0, 0 100%)' }}></div>
       </section>
 
       {/* Content Section */}
@@ -227,13 +257,13 @@ export default function CourseDetailsPage() {
           
           {/* Main Info */}
           <div className="lg:col-span-2 space-y-12">
-            <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100">
-              <h2 className="text-3xl font-bold text-primary mb-8">Program Overview</h2>
-              <div className="prose prose-lg text-gray-600 max-w-none mb-10 leading-relaxed">
+            <div className="bg-white dark:bg-slate-900 rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100 dark:border-slate-800">
+              <h2 className="text-3xl font-bold text-primary dark:text-white mb-8">Program Overview</h2>
+              <div className="prose prose-lg text-gray-600 dark:text-gray-400 max-w-none mb-10 leading-relaxed">
                 {description}
               </div>
  
-              <h3 className="text-xl font-bold text-primary mb-6">Learning Outcomes</h3>
+              <h3 className="text-xl font-bold text-primary dark:text-white mb-6">Learning Outcomes</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {(course.outcomes || [
                   "Advanced financial modeling for road projects",
@@ -243,9 +273,9 @@ export default function CourseDetailsPage() {
                   "Results-based management applications",
                   "Performance monitoring and evaluation"
                 ]).map((item: string, i: number) => (
-                  <div key={i} className="flex items-start space-x-3 bg-gray-50 p-4 rounded-2xl">
+                  <div key={i} className="flex items-start space-x-3 bg-gray-50 dark:bg-slate-800 p-4 rounded-2xl">
                     <CheckCircle className="text-accent w-5 h-5 flex-shrink-0 mt-1" />
-                    <span className="text-sm font-medium text-gray-700">{item}</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item}</span>
                   </div>
                 ))}
               </div>
@@ -253,8 +283,8 @@ export default function CourseDetailsPage() {
  
             {/* Fees Section */}
             {course.fee_structure && (
-              <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100 overflow-hidden">
-                <h2 className="text-3xl font-bold text-primary mb-2">Investment & Fees</h2>
+              <div className="bg-white dark:bg-slate-900 rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
+                <h2 className="text-3xl font-bold text-primary dark:text-white mb-2">Investment & Fees</h2>
                 <p className="text-gray-500 mb-10 text-sm">Learner fees are differentiated by profile to ensure accessibility across ARMFA membership:</p>
                 
                 <div className="overflow-x-auto">
@@ -266,12 +296,12 @@ export default function CourseDetailsPage() {
                         <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest border border-primary/10">Conditions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                       {course.fee_structure.map((item: any, idx: number) => (
-                        <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/20'}>
-                          <td className="px-6 py-5 text-sm font-bold text-primary border border-gray-100">{item.profile}</td>
-                          <td className="px-6 py-5 text-sm font-black text-accent border border-gray-100 whitespace-nowrap">{item.range}</td>
-                          <td className="px-6 py-5 text-xs text-gray-500 font-medium border border-gray-100 leading-relaxed italic">{item.conditions}</td>
+                        <tr key={idx} className={idx % 2 === 0 ? 'bg-white dark:bg-slate-900' : 'bg-gray-50/20 dark:bg-slate-800/20'}>
+                          <td className="px-6 py-5 text-sm font-bold text-primary dark:text-white border border-gray-100 dark:border-slate-800">{item.profile}</td>
+                          <td className="px-6 py-5 text-sm font-black text-accent border border-gray-100 dark:border-slate-800 whitespace-nowrap">{item.range}</td>
+                          <td className="px-6 py-5 text-xs text-gray-500 font-medium border border-gray-100 dark:border-slate-800 leading-relaxed italic">{item.conditions}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -279,37 +309,37 @@ export default function CourseDetailsPage() {
                 </div>
                 
                 <div className="mt-8 p-6 bg-accent/5 rounded-2xl border border-accent/10 flex items-start space-x-4">
-                  <div className="p-2 bg-white rounded-xl shadow-sm text-accent shrink-0">
+                  <div className="p-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm text-accent shrink-0">
                     <CheckCircle size={20} />
                   </div>
-                  <p className="text-xs font-medium text-gray-600 leading-relaxed">
-                    <span className="font-bold text-primary uppercase tracking-tighter">Note:</span> Fees include training, digital materials, platform access, and accommodation during residential seminars. International travel costs are not included.
+                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
+                    <span className="font-bold text-primary dark:text-white uppercase tracking-tighter">Note:</span> Fees include training, digital materials, platform access, and accommodation during residential seminars. International travel costs are not included.
                   </p>
                 </div>
               </div>
             )}
  
             {/* Modules Section */}
-            <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100">
+            <div className="bg-white dark:bg-slate-900 rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100 dark:border-slate-800">
                <div className="flex items-center justify-between mb-10">
-                  <h2 className="text-3xl font-bold text-primary">Curriculum Structure</h2>
-                  <span className="text-xs font-bold bg-primary/5 text-primary px-4 py-2 rounded-full uppercase tracking-widest">
+                  <h2 className="text-3xl font-bold text-primary dark:text-white">Curriculum Structure</h2>
+                  <span className="text-xs font-bold bg-primary/5 text-primary dark:text-white px-4 py-2 rounded-full uppercase tracking-widest">
                     {course.Modules?.length || 0} Modules
                   </span>
                </div>
                
                <div className="space-y-6">
                  {course.Modules?.map((mod: any, i: number) => (
-                   <div key={mod.id} className="group relative pl-8 border-l-2 border-gray-100 hover:border-accent transition-colors pb-8 last:pb-0">
-                      <div className="absolute top-0 -left-[9px] w-4 h-4 rounded-full bg-white border-2 border-gray-200 group-hover:border-accent group-hover:bg-accent transition-all"></div>
+                   <div key={mod.id} className="group relative pl-8 border-l-2 border-gray-100 dark:border-slate-800 hover:border-accent transition-colors pb-8 last:pb-0">
+                      <div className="absolute top-0 -left-[9px] w-4 h-4 rounded-full bg-white dark:bg-slate-900 border-2 border-gray-200 dark:border-slate-700 group-hover:border-accent group-hover:bg-accent transition-all"></div>
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                          <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-2">Module {mod.order || i+1}</p>
-                            <h4 className="text-lg font-bold text-primary mb-2">{mod[`title_${currentLang}`] || mod.title}</h4>
-                            <p className="text-sm text-gray-500 max-w-xl">{mod[`description_${currentLang}`] || mod.description}</p>
+                            <h4 className="text-lg font-bold text-primary dark:text-white mb-2">{mod[`title_${currentLang}`] || mod.title}</h4>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xl">{mod[`description_${currentLang}`] || mod.description}</p>
                          </div>
                          <div className="text-right flex-shrink-0">
-                            <span className="text-xs font-bold text-gray-400 bg-gray-50 px-3 py-1 rounded-lg uppercase tracking-wider">{mod.duration_weeks} Weeks</span>
+                            <span className="text-xs font-bold text-gray-400 bg-gray-50 dark:bg-slate-800 px-3 py-1 rounded-lg uppercase tracking-wider">{mod.duration_weeks} Weeks</span>
                          </div>
                       </div>
                    </div>
@@ -320,7 +350,7 @@ export default function CourseDetailsPage() {
 
           {/* Enrollment Sidebar */}
           <div className="lg:col-span-1">
-             <div className="bg-white rounded-[40px] p-8 shadow-2xl border border-gray-100 sticky top-32">
+             <div className="bg-white dark:bg-slate-900 rounded-[40px] p-8 shadow-2xl border border-gray-100 dark:border-slate-800 sticky top-32">
                 <div className="text-center mb-8">
                    <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Program Status</p>
                    <div className="flex items-center justify-center">
@@ -329,37 +359,57 @@ export default function CourseDetailsPage() {
                 </div>
 
                 <div className="space-y-6 mb-10">
-                   <div className="flex items-center justify-between text-sm py-4 border-b border-gray-50">
-                      <span className="text-gray-500 font-medium">Application Fee</span>
-                      <span className="text-primary font-bold">Included</span>
+                   <div className="flex items-center justify-between text-sm py-4 border-b border-gray-50 dark:border-slate-800">
+                      <span className="text-gray-500 dark:text-gray-400 font-medium">Application Fee</span>
+                      <span className="text-primary dark:text-white font-bold">Included</span>
                    </div>
-                   <div className="flex items-center justify-between text-sm py-4 border-b border-gray-50">
-                      <span className="text-gray-500 font-medium">Learning Materials</span>
-                      <span className="text-primary font-bold">Included</span>
+                   <div className="flex items-center justify-between text-sm py-4 border-b border-gray-50 dark:border-slate-800">
+                      <span className="text-gray-500 dark:text-gray-400 font-medium">Learning Materials</span>
+                      <span className="text-primary dark:text-white font-bold">Included</span>
                    </div>
                    <div className="flex items-center justify-between text-sm py-4">
-                      <span className="text-gray-500 font-medium">Certification</span>
-                      <span className="text-primary font-bold text-accent">Verified Gold</span>
+                      <span className="text-gray-500 dark:text-gray-400 font-medium">Certification</span>
+                      <span className="text-primary dark:text-white font-bold text-accent">Verified Gold</span>
                    </div>
                 </div>
 
-                <Link href={`/${lang}/register?program=${encodeURIComponent(title)}`}>
-                   <Button variant="primary" className="w-full py-5 text-sm font-bold uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center group">
-                      Apply For Admission <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-                   </Button>
-                </Link>
+                {isEnrolled ? (
+                  <div className="w-full py-5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-2xl font-bold uppercase tracking-widest flex items-center justify-center space-x-2">
+                    <CheckCircle size={20} />
+                    <span>Already Applied</span>
+                  </div>
+                ) : (
+                  <Button 
+                    onClick={handleEnroll}
+                    variant="primary" 
+                    className="w-full py-5 text-sm font-bold uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center group"
+                    disabled={enrolling}
+                  >
+                    {enrolling ? (
+                      <div className="flex items-center">
+                        <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent mr-2"></div>
+                        Processing...
+                      </div>
+                    ) : (
+                      <>
+                        {isAuthenticated ? 'Enroll Now' : 'Apply For Admission'} 
+                        <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
+                  </Button>
+                )}
 
                 <p className="text-center text-[10px] text-gray-400 mt-6 leading-relaxed">
                    Admission is competitive. Secure your spot by completing the initial application phase.
                 </p>
 
-                <div className="mt-10 pt-8 border-t border-gray-50 space-y-4">
+                <div className="mt-10 pt-8 border-t border-gray-50 dark:border-slate-800 space-y-4">
                    <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center text-accent">
                          <Users size={20} />
                       </div>
                       <div className="text-left">
-                         <p className="text-xs font-bold text-primary leading-none">Limited Cohort</p>
+                         <p className="text-xs font-bold text-primary dark:text-white leading-none">Limited Cohort</p>
                          <p className="text-[10px] text-gray-400 mt-1 uppercase">25 Seats Available</p>
                       </div>
                    </div>

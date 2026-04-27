@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Course, CourseModule, Enrollment, Student, User, Program } from '../models';
+import * as mailService from '../services/mailService';
 
 // GET /api/courses
 export const getCourses = async (req: Request, res: Response) => {
@@ -27,6 +28,31 @@ export const getCourseById = async (req: Request, res: Response) => {
     });
     if (!course) return res.status(404).json({ message: 'Course not found' });
     res.json(course);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// GET /api/resources/my
+export const getMyResources = async (req: any, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const student = await Student.findOne({ where: { user_id: userId } });
+    if (!student) return res.json([]);
+
+    const enrollments = await Enrollment.findAll({
+      where: { student_id: student.id, status: 'enrolled' }
+    });
+
+    const courseIds = enrollments.map(e => e.course_id).filter(id => !!id);
+    
+    const { CourseResource } = require('../models');
+    const resources = await CourseResource.findAll({
+      where: { course_id: courseIds },
+      include: [{ model: Course, as: 'Course', attributes: ['title_en'] }]
+    });
+
+    res.json(resources);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -102,9 +128,16 @@ export const enrollInCourse = async (req: any, res: Response) => {
       return res.status(400).json({ message: 'Already enrolled in this course' });
     }
 
+    // Calculate fee based on professional_profile
+    let feeAmount = 3600.00; // Default External
+    if (student.professional_profile === 'member_fund') feeAmount = 1800.00;
+    else if (student.professional_profile === 'ministry') feeAmount = 2400.00;
+
     const enrollment = await Enrollment.create({ 
       student_id: student.id, 
       course_id: courseId, 
+      fee_amount: feeAmount,
+      currency: 'USD',
       status: 'pending_approval' 
     });
     res.status(201).json({ message: 'Successfully enrolled!', enrollment });
@@ -124,9 +157,11 @@ export const getMyEnrollments = async (req: any, res: Response) => {
       where: { student_id: student.id },
       include: [
         { 
-          model: Program, 
-          include: [{ model: Course }] 
-        }
+          model: Course, 
+          as: 'Course',
+          include: [{ model: CourseModule, as: 'Modules' }] 
+        },
+        { model: Program }
       ]
     });
     res.json(enrollments);
@@ -155,16 +190,52 @@ export const getAdmissions = async (req: Request, res: Response) => {
   }
 };
 
+
 // PUT /api/admin/admissions/:id
 export const updateEnrollmentStatus = async (req: Request, res: Response) => {
   try {
     const { status } = req.body;
-    const enrollment = await Enrollment.findByPk(req.params.id as string);
+    const enrollment = await Enrollment.findByPk(req.params.id as string, {
+      include: [
+        {
+          model: Student,
+          include: [{ model: User, attributes: ['first_name', 'last_name', 'email'] }]
+        },
+        { model: Program }
+      ]
+    });
+
     if (!enrollment) return res.status(404).json({ message: 'Enrollment not found' });
 
     await enrollment.update({ status });
+
+    // Generate Invoice if approved
+    if (status === 'enrolled') {
+      const { Invoice } = require('../models');
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 30); // Due in 30 days
+      
+      await Invoice.create({
+        student_id: enrollment.student_id,
+        enrollment_id: enrollment.id,
+        total_amount: enrollment.fee_amount,
+        status: 'pending',
+        due_date: dueDate
+      });
+    }
+
+    // Send email notification to student
+    if (enrollment.Student?.User) {
+      await mailService.sendAdmissionStatusUpdate(
+        enrollment.Student.User, 
+        status, 
+        enrollment.Program?.name || 'Selected Program'
+      );
+    }
+
     res.json({ message: `Enrollment ${status} successfully` });
   } catch (error: any) {
+    console.error('Error in updateEnrollmentStatus:', error);
     res.status(400).json({ message: error.message });
   }
 };

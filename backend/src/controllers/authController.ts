@@ -6,7 +6,7 @@ import { sendApplicationNotification } from '../services/mailService';
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, role, preferred_language, program: programName } = req.body;
+    const { name, email, password, role, preferred_language, program: programName, professional_profile } = req.body;
     
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
@@ -32,6 +32,7 @@ export const register = async (req: Request, res: Response) => {
       const student = await Student.create({
         user_id: user.id,
         admission_number,
+        professional_profile: professional_profile || 'external',
         status: 'pending'
       });
 

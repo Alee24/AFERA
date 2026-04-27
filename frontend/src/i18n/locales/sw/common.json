@@ -1,0 +1,49 @@
+{
+  "common": {
+    "welcome": "Karibu AFERA INNOV ACADEMY",
+    "apply_now": "Omba Sasa",
+    "register": "Jisajili",
+    "login": "Ingia",
+    "courses": "Kozi",
+    "workshops": "Warsha za Mandhari",
+    "contact": "Wasiliana",
+    "about_us": "Kuhusu Sisi",
+    "home": "Nyumbani",
+    "student_portal": "Tovuti ya Mwanafunzi",
+    "admin": "Jopo la Utawala",
+    "student": "Dashibodi ya Mwanafunzi",
+    "language": "Lugha",
+    "read_more": "Soma Zaidi"
+  },
+  "navbar": {
+    "home": "Nyumbani",
+    "about": "Kuhusu Sisi",
+    "courses": "Kozi",
+    "workshops": "Warsha",
+    "contact": "Mawasiliano",
+    "login": "Ingia",
+    "apply": "Omba Sasa"
+  },
+  "hero": {
+    "welcome": "Karibu AFERA INNOV ACADEMY",
+    "title1": "Jifunze Leo.",
+    "title2": "Ongoza Kesho.",
+    "subtitle": "Elimu bora inayokubadilisha—chuoni na mtandaoni.",
+    "apply": "OMBA SASA",
+    "view_programs": "TAFUTA PROGRAMU",
+    "stat_faculty": "WALIMU WATAALAMU",
+    "stat_alumni": "PROGRAMU ZILIZOIDHINISHWA",
+    "stat_research": "MAFUNZO RAHISI",
+    "stat_global": "MIZIZI YA KIAFRIKA, MAONO YA KIDUNIA"
+  },
+  "about_preview": {
+    "tagline": "Kuhusu AFERA INNOV ACADEMY",
+    "title": "Urithi wa Ubora katika Elimu ya Juu",
+    "desc1": "Ikiwa imejengwa juu ya misingi ya uvumbuzi na uadilifu, AFERA INNOV ACADEMY imekuwa taa ya maarifa kwa zaidi ya miongo miwili. Tunaamini katika kukuza vipaji na kuwapa wanafunzi wetu zana wanazohitaji ili kufanikiwa katika ulimwengu unaobadilika haraka.",
+    "bullet1": "Vifaa vya kisasa vya utafiti",
+    "bullet2": "Mtaala unaozingatia mahitaji ya tasnia",
+    "bullet3": "Programu za mabadilishano ya kimataifa",
+    "learn_more": "Soma Zaidi Kutuhusu",
+    "years_experience": "Miaka ya Ubora wa Kiakademia"
+  }
+}

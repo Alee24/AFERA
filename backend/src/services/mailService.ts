@@ -81,3 +81,52 @@ export const sendContactNotification = async (contactData: any) => {
 };
 
 
+
+export const sendAdmissionStatusUpdate = async (studentData: any, status: string, programName: string) => {
+  try {
+    const isApproved = status === 'enrolled';
+    const subject = isApproved ? 'Congratulations! Admission Approved' : 'Application Status Update';
+    
+    const mailOptions = {
+      from: '"AFERA INNOV ACADEMY" <admissions@aferainnov.africa>',
+      to: studentData.email,
+      subject: subject,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <h2 style="color: ${isApproved ? '#059669' : '#dc2626'};">${subject}</h2>
+          <p>Dear ${studentData.first_name} ${studentData.last_name},</p>
+          
+          <p>We have completed the review of your application for the <strong>${programName}</strong> at AFERA INNOV ACADEMY.</p>
+          
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 12px; margin: 25px 0; border-left: 5px solid ${isApproved ? '#059669' : '#dc2626'};">
+            <h3 style="margin-top: 0; color: #111827;">Decision:</h3>
+            <p style="font-size: 18px; font-weight: bold; color: ${isApproved ? '#059669' : '#dc2626'};">
+              ${isApproved ? 'ADMISSION APPROVED' : 'APPLICATION UNSUCCESSFUL'}
+            </p>
+            <p><strong>Program:</strong> ${programName}</p>
+          </div>
+          
+          ${isApproved ? `
+            <p>We are delighted to welcome you to our community. You can now log in to your dashboard to view your units, download materials, and access your invoice.</p>
+            <div style="margin: 30px 0;">
+              <a href="https://aferainnov.africa/login" style="background-color: #f59e0b; color: #1e3a8a; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Access Student Dashboard</a>
+            </div>
+          ` : `
+            <p>Thank you for your interest in our programs. While we are unable to offer you admission at this time, we encourage you to apply for future sessions as we expand our intake capacity.</p>
+          `}
+          
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
+          <p style="font-size: 12px; color: #6b7280;">
+            This is an official communication from the Admissions Office, AFERA INNOV ACADEMY.<br />
+            Associated with the African Road Maintenance Funds Association (ARMFA).
+          </p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Admission update email sent to ${studentData.email} (Status: ${status})`);
+  } catch (error) {
+    console.error('Error sending admission update notification:', error);
+  }
+};

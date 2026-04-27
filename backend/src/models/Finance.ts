@@ -17,6 +17,7 @@ FeeStructure.init({
 export class Invoice extends Model {
   public id!: string;
   public student_id!: string;
+  public enrollment_id!: string;
   public total_amount!: number;
   public status!: 'pending' | 'paid' | 'overdue';
   public due_date!: Date;
@@ -24,6 +25,7 @@ export class Invoice extends Model {
 Invoice.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   student_id: { type: DataTypes.UUID, allowNull: false },
+  enrollment_id: { type: DataTypes.UUID, allowNull: true },
   total_amount: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
   status: { type: DataTypes.ENUM('pending', 'paid', 'overdue'), defaultValue: 'pending' },
   due_date: { type: DataTypes.DATE, allowNull: false },

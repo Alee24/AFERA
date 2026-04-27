@@ -16,7 +16,8 @@ export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [program, setProgram] = useState("Specialized master's degree in resource Mobilization and Financing of Road Infrastructure Maintenance");
+  const [program, setProgram] = useState("Specialized Master’s Degree in Resource Mobilization, Financing and Maintenance");
+  const [professionalProfile, setProfessionalProfile] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const { showNotification } = useNotification();
@@ -27,7 +28,14 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post('/auth/register', { name, email, password, program, role: 'student' });
+      await api.post('/auth/register', { 
+        name, 
+        email, 
+        password, 
+        program, 
+        professional_profile: professionalProfile,
+        role: 'student' 
+      });
       const res = await api.post('/auth/login', { email, password });
       const { user, token } = res.data;
       login(user, token);
@@ -105,10 +113,32 @@ export default function RegisterPage() {
                   value={program}
                   onChange={(e) => setProgram(e.target.value)}
                 >
-                  <option value="Specialized master's degree in resource Mobilization and Financing of Road Infrastructure Maintenance">Specialized Master's Degree (Resource Mobilization)</option>
-                  <option value="Results-Based Management for Road Fund Professionals in Africa">Results-Based Management Certificate</option>
+                  <option value="Specialized Master’s Degree in Resource Mobilization, Financing and Maintenance">Specialized Master's Degree (Resource Mobilization)</option>
+                  <option value="Specialist Certification in Results-Based Management (RBM)">Specialist Certification in RBM</option>
                 </select>
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Professional Profile</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <UserIcon className="h-5 w-5 text-gray-400" />
+                </div>
+                <select 
+                  name="professional_profile"
+                  className="block w-full pl-11 pr-3 py-3 border border-gray-200 dark:border-slate-600 rounded-xl bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all appearance-none"
+                  value={professionalProfile}
+                  onChange={(e) => setProfessionalProfile(e.target.value)}
+                  required
+                >
+                  <option value="">Select your profile...</option>
+                  <option value="member_fund">Member Road Fund Staff</option>
+                  <option value="ministry">Ministry / Government Agency</option>
+                  <option value="external">External / International Partner</option>
+                </select>
+              </div>
+              <p className="mt-1.5 text-[10px] text-gray-400 italic">This helps us calculate your applicable tuition and scholarship rates.</p>
             </div>
 
             <div>

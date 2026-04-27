@@ -5,6 +5,7 @@ import * as postController from '../controllers/postController';
 import * as messageController from '../controllers/messageController';
 import * as contactController from '../controllers/contactController';
 import * as userController from '../controllers/userController';
+import * as financeController from '../controllers/financeController';
 import { authenticateJWT, authorizeRole } from '../middleware/auth';
 
 const router = Router();
@@ -48,5 +49,13 @@ router.post('/messages', authenticateJWT, messageController.sendMessage);
 router.post('/contacts', contactController.submitContact);
 router.get('/contacts', authenticateJWT, authorizeRole(['admin']), contactController.getContacts);
 router.put('/contacts/:id', authenticateJWT, authorizeRole(['admin']), contactController.updateContactStatus);
+
+// ===== FINANCE =====
+router.get('/finance/my-invoices', authenticateJWT, financeController.getMyInvoices);
+router.get('/finance/invoices/:id', authenticateJWT, financeController.getInvoiceById);
+router.put('/finance/mock-pay/:id', authenticateJWT, financeController.mockPayInvoice);
+
+// ===== RESOURCES =====
+router.get('/resources/my', authenticateJWT, courseController.getMyResources);
 
 export default router;

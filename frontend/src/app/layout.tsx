@@ -21,15 +21,19 @@ export const metadata: Metadata = {
   keywords: ["University", "Education", "Higher Learning", "Afera Innov Academy", "Courses", "Degrees"],
 };
 
+import { ClientProviders } from "@/components/ClientProviders";
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
-      <body className="min-h-screen bg-background font-inter antialiased">
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.variable} ${poppins.variable} min-h-screen bg-background font-inter antialiased`}>
+        <ClientProviders>
+          {children}
+        </ClientProviders>
       </body>
     </html>
   );

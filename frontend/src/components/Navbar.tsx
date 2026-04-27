@@ -25,6 +25,7 @@ const languages = [
   { code: 'en', label: 'EN' },
   { code: 'fr', label: 'FR' },
   { code: 'pt', label: 'PT' },
+  { code: 'sw', label: 'SW' },
 ];
 
 export default function Navbar() {

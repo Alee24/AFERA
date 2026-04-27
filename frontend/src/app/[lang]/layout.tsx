@@ -16,20 +16,10 @@ export default async function Layout({
 }) {
   const { lang } = await params;
   return (
-    <>
-      <ThemeProvider>
-        <AuthProvider>
-          <NotificationProvider>
-            <I18nProvider>
-              <div className="flex flex-col min-h-screen bg-white dark:bg-slate-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-                <Navbar />
-                <main className="flex-grow">{children}</main>
-                <Footer />
-              </div>
-            </I18nProvider>
-          </NotificationProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </>
+    <div className="flex flex-col min-h-screen bg-white dark:bg-slate-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+      <Navbar />
+      <main className="flex-grow">{children}</main>
+      <Footer />
+    </div>
   );
 }

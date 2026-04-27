@@ -30,12 +30,14 @@ class Student extends Model {
   public id!: string;
   public user_id!: string;
   public admission_number!: string;
+  public professional_profile!: string;
   public status!: 'active' | 'graduated' | 'suspended';
   public enrollment_date!: Date;
 }
 Student.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   admission_number: { type: DataTypes.STRING, unique: true, allowNull: false },
+  professional_profile: { type: DataTypes.STRING, allowNull: true },
   date_of_birth: { type: DataTypes.DATEONLY },
   gender: { type: DataTypes.STRING },
   nationality: { type: DataTypes.STRING },
@@ -68,12 +70,15 @@ class Enrollment extends Model {
   public id!: string;
   public student_id!: string;
   public program_id!: string;
-  public course_id!: string;
+  public currency!: string;
+  public fee_amount!: number;
   public status!: string;
 }
 Enrollment.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   academic_year: { type: DataTypes.STRING },
+  fee_amount: { type: DataTypes.DECIMAL(10, 2), allowNull: true },
+  currency: { type: DataTypes.STRING, defaultValue: 'USD' },
   status: { type: DataTypes.ENUM('enrolled', 'pending_approval', 'withdrawn', 'completed'), defaultValue: 'pending_approval' },
 }, { sequelize, modelName: 'Enrollment', tableName: 'enrollments', underscored: true });
 
@@ -188,6 +193,9 @@ Class.belongsTo(Staff, { foreignKey: 'lecturer_id' });
 Course.hasMany(CourseModule, { foreignKey: 'course_id', as: 'Modules' });
 CourseModule.belongsTo(Course, { foreignKey: 'course_id' });
 
+Course.hasMany(CourseResource, { foreignKey: 'course_id', as: 'Resources' });
+CourseResource.belongsTo(Course, { foreignKey: 'course_id' });
+
 // Enrollment
 Student.hasMany(Enrollment, { foreignKey: 'student_id' });
 Enrollment.belongsTo(Student, { foreignKey: 'student_id' });
@@ -244,7 +252,7 @@ User.hasMany(ActivityLog, { foreignKey: 'user_id' });
 ActivityLog.belongsTo(User, { foreignKey: 'user_id' });
 
 export { 
-  User, Course, CourseModule, Contact, Faculty, Department, Program, 
+  User, Course, CourseModule, CourseResource, Contact, Faculty, Department, Program, 
   CourseUnit, Class, FeeStructure, Invoice, Payment, Post, File,
   Message, Notification, ActivityLog, OnlineCourse, Lesson, LessonProgress,
   Enrollment, Student, Staff, Grade, Assessment, Attendance, CourseRegistration,

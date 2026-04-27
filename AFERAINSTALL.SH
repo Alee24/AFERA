@@ -33,6 +33,8 @@ done
 echo "🗄️ Running Migrations, Schema Fixes & Academic Seeding..."
 docker-compose exec -T backend npm run migrate
 docker-compose exec -T backend npm run db-fix
+docker-compose exec -T backend npx ts-node src/migrations/add-swahili-fields.ts
+docker-compose exec -T backend npx ts-node src/migrations/add-enrollment-finance.ts
 docker-compose exec -T backend npx ts-node src/migrations/seed-programs.ts
 docker-compose exec -T backend npx ts-node src/migrations/seed-applications.ts
 docker-compose exec -T backend npm run seed
