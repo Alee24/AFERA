@@ -36,6 +36,7 @@ docker-compose exec -T backend npm run db-fix
 docker-compose exec -T backend npx ts-node src/migrations/seed-programs.ts
 docker-compose exec -T backend npx ts-node src/migrations/seed-applications.ts
 docker-compose exec -T backend npm run seed
+docker-compose exec -T backend npx ts-node src/migrations/cleanup-courses.ts
 
 echo "🗑️ Wiping all OLD Apache configurations to prevent conflicts..."
 sudo a2dissite afera-main.conf || true
