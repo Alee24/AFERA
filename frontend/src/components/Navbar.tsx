@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import GoogleTranslate from './GoogleTranslate';
 import ThemeToggle from './ThemeToggle';
+import { useAuth } from '@/lib/AuthContext';
+import { LogOut, User as UserIcon, LayoutDashboard } from 'lucide-react';
 
 const navLinks = [
   { key: 'home', href: '/' },
@@ -32,6 +34,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { t, i18n } = useTranslation('common');
+  const { user, logout, isAuthenticated } = useAuth();
 
   const changeLanguage = (lng: string) => {
     const segments = pathname.split('/');
@@ -97,12 +100,30 @@ export default function Navbar() {
             {/* Theme Toggle */}
             <ThemeToggle />
 
-            <Link href={`/${currentLang}/login`}>
-              <button className="flex items-center justify-center space-x-2 bg-primary hover:bg-primary/90 text-white rounded-full px-8 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-md">
-                <span>{t('navbar.login')}</span>
-                <ArrowRight size={14} />
-              </button>
-            </Link>
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-3">
+                <Link href={`/${currentLang}/${user?.role === 'admin' ? 'admin' : 'dashboard'}`}>
+                  <button className="flex items-center justify-center space-x-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-primary dark:text-white rounded-full px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-all">
+                    <LayoutDashboard size={14} />
+                    <span>{t('navbar.dashboard', 'Dashboard')}</span>
+                  </button>
+                </Link>
+                <button 
+                  onClick={logout}
+                  className="flex items-center justify-center p-2.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-all"
+                  title="Logout"
+                >
+                  <LogOut size={18} />
+                </button>
+              </div>
+            ) : (
+              <Link href={`/${currentLang}/login`}>
+                <button className="flex items-center justify-center space-x-2 bg-primary hover:bg-primary/90 text-white rounded-full px-8 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-md">
+                  <span>{t('navbar.login', 'Login')}</span>
+                  <ArrowRight size={14} />
+                </button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Actions */}
@@ -148,12 +169,30 @@ export default function Navbar() {
               </div>
 
               <div className="pt-4 flex flex-col space-y-3">
-                <Link href={`/${currentLang}/login`} onClick={() => setIsOpen(false)}>
-                  <button className="w-full flex items-center justify-center space-x-2 bg-primary text-white rounded-full px-6 py-3 text-xs font-bold uppercase tracking-wider shadow-md">
-                    <span>{t('navbar.login')}</span>
-                    <ArrowRight size={14} />
-                  </button>
-                </Link>
+                {isAuthenticated ? (
+                  <>
+                    <Link href={`/${currentLang}/${user?.role === 'admin' ? 'admin' : 'dashboard'}`} onClick={() => setIsOpen(false)}>
+                      <button className="w-full flex items-center justify-center space-x-2 bg-primary text-white rounded-full px-6 py-3 text-xs font-bold uppercase tracking-wider shadow-md">
+                        <LayoutDashboard size={16} />
+                        <span>{t('navbar.dashboard', 'Dashboard')}</span>
+                      </button>
+                    </Link>
+                    <button 
+                      onClick={() => { logout(); setIsOpen(false); }}
+                      className="w-full flex items-center justify-center space-x-2 border border-red-200 text-red-500 rounded-full px-6 py-3 text-xs font-bold uppercase tracking-wider"
+                    >
+                      <LogOut size={16} />
+                      <span>{t('navbar.logout', 'Logout')}</span>
+                    </button>
+                  </>
+                ) : (
+                  <Link href={`/${currentLang}/login`} onClick={() => setIsOpen(false)}>
+                    <button className="w-full flex items-center justify-center space-x-2 bg-primary text-white rounded-full px-6 py-3 text-xs font-bold uppercase tracking-wider shadow-md">
+                      <span>{t('navbar.login', 'Login')}</span>
+                      <ArrowRight size={14} />
+                    </button>
+                  </Link>
+                )}
               </div>
             </div>
           </motion.div>
