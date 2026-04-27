@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import api from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { useNotification } from '@/lib/NotificationContext';
 
@@ -124,7 +124,7 @@ export default function CourseDetailsPage() {
       }
 
       try {
-        const res = await axios.get(`/api/courses/${id}`);
+        const res = await api.get(`/courses/${id}`);
         setCourse(res.data);
         
         // Check if user is already enrolled
