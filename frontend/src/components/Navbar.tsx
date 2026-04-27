@@ -9,6 +9,7 @@ import { Menu, X, Globe, ChevronDown, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import GoogleTranslate from './GoogleTranslate';
+import ThemeToggle from './ThemeToggle';
 
 const navLinks = [
   { key: 'home', href: '/' },
@@ -93,6 +94,9 @@ export default function Navbar() {
             {/* Google Translate Widget */}
             <GoogleTranslate />
 
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             <Link href={`/${currentLang}/login`}>
               <button className="flex items-center justify-center space-x-2 bg-primary hover:bg-primary/90 text-white rounded-full px-8 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-md">
                 <span>{t('navbar.login')}</span>
@@ -101,8 +105,9 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="flex lg:hidden items-center">
+          {/* Mobile Actions */}
+          <div className="flex lg:hidden items-center space-x-3">
+            <ThemeToggle />
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="text-primary dark:text-white focus:outline-none p-2"
