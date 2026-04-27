@@ -240,8 +240,6 @@ export default function AdminStudentsPage() {
          </div>
       </div>
 
-      </div>
-
       {/* Grades Management Modal */}
       <AnimatePresence>
         {isGradesModalOpen && selectedStudent && (
