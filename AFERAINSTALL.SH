@@ -42,6 +42,7 @@ docker-compose exec -T backend npx ts-node src/migrations/seed-scientific-commit
 docker-compose exec -T backend npx ts-node src/migrations/create-course-resources.ts
 docker-compose exec -T backend npm run seed
 docker-compose exec -T backend npx ts-node src/migrations/cleanup-courses.ts
+docker-compose exec -T backend npx ts-node src/migrations/seed-grades.ts
 
 echo "🗑️ Wiping all OLD Apache configurations to prevent conflicts..."
 sudo a2dissite afera-main.conf || true
