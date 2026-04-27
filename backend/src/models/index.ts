@@ -8,6 +8,7 @@ import Post from './Post';
 import File from './File';
 import CourseModule from './CourseModule';
 import Contact from './Contact';
+import Workshop from './Workshop';
 
 // ===== 1. AUTH & ROLES =====
 class Role extends Model { public id!: string; public name!: string; }
@@ -275,6 +276,6 @@ export {
   CourseUnit, Class, FeeStructure, Invoice, Payment, Post, File,
   Message, Notification, ActivityLog, OnlineCourse, Lesson, LessonProgress,
   Enrollment, Student, Staff, Grade, Assessment, Attendance, CourseRegistration,
-  Role, Permission, RolePermission, StudentDocument
+  Role, Permission, RolePermission, StudentDocument, Workshop
 };
 export default sequelize;

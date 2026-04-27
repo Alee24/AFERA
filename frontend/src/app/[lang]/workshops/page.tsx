@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
-import { useParams } from 'next/navigation';
 
 interface WorkshopDoc {
   id: number;
@@ -103,12 +102,46 @@ const workshopDocs: WorkshopDoc[] = [
   }
 ];
 
+import { useParams } from 'next/navigation';
+import api from '@/lib/api';
+import { useNotification } from '@/lib/NotificationContext';
+
 export default function WorkshopsPage() {
   const { lang } = useParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
+  const [workshops, setWorkshops] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { showNotification } = useNotification();
 
-  const filteredDocs = workshopDocs.filter(doc => 
+  React.useEffect(() => {
+    fetchWorkshops();
+  }, []);
+
+  const fetchWorkshops = async () => {
+    try {
+      const res = await api.get('/workshops');
+      // Map API fields to UI fields if necessary, or just use them
+      const apiDocs = res.data.map((w: any) => ({
+        id: w.id,
+        title: w.title_en,
+        filename: w.file_url,
+        type: w.type || 'PPTX',
+        category: w.category,
+        date: new Date(w.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+        thumbnail: w.image_url
+      }));
+      
+      // Combine with static ones for now or just replace
+      setWorkshops([...apiDocs, ...workshopDocs]);
+    } catch (err) {
+      setWorkshops(workshopDocs);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredDocs = workshops.filter(doc => 
     doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     doc.category.toLowerCase().includes(searchTerm.toLowerCase())
   );

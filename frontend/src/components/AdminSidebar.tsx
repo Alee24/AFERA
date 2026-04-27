@@ -14,7 +14,8 @@ import {
   UserCheck,
   ShieldCheck,
   Bell,
-  DollarSign
+  DollarSign,
+  Presentation
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -26,6 +27,7 @@ const menuItems = [
   { icon: Users, label: 'Students', href: '/admin/students' },
   { icon: BookOpen, label: 'Programs & Courses', href: '/admin/courses' },
   { icon: ShieldCheck, label: 'Academic Structure', href: '/admin/academic' },
+  { icon: Presentation, label: 'Workshops & Blog', href: '/admin/workshops' },
   { icon: DollarSign, label: 'Finance & Billing', href: '/admin/finance' },
   { icon: MessageSquare, label: 'Contact Inbox', href: '/admin/contacts' },
   { icon: FileText, label: 'Strategic Reports', href: '/admin/reports' },

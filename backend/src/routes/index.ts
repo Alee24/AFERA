@@ -7,6 +7,7 @@ import * as contactController from '../controllers/contactController';
 import * as userController from '../controllers/userController';
 import * as financeController from '../controllers/financeController';
 import * as academicController from '../controllers/academicController';
+import * as workshopController from '../controllers/workshopController';
 import { authenticateJWT, authorizeRole } from '../middleware/auth';
 
 const router = Router();
@@ -77,5 +78,11 @@ router.post('/academic/grades', authenticateJWT, authorizeRole(['admin']), acade
 router.get('/academic/structure', authenticateJWT, authorizeRole(['admin']), academicController.getFullAcademicStructure);
 router.get('/academic/classes/:classId/assessments', authenticateJWT, authorizeRole(['admin']), academicController.getAssessmentsByClass);
 router.post('/academic/assessments', authenticateJWT, authorizeRole(['admin']), academicController.createAssessment);
+
+// Workshops
+router.get('/workshops', workshopController.getWorkshops);
+router.post('/workshops', authenticateJWT, authorizeRole(['admin']), workshopController.createWorkshop);
+router.put('/workshops/:id', authenticateJWT, authorizeRole(['admin']), workshopController.updateWorkshop);
+router.delete('/workshops/:id', authenticateJWT, authorizeRole(['admin']), workshopController.deleteWorkshop);
 
 export default router;
