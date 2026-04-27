@@ -177,8 +177,12 @@ export default function WorkshopsPage() {
                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
                        />
                     ) : (
-                       <div className="w-full h-full flex items-center justify-center text-primary/20 bg-primary/5">
-                          {doc.type === 'PPTX' ? <Presentation size={64} /> : <FileText size={64} />}
+                       <div className="w-full h-full bg-gray-50 flex items-center justify-center p-12">
+                          <img 
+                            src={doc.type === 'PPTX' ? '/pptx-icon.png' : '/pdf-icon.png'} 
+                            alt={doc.type} 
+                            className="max-w-full max-h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity" 
+                          />
                        </div>
                     )}
                     <div className="absolute top-4 left-4">
