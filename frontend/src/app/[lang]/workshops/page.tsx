@@ -25,8 +25,7 @@ const workshopDocs = [
     filename: "TREPP-2026-PRESENTATION-Dr-Ali-Alkassoum.pptx",
     type: "PPTX",
     category: "Case Study",
-    date: "April 2026",
-    thumbnail: "/trepp-thumbnail.png"
+    date: "April 2026"
   },
   {
     id: 1,
