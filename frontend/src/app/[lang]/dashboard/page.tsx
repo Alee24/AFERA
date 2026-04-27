@@ -77,7 +77,7 @@ export default function StudentDashboard() {
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-10 gap-6">
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-3xl font-bold text-primary dark:text-white flex items-center">
-              Welcome back, <span className="text-accent italic ml-2">{user?.name || 'Student'}</span>
+              Welcome back, <span className="text-accent italic ml-2">{user?.first_name || 'Student'}</span>
               <span className="ml-3 px-3 py-1 bg-accent/10 text-accent text-[10px] font-black uppercase tracking-widest rounded-full border border-accent/20">Active Scholar</span>
             </h1>
             <p className="text-gray-500 mt-2 font-medium">Your academic journey is 65% complete. Keep it up!</p>
@@ -315,11 +315,11 @@ export default function StudentDashboard() {
              <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-sm border border-gray-50 dark:border-slate-800 text-center">
                 <div className="relative inline-block mb-6">
                    <div className="w-24 h-24 rounded-[32px] bg-primary flex items-center justify-center text-white text-3xl font-black shadow-2xl relative z-10">
-                      {user?.name?.[0] || 'S'}
+                      {user?.first_name?.[0] || 'S'}
                    </div>
                    <div className="absolute inset-0 bg-accent rounded-[32px] translate-x-2 translate-y-2 opacity-20"></div>
                 </div>
-                <h3 className="text-xl font-bold text-primary dark:text-white">{user?.name || 'Student'}</h3>
+                <h3 className="text-xl font-bold text-primary dark:text-white">{user?.first_name} {user?.last_name}</h3>
                 <p className="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">Enrollment No: AFR-2026-901</p>
                 
                 <div className="mt-8 pt-8 border-t border-gray-50 dark:border-slate-800 space-y-4">
