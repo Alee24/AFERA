@@ -37,6 +37,7 @@ docker-compose exec -T backend npx ts-node src/migrations/add-swahili-fields.ts
 docker-compose exec -T backend npx ts-node src/migrations/add-enrollment-finance.ts
 docker-compose exec -T backend npx ts-node src/migrations/seed-programs.ts
 docker-compose exec -T backend npx ts-node src/migrations/seed-applications.ts
+docker-compose exec -T backend npx ts-node src/migrations/create-contacts.ts
 docker-compose exec -T backend npm run seed
 docker-compose exec -T backend npx ts-node src/migrations/cleanup-courses.ts
 
