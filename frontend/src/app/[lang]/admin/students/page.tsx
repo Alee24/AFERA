@@ -14,7 +14,11 @@ import {
   ChevronRight,
   UserPlus,
   Download,
-  GraduationCap
+  GraduationCap,
+  X,
+  PlusCircle,
+  Save,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useNotification } from '@/lib/NotificationContext';
@@ -24,6 +28,11 @@ import { motion } from 'framer-motion';
 export default function AdminStudentsPage() {
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [isGradesModalOpen, setIsGradesModalOpen] = useState(false);
+  const [academicStructure, setAcademicStructure] = useState<any[]>([]);
+  const [currentGrades, setCurrentGrades] = useState<any[]>([]);
+  const [submittingGrade, setSubmittingGrade] = useState(false);
   const { showNotification } = useNotification();
 
   useEffect(() => {
@@ -40,6 +49,50 @@ export default function AdminStudentsPage() {
       showNotification(err.response?.data?.message || 'Failed to load student directory', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAcademicStructure = async () => {
+    try {
+      const res = await api.get('/academic/structure');
+      setAcademicStructure(res.data);
+    } catch (err) {
+      showNotification('Failed to load academic structure', 'error');
+    }
+  };
+
+  const handleManageGrades = async (student: any) => {
+    setSelectedStudent(student);
+    setIsGradesModalOpen(true);
+    if (academicStructure.length === 0) fetchAcademicStructure();
+    
+    try {
+      const res = await api.get(`/academic/students/${student.StudentProfile.id}/grades`);
+      setCurrentGrades(res.data);
+    } catch (err) {
+      showNotification('Failed to load student grades', 'error');
+    }
+  };
+
+  const handleUpdateGrade = async (assessmentId: string, score: string, grade: string, remarks: string) => {
+    if (!selectedStudent) return;
+    setSubmittingGrade(true);
+    try {
+      await api.post('/academic/grades', {
+        student_id: selectedStudent.StudentProfile.id,
+        assessment_id: assessmentId,
+        score,
+        grade,
+        remarks
+      });
+      showNotification('Grade updated successfully', 'success');
+      // Refresh grades
+      const res = await api.get(`/academic/students/${selectedStudent.StudentProfile.id}/grades`);
+      setCurrentGrades(res.data);
+    } catch (err) {
+      showNotification('Failed to update grade', 'error');
+    } finally {
+      setSubmittingGrade(false);
     }
   };
 
@@ -152,7 +205,10 @@ export default function AdminStudentsPage() {
                          </div>
                       </td>
                       <td className="px-10 py-6 text-right">
-                         <button className="p-3 bg-gray-50 text-gray-400 hover:bg-primary hover:text-white rounded-xl transition-all shadow-sm group/btn">
+                         <button 
+                           onClick={() => handleManageGrades(student)}
+                           className="p-3 bg-gray-50 text-gray-400 hover:bg-primary hover:text-white rounded-xl transition-all shadow-sm group/btn"
+                         >
                             <ChevronRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
                          </button>
                       </td>
@@ -184,6 +240,183 @@ export default function AdminStudentsPage() {
          </div>
       </div>
 
+      </div>
+
+      {/* Grades Management Modal */}
+      <AnimatePresence>
+        {isGradesModalOpen && selectedStudent && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-primary/40 backdrop-blur-md">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white dark:bg-slate-900 w-full max-w-5xl h-[90vh] rounded-[48px] shadow-2xl overflow-hidden border border-white/20 flex flex-col"
+            >
+               <div className="p-10 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-gray-50/30">
+                  <div className="flex items-center space-x-6">
+                    <div className="w-16 h-16 bg-primary text-white rounded-[24px] flex items-center justify-center font-black text-xl">
+                      {selectedStudent.first_name[0]}{selectedStudent.last_name[0]}
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-black text-primary dark:text-white leading-tight">Manage Academic Grades</h3>
+                      <p className="text-gray-500 font-medium">{selectedStudent.first_name} {selectedStudent.last_name} • {selectedStudent.StudentProfile?.admission_number}</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setIsGradesModalOpen(false)} 
+                    className="w-12 h-12 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center text-gray-400 hover:text-red-500 transition-all shadow-sm"
+                  >
+                    <X size={24} />
+                  </button>
+               </div>
+
+               <div className="flex-1 overflow-y-auto p-10 space-y-10">
+                  {/* Academic Structure Explorer */}
+                  {academicStructure.map((program) => (
+                    <div key={program.id} className="space-y-6">
+                      <div className="flex items-center space-x-4">
+                        <div className="h-px flex-1 bg-gray-100 dark:bg-slate-800"></div>
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">{program.name}</span>
+                        <div className="h-px flex-1 bg-gray-100 dark:bg-slate-800"></div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {program.Courses?.map((course: any) => (
+                          course.CourseUnits?.map((unit: any) => (
+                            unit.Classes?.map((cls: any) => (
+                              <div key={cls.id} className="bg-gray-50/50 dark:bg-slate-800/30 rounded-[32px] p-8 border border-gray-100 dark:border-slate-800 group hover:border-primary/20 transition-all">
+                                <div className="flex justify-between items-start mb-6">
+                                  <div>
+                                    <h5 className="font-bold text-primary dark:text-white leading-snug">{unit.name}</h5>
+                                    <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1">{course.course_code} • Sem {unit.semester}</p>
+                                  </div>
+                                  <div className="text-right">
+                                    <span className="text-[10px] font-black text-accent uppercase tracking-widest">{cls.academic_year}</span>
+                                  </div>
+                                </div>
+
+                                {/* Grade Input Form */}
+                                <GradeEntryForm 
+                                  classId={cls.id}
+                                  studentId={selectedStudent.StudentProfile.id}
+                                  existingGrades={currentGrades}
+                                  onSave={handleUpdateGrade}
+                                  submitting={submittingGrade}
+                                />
+                              </div>
+                            ))
+                          ))
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+    </div>
+  );
+}
+
+// Sub-component for Grade Entry
+function GradeEntryForm({ classId, studentId, existingGrades, onSave, submitting }: any) {
+  const [score, setScore] = useState('');
+  const [grade, setGrade] = useState('');
+  const [remarks, setRemarks] = useState('');
+  const [activeAssessment, setActiveAssessment] = useState<any>(null);
+  const [assessments, setAssessments] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchAssessments();
+  }, [classId]);
+
+  const fetchAssessments = async () => {
+    try {
+      const res = await api.get(`/academic/classes/${classId}/assessments`);
+      setAssessments(res.data);
+      if (res.data.length > 0) {
+        setActiveAssessment(res.data[0]);
+        // Find existing grade
+        const existing = existingGrades.find((g: any) => g.assessment_id === res.data[0].id);
+        if (existing) {
+          setScore(existing.score);
+          setGrade(existing.grade);
+          setRemarks(existing.remarks || '');
+        }
+      }
+    } catch (err) {}
+  };
+
+  const handleAutoGrade = (val: string) => {
+    const s = parseFloat(val);
+    setScore(val);
+    if (s >= 70) setGrade('A');
+    else if (s >= 60) setGrade('B');
+    else if (s >= 50) setGrade('C');
+    else if (s >= 40) setGrade('D');
+    else setGrade('E');
+  };
+
+  return (
+    <div className="space-y-4">
+      {assessments.length === 0 ? (
+        <Button 
+          variant="outline" 
+          className="w-full h-12 rounded-xl text-[10px] font-black uppercase tracking-widest"
+          onClick={async () => {
+            const res = await api.post('/academic/assessments', { 
+              class_id: classId, 
+              type: 'Exam', 
+              total_marks: 100 
+            });
+            setAssessments([res.data]);
+            setActiveAssessment(res.data);
+          }}
+        >
+          <PlusCircle size={14} className="mr-2" /> Create Exam Assessment
+        </Button>
+      ) : (
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">Mark (%)</label>
+            <input 
+              type="number" 
+              value={score} 
+              onChange={e => handleAutoGrade(e.target.value)}
+              className="w-full h-12 bg-white dark:bg-slate-800 border-none rounded-xl px-4 font-bold text-sm"
+              placeholder="0-100"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">Grade</label>
+            <input 
+              type="text" 
+              value={grade} 
+              onChange={e => setGrade(e.target.value)}
+              className="w-full h-12 bg-white dark:bg-slate-800 border-none rounded-xl px-4 font-bold text-sm text-center"
+              placeholder="A, B, C..."
+            />
+          </div>
+          <div className="col-span-2 space-y-1.5">
+             <input 
+              type="text" 
+              value={remarks} 
+              onChange={e => setRemarks(e.target.value)}
+              className="w-full h-12 bg-white dark:bg-slate-800 border-none rounded-xl px-4 text-xs font-medium"
+              placeholder="Add lecturer remarks..."
+            />
+          </div>
+          <Button 
+            disabled={submitting}
+            onClick={() => onSave(activeAssessment.id, score, grade, remarks)}
+            className="col-span-2 h-12 bg-primary text-white rounded-xl font-bold uppercase tracking-widest text-[10px]"
+          >
+            {submitting ? <Loader2 className="animate-spin" size={16} /> : <><Save size={14} className="mr-2" /> Update Result</>}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

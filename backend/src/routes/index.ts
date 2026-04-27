@@ -72,5 +72,10 @@ router.delete('/academic/departments/:id', authenticateJWT, authorizeRole(['admi
 router.post('/academic/programs', authenticateJWT, authorizeRole(['admin']), academicController.createProgram);
 router.get('/academic/my-grades', authenticateJWT, academicController.getMyGrades);
 router.get('/academic/transcript', authenticateJWT, academicController.generateTranscript);
+router.get('/academic/students/:studentId/grades', authenticateJWT, authorizeRole(['admin']), academicController.getStudentGrades);
+router.post('/academic/grades', authenticateJWT, authorizeRole(['admin']), academicController.upsertGrade);
+router.get('/academic/structure', authenticateJWT, authorizeRole(['admin']), academicController.getFullAcademicStructure);
+router.get('/academic/classes/:classId/assessments', authenticateJWT, authorizeRole(['admin']), academicController.getAssessmentsByClass);
+router.post('/academic/assessments', authenticateJWT, authorizeRole(['admin']), academicController.createAssessment);
 
 export default router;

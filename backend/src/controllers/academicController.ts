@@ -155,3 +155,82 @@ export const generateTranscript = async (req: any, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getStudentGrades = async (req: Request, res: Response) => {
+  try {
+    const { studentId } = req.params;
+    const grades = await Grade.findAll({
+      where: { student_id: studentId },
+      include: [{
+        model: Assessment,
+        include: [{
+          model: Class,
+          include: [{
+            model: CourseUnit,
+            include: [Course]
+          }]
+        }]
+      }]
+    });
+    res.json(grades);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const upsertGrade = async (req: Request, res: Response) => {
+  try {
+    const { student_id, assessment_id, score, grade, remarks } = req.body;
+    
+    const [gradeRecord, created] = await Grade.findOrCreate({
+      where: { student_id, assessment_id },
+      defaults: { score, grade, remarks }
+    });
+
+    if (!created) {
+      await gradeRecord.update({ score, grade, remarks });
+    }
+
+    res.json(gradeRecord);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const getFullAcademicStructure = async (req: Request, res: Response) => {
+  try {
+    const structure = await Program.findAll({
+      include: [{
+        model: Course,
+        include: [{
+          model: CourseUnit,
+          include: [{
+            model: Class
+          }]
+        }]
+      }]
+    });
+    res.json(structure);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getAssessmentsByClass = async (req: Request, res: Response) => {
+  try {
+    const { classId } = req.params;
+    const assessments = await Assessment.findAll({ where: { class_id: classId } });
+    res.json(assessments);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const createAssessment = async (req: Request, res: Response) => {
+  try {
+    const assessment = await Assessment.create(req.body);
+    res.status(201).json(assessment);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
