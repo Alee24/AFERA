@@ -49,11 +49,30 @@ const fixDatabase = async () => {
       await queryInterface.addColumn('enrollments', 'course_id', { type: 'UUID' });
     }
 
-    // 5. Ensure Workshops and GatewaySettings tables exist
-    const { Workshop, GatewaySetting } = require('../models');
+    // 5. Ensure all Portal tables exist
+    const { 
+      Workshop, 
+      GatewaySetting, 
+      Staff, 
+      CourseUnit, 
+      Class, 
+      Assessment, 
+      Grade, 
+      Attendance,
+      CourseRegistration
+    } = require('../models');
+    
     await Workshop.sync();
     await GatewaySetting.sync();
-    console.log('✅ Workshops and Payment Gateways tables synchronized.');
+    await Staff.sync();
+    await CourseUnit.sync();
+    await Class.sync();
+    await Assessment.sync();
+    await Grade.sync();
+    await Attendance.sync();
+    await CourseRegistration.sync();
+    
+    console.log('✅ All Portal and Payment tables synchronized.');
 
     console.log('✅ Database Schema Fix COMPLETED!');
     process.exit(0);

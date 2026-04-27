@@ -22,9 +22,12 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Login attempt started...', { email });
     setLoading(true);
     try {
       const res = await api.post('/auth/login', { email, password });
+      console.log('Login response received:', res.data);
+      
       const { user, token } = res.data;
       login(user, token);
       showNotification('Login successful! Welcome back.', 'success');
@@ -34,11 +37,17 @@ export default function LoginPage() {
       if (user.role === 'admin') target = 'admin';
       if (user.role === 'lecturer') target = 'lecturer';
       
-      router.push(`/${i18n.language || 'en'}/${target}`);
+      const currentLang = i18n.language || 'en';
+      console.log(`Redirecting to: /${currentLang}/${target}`);
+      router.push(`/${currentLang}/${target}`);
     } catch (err: any) {
-      // Strict requirement: show actual errors
+      console.error('Login error:', err);
       const errMsg = err.response?.data?.message || err.message || 'An error occurred during login.';
       showNotification(errMsg, 'error');
+      // Fallback for invisible notifications
+      if (typeof window !== 'undefined') {
+        console.log('SHOWING ERROR:', errMsg);
+      }
     } finally {
       setLoading(false);
     }

@@ -30,6 +30,16 @@ app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'Afera University API is running' });
 });
 
+// Error Handling Middleware
+app.use((err: any, req: Request, res: Response, next: any) => {
+  console.error('🔥 Backend Error:', err);
+  res.status(err.status || 500).json({
+    message: err.message || 'An unexpected error occurred on the server',
+    error: process.env.NODE_ENV === 'development' ? err : undefined,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

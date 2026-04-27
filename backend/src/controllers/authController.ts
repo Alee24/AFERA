@@ -57,13 +57,17 @@ export const register = async (req: Request, res: Response) => {
     // Send notification email to CEO
     sendApplicationNotification({ name, email, program: programName });
 
-    // Refresh user to include StudentProfile
+    // Refresh user to include Profile
+    const include = [];
+    if (user.role === 'student') {
+      include.push({ model: Student, as: 'StudentProfile' });
+    } else if (user.role === 'lecturer' || user.role === 'staff') {
+      include.push({ model: Staff, as: 'StaffProfile' });
+    }
+
     const userWithProfile = await User.findByPk(user.id, {
       attributes: { exclude: ['password_hash'] },
-      include: [
-        { model: Student, as: 'StudentProfile' },
-        { model: Staff, as: 'StaffProfile' }
-      ]
+      include
     });
 
     res.status(201).json({ user: userWithProfile, token });
@@ -87,12 +91,16 @@ export const login = async (req: Request, res: Response) => {
       { expiresIn: '24h' }
     );
 
+    const include = [];
+    if (user.role === 'student') {
+      include.push({ model: Student, as: 'StudentProfile' });
+    } else if (user.role === 'lecturer' || user.role === 'staff') {
+      include.push({ model: Staff, as: 'StaffProfile' });
+    }
+
     const userWithProfile = await User.findByPk(user.id, {
       attributes: { exclude: ['password_hash'] },
-      include: [
-        { model: Student, as: 'StudentProfile' },
-        { model: Staff, as: 'StaffProfile' }
-      ]
+      include
     });
 
     res.json({ user: userWithProfile, token });

@@ -108,3 +108,51 @@
     margin: 20mm;
   }
 }
+
+/* Notification System Styles */
+.notification-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.notification {
+  pointer-events: auto;
+  padding: 16px 24px;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  color: #051A31;
+  font-weight: 600;
+  font-size: 14px;
+  min-width: 300px;
+  max-width: 450px;
+  border-left: 4px solid #051A31;
+  animation: slideIn 0.3s ease-out;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notification.success {
+  border-left-color: #10b981;
+  background: #f0fdf4;
+  color: #064e3b;
+}
+
+.notification.error {
+  border-left-color: #ef4444;
+  background: #fef2f2;
+  color: #7f1d1d;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
