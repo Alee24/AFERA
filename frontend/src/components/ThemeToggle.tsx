@@ -7,6 +7,17 @@ import { motion } from 'framer-motion';
 
 export default function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="p-2.5 rounded-xl bg-gray-100 dark:bg-slate-800 w-10 h-10 shadow-sm border border-transparent"></div>
+    );
+  }
 
   return (
     <motion.button
