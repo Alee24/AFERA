@@ -22,6 +22,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
     });
     res.json(users);
   } catch (error: any) {
+    console.error('Error in getAllUsers:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -74,6 +75,7 @@ export const getAdminStats = async (req: Request, res: Response) => {
     const totalContacts = await Contact.count();
     res.json({ totalUsers, totalStudents, totalCourses, totalEnrollments, totalContacts });
   } catch (error: any) {
+    console.error('Error in getAdminStats:', error);
     res.status(500).json({ message: error.message });
   }
 };

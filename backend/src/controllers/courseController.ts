@@ -150,6 +150,7 @@ export const getAdmissions = async (req: Request, res: Response) => {
     });
     res.json(enrollments);
   } catch (error: any) {
+    console.error('Error in getAdmissions:', error);
     res.status(500).json({ message: error.message });
   }
 };
