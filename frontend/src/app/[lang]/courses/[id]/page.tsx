@@ -20,6 +20,8 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import { useAuth } from '@/lib/AuthContext';
+import { useNotification } from '@/lib/NotificationContext';
 
 export default function CourseDetailsPage() {
   const { lang, id } = useParams();
