@@ -5,15 +5,16 @@ import {
   UserCheck, 
   Search, 
   Filter, 
-  MoreVertical, 
   CheckCircle2, 
   XCircle, 
   Eye,
   Calendar,
   Mail,
-  MapPin,
-  ChevronRight,
-  ArrowUpRight
+  ArrowUpRight,
+  Download,
+  Users,
+  Clock,
+  ChevronDown
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useNotification } from '@/lib/NotificationContext';
@@ -25,6 +26,7 @@ export default function AdminApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState<any>(null);
   const { showNotification } = useNotification();
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchApplications();
@@ -44,86 +46,87 @@ export default function AdminApplicationsPage() {
   const handleStatusUpdate = async (id: string, status: string) => {
     try {
       await api.put(`/admin/admissions/${id}`, { status });
-      showNotification(`Application ${status} successfully`, 'success');
+      showNotification(`Application ${status === 'enrolled' ? 'approved' : 'rejected'} successfully`, 'success');
       fetchApplications();
     } catch (err) {
       showNotification('Operation failed', 'error');
     }
   };
 
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'Pending...';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Recieved Recently';
+    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
+  const filteredApps = applications.filter(app => {
+    const searchStr = `${app.Student?.User?.first_name} ${app.Student?.User?.last_name} ${app.Program?.name}`.toLowerCase();
+    return searchStr.includes(searchTerm.toLowerCase());
+  });
+
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 pb-20">
       {/* Detail Modal */}
       <AnimatePresence>
         {selectedApp && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-primary/40 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md">
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[40px] shadow-2xl overflow-hidden"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[48px] shadow-2xl overflow-hidden border border-white/20 dark:border-slate-800"
             >
               <div className="p-8 md:p-12">
                 <div className="flex justify-between items-start mb-10">
                    <div className="flex items-center space-x-6">
-                      <div className="w-20 h-20 bg-primary text-white rounded-3xl flex items-center justify-center text-3xl font-black shadow-xl">
+                      <div className="w-24 h-24 bg-gradient-to-br from-primary to-primary-600 text-white rounded-[32px] flex items-center justify-center text-4xl font-black shadow-2xl shadow-primary/30">
                          {selectedApp.Student?.User?.first_name?.[0]}{selectedApp.Student?.User?.last_name?.[0]}
                       </div>
                       <div>
-                         <h2 className="text-3xl font-bold text-primary dark:text-white">
-                            {selectedApp.Student?.User?.first_name} {selectedApp.Student?.User?.last_name}
+                         <h2 className="text-4xl font-black text-primary dark:text-white tracking-tight leading-tight">
+                            {selectedApp.Student?.User?.first_name}<br/>{selectedApp.Student?.User?.last_name}
                          </h2>
-                         <p className="text-gray-400 font-medium">Applied for {selectedApp.Program?.name}</p>
+                         <div className="flex items-center mt-2 text-accent font-bold text-sm">
+                            <GraduationCap size={16} className="mr-2" /> {selectedApp.Program?.name}
+                         </div>
                       </div>
                    </div>
                    <button 
                      onClick={() => setSelectedApp(null)}
-                     className="w-12 h-12 bg-gray-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-gray-400 hover:text-primary transition-colors"
+                     className="w-14 h-14 bg-gray-50 dark:bg-slate-800/50 rounded-2xl flex items-center justify-center text-gray-400 hover:text-primary dark:hover:text-white hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200"
                    >
-                      <XCircle size={24} />
+                      <XCircle size={28} />
                    </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-8 mb-10">
-                   <div className="space-y-1">
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email Address</p>
-                      <p className="font-bold text-primary dark:text-white">{selectedApp.Student?.User?.email}</p>
-                   </div>
-                   <div className="space-y-1">
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Phone Number</p>
-                      <p className="font-bold text-primary dark:text-white">{selectedApp.Student?.User?.phone || 'N/A'}</p>
-                   </div>
-                   <div className="space-y-1">
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nationality</p>
-                      <p className="font-bold text-primary dark:text-white">{selectedApp.Student?.nationality || 'N/A'}</p>
-                   </div>
-                   <div className="space-y-1">
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Gender</p>
-                      <p className="font-bold text-primary dark:text-white capitalize">{selectedApp.Student?.gender || 'N/A'}</p>
-                   </div>
-                   <div className="space-y-1">
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Date of Birth</p>
-                      <p className="font-bold text-primary dark:text-white">
-                         {selectedApp.Student?.date_of_birth ? new Date(selectedApp.Student.date_of_birth).toLocaleDateString() : 'N/A'}
-                      </p>
-                   </div>
-                   <div className="space-y-1">
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Admission Number</p>
-                      <p className="font-bold text-accent">{selectedApp.Student?.admission_number}</p>
-                   </div>
+                <div className="grid grid-cols-2 gap-x-12 gap-y-8 mb-12">
+                   {[
+                     { label: 'Email Address', value: selectedApp.Student?.User?.email },
+                     { label: 'Phone Number', value: selectedApp.Student?.User?.phone || 'Not Provided' },
+                     { label: 'Nationality', value: selectedApp.Student?.nationality || 'N/A' },
+                     { label: 'Gender', value: selectedApp.Student?.gender || 'N/A' },
+                     { label: 'Date of Birth', value: formatDate(selectedApp.Student?.date_of_birth) },
+                     { label: 'Scholar ID', value: selectedApp.Student?.admission_number, highlight: true }
+                   ].map((item, i) => (
+                     <div key={i} className="space-y-1.5">
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{item.label}</p>
+                        <p className={`font-bold ${item.highlight ? 'text-accent' : 'text-primary dark:text-white'}`}>{item.value}</p>
+                     </div>
+                   ))}
                 </div>
 
                 <div className="flex space-x-4">
                    <Button 
                      onClick={() => { handleStatusUpdate(selectedApp.id, 'enrolled'); setSelectedApp(null); }}
-                     className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl py-4 font-bold uppercase tracking-widest shadow-lg shadow-emerald-600/20"
+                     className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded-3xl h-16 font-bold uppercase tracking-widest shadow-xl shadow-emerald-500/20 text-xs"
                    >
-                      Approve & Enroll
+                      Approve & Enroll Scholar
                    </Button>
                    <Button 
                      onClick={() => { handleStatusUpdate(selectedApp.id, 'withdrawn'); setSelectedApp(null); }}
                      variant="outline"
-                     className="flex-1 border-red-100 text-red-600 hover:bg-red-50 rounded-2xl py-4 font-bold uppercase tracking-widest"
+                     className="flex-1 border-red-100 text-red-500 hover:bg-red-50 rounded-3xl h-16 font-bold uppercase tracking-widest text-xs"
                    >
                       Reject Application
                    </Button>
@@ -134,120 +137,138 @@ export default function AdminApplicationsPage() {
         )}
       </AnimatePresence>
 
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-bold text-primary dark:text-white">Admission Portal</h1>
-          <p className="text-gray-500 mt-2 font-medium">Review and manage incoming student applications for 2026.</p>
-        </div>
-        <div className="flex items-center space-x-3">
-           <Button variant="outline" className="rounded-2xl border-gray-100 bg-white shadow-sm">
-              <Calendar size={18} className="mr-2" /> Academic Calendar
-           </Button>
-           <Button className="bg-primary text-white rounded-2xl px-6 shadow-lg shadow-primary/20">
-              Generate Admissions Report
-           </Button>
-        </div>
+      {/* Hero Stats Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+         <div className="lg:col-span-2 space-y-2">
+            <h1 className="text-5xl font-black text-primary dark:text-white tracking-tighter">Admission <span className="text-accent italic">Portal</span></h1>
+            <p className="text-gray-500 font-medium text-lg">Orchestrating the next generation of African infrastructure leaders.</p>
+         </div>
+         <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-sm border border-gray-50 dark:border-slate-800 flex items-center justify-between group hover:shadow-xl transition-all">
+            <div>
+               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Applicants</p>
+               <p className="text-3xl font-black text-primary dark:text-white">{applications.length}</p>
+            </div>
+            <div className="w-14 h-14 bg-primary/5 rounded-[24px] flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+               <Users size={28} />
+            </div>
+         </div>
+         <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-sm border border-gray-50 dark:border-slate-800 flex items-center justify-between group hover:shadow-xl transition-all">
+            <div>
+               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Pending Review</p>
+               <p className="text-3xl font-black text-accent">{applications.filter(a => a.status === 'pending_approval').length}</p>
+            </div>
+            <div className="w-14 h-14 bg-accent/5 rounded-[24px] flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
+               <Clock size={28} />
+            </div>
+         </div>
       </div>
 
-      {/* Filters & Search */}
-      <div className="bg-white dark:bg-slate-900 p-6 rounded-[32px] border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center gap-6">
-         <div className="relative flex-1 w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+      {/* Advanced Filters */}
+      <div className="flex flex-col xl:flex-row items-center gap-6">
+         <div className="relative flex-1 w-full group">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" size={22} />
             <input 
               type="text" 
-              placeholder="Search by name, email or program..." 
-              className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by name, professional profile or program..." 
+              className="w-full pl-16 pr-6 h-20 bg-white dark:bg-slate-900 border-none rounded-[32px] text-base font-medium shadow-sm focus:ring-4 focus:ring-primary/5 dark:focus:ring-white/5 transition-all outline-none"
             />
          </div>
-         <div className="flex items-center space-x-3 w-full md:w-auto">
-            <Button variant="outline" className="flex-1 md:flex-none rounded-2xl border-gray-50 px-6">
-               <Filter size={18} className="mr-2" /> Filter Status
+         <div className="flex items-center space-x-4 w-full xl:w-auto">
+            <Button variant="outline" className="h-20 flex-1 xl:flex-none rounded-[32px] border-none bg-white dark:bg-slate-900 px-8 text-primary dark:text-white font-bold text-sm shadow-sm hover:shadow-md transition-all">
+               <Filter size={20} className="mr-3 text-accent" /> Advanced Filter <ChevronDown size={18} className="ml-3 opacity-30" />
             </Button>
-            <Button variant="outline" className="flex-1 md:flex-none rounded-2xl border-gray-50 px-6">
-               Program: All
+            <Button className="h-20 bg-primary text-white rounded-[32px] px-10 font-bold text-sm shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+               <Download size={20} className="mr-3" /> Export Selection
             </Button>
          </div>
       </div>
 
-      {/* Applications List */}
-      <div className="bg-white dark:bg-slate-900 rounded-[40px] border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden">
+      {/* Master Data Table */}
+      <div className="bg-white dark:bg-slate-900 rounded-[48px] shadow-sm border border-gray-50 dark:border-slate-800 overflow-hidden">
         <div className="overflow-x-auto">
            <table className="w-full text-left border-collapse">
               <thead>
-                 <tr className="bg-gray-50/50 dark:bg-slate-800/50 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                    <th className="px-10 py-6">Applicant Details</th>
-                    <th className="px-10 py-6">Program of Choice</th>
-                    <th className="px-10 py-6">Submission Date</th>
-                    <th className="px-10 py-6">Status</th>
-                    <th className="px-10 py-6 text-right">Review Action</th>
+                 <tr className="bg-gray-50/30 dark:bg-slate-800/30 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                    <th className="px-10 py-8">Identity</th>
+                    <th className="px-10 py-8">Academic Program</th>
+                    <th className="px-10 py-8">Submission Status</th>
+                    <th className="px-10 py-8 text-right">Administrative Actions</th>
                  </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
                  {loading ? (
-                   <tr><td colSpan={5} className="text-center py-24 animate-pulse font-bold text-gray-400 uppercase tracking-widest">Scanning Admission Database...</td></tr>
-                 ) : applications.length === 0 ? (
-                   <tr><td colSpan={5} className="text-center py-24 text-gray-400">No pending applications found.</td></tr>
-                 ) : applications.map((app) => (
-                   <tr key={app.id} className="group hover:bg-gray-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                   <tr><td colSpan={4} className="text-center py-40">
+                      <div className="flex flex-col items-center">
+                         <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mb-6"></div>
+                         <p className="font-black text-gray-400 uppercase tracking-widest animate-pulse">Syncing Admission Ledger...</p>
+                      </div>
+                   </td></tr>
+                 ) : filteredApps.length === 0 ? (
+                   <tr><td colSpan={4} className="text-center py-32 text-gray-400 font-medium italic">No applications found matching your current filters.</td></tr>
+                 ) : filteredApps.map((app) => (
+                   <tr key={app.id} className="group hover:bg-primary/[0.02] transition-colors relative">
                       <td className="px-10 py-8">
-                         <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center font-bold text-lg shadow-inner">
+                         <div className="flex items-center space-x-5">
+                            <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 text-primary dark:text-white rounded-[22px] flex items-center justify-center font-black text-xl shadow-sm border border-white dark:border-slate-700 group-hover:bg-primary group-hover:text-white transition-all duration-500">
                                {app.Student?.User?.first_name?.[0]}{app.Student?.User?.last_name?.[0]}
                             </div>
                             <div>
-                               <p className="font-bold text-primary dark:text-white">
+                               <p className="font-bold text-primary dark:text-white text-lg tracking-tight">
                                   {app.Student?.User?.first_name} {app.Student?.User?.last_name}
                                </p>
-                               <p className="text-xs text-gray-400 mt-0.5">{app.Student?.User?.email}</p>
+                               <p className="text-xs text-gray-400 font-medium mt-1">{app.Student?.User?.email}</p>
                             </div>
                          </div>
                       </td>
                       <td className="px-10 py-8">
                          <div className="flex flex-col">
-                            <span className="text-sm font-bold text-primary dark:text-white line-clamp-1">
-                               {app.Program?.name || 'Program Not Selected'}
+                            <span className="text-base font-bold text-primary dark:text-white leading-tight">
+                               {app.Program?.name || 'Open Enrollment'}
                             </span>
-                            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">
-                               Admissions 2026
-                            </span>
+                            <div className="flex items-center mt-2">
+                               <Calendar size={12} className="text-accent mr-2" />
+                               <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">
+                                  Recieved: {formatDate(app.created_at)}
+                               </span>
+                            </div>
                          </div>
                       </td>
                       <td className="px-10 py-8">
-                         <div className="flex items-center text-gray-500 text-sm font-medium">
-                            <Calendar size={14} className="mr-2 text-accent" />
-                            {new Date(app.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                         <div className="flex flex-col space-y-2">
+                            <span className={`inline-flex items-center w-fit text-[9px] font-black px-4 py-2 rounded-xl uppercase tracking-widest ${
+                               app.status === 'enrolled' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 
+                               app.status === 'withdrawn' ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                            }`}>
+                               <span className={`w-1.5 h-1.5 rounded-full mr-2 animate-pulse ${
+                                 app.status === 'enrolled' ? 'bg-emerald-500' : app.status === 'withdrawn' ? 'bg-rose-500' : 'bg-amber-500'
+                               }`}></span>
+                               {app.status === 'enrolled' ? 'Verified' : app.status === 'withdrawn' ? 'Rejected' : 'Pending Review'}
+                            </span>
                          </div>
-                      </td>
-                      <td className="px-10 py-8">
-                         <span className={`text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest ${
-                            app.status === 'enrolled' ? 'bg-emerald-100 text-emerald-600' : 
-                            app.status === 'withdrawn' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'
-                         }`}>
-                            {app.status === 'enrolled' ? 'Approved' : app.status === 'withdrawn' ? 'Rejected' : 'Pending Review'}
-                         </span>
                       </td>
                       <td className="px-10 py-8 text-right">
-                         <div className="flex items-center justify-end space-x-2">
+                         <div className="flex items-center justify-end space-x-3">
                             <button 
                               onClick={() => handleStatusUpdate(app.id, 'enrolled')}
-                              className="p-2.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-xl transition-all shadow-sm"
-                              title="Approve Admission"
+                              className="w-11 h-11 bg-white dark:bg-slate-800 text-emerald-500 hover:bg-emerald-500 hover:text-white rounded-[14px] flex items-center justify-center transition-all shadow-sm border border-gray-100 dark:border-slate-700"
+                              title="Approve Scholar"
                             >
-                               <CheckCircle2 size={20} />
+                               <CheckCircle2 size={22} />
                             </button>
                             <button 
                               onClick={() => handleStatusUpdate(app.id, 'withdrawn')}
-                              className="p-2.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-xl transition-all shadow-sm"
-                              title="Reject Application"
+                              className="w-11 h-11 bg-white dark:bg-slate-800 text-rose-500 hover:bg-rose-500 hover:text-white rounded-[14px] flex items-center justify-center transition-all shadow-sm border border-gray-100 dark:border-slate-700"
+                              title="Decline Scholar"
                             >
-                               <XCircle size={20} />
+                               <XCircle size={22} />
                             </button>
                             <button 
                               onClick={() => setSelectedApp(app)}
-                              className="p-2.5 bg-gray-50 text-gray-400 hover:bg-primary hover:text-white rounded-xl transition-all shadow-sm"
+                              className="w-11 h-11 bg-white dark:bg-slate-800 text-gray-400 hover:bg-primary hover:text-white rounded-[14px] flex items-center justify-center transition-all shadow-sm border border-gray-100 dark:border-slate-800"
                             >
-                               <Eye size={20} />
+                               <Eye size={22} />
                             </button>
                          </div>
                       </td>
@@ -258,31 +279,39 @@ export default function AdminApplicationsPage() {
         </div>
       </div>
 
-      {/* Footer Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-         <div className="bg-primary rounded-[40px] p-10 text-white relative overflow-hidden group">
-            <div className="relative z-10">
-               <h4 className="text-xl font-bold mb-4">Need to bulk process?</h4>
-               <p className="text-white/70 mb-8 text-sm leading-relaxed max-w-sm">
-                  You can download the entire batch of applications as a CSV or PDF file for physical review by the board.
-               </p>
-               <Button className="bg-accent text-white hover:bg-white hover:text-accent rounded-2xl px-8 transition-all">
-                  Export Batch Data <ArrowUpRight size={18} className="ml-2" />
-               </Button>
+      {/* Footer System Status */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 px-10">
+         <div className="flex items-center space-x-4 text-gray-400">
+            <div className="w-10 h-10 bg-gray-50 dark:bg-slate-900 rounded-full flex items-center justify-center">
+               <UserCheck size={18} />
             </div>
-            <UserCheck size={160} className="absolute -right-10 -bottom-10 text-white/5 group-hover:scale-110 transition-transform duration-700" />
+            <p className="text-sm font-medium italic">Administrative Audit Log: Last sync 2 mins ago</p>
          </div>
-         
-         <div className="bg-white dark:bg-slate-900 rounded-[40px] p-10 border border-gray-100 dark:border-slate-800 shadow-sm flex items-center justify-between">
-            <div>
-               <h4 className="text-xl font-bold text-primary dark:text-white mb-2">Automated Notifications</h4>
-               <p className="text-gray-500 text-sm max-w-xs">System will automatically email applicants upon status change.</p>
-            </div>
-            <div className="w-16 h-16 bg-accent/10 rounded-3xl flex items-center justify-center text-accent">
-               <Mail size={28} />
-            </div>
+         <div className="flex items-center space-x-3">
+            <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email System Online</p>
          </div>
       </div>
     </div>
+  );
+}
+
+function GraduationCap(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+      <path d="M6 12v5c3 3 9 3 12 0v-5" />
+    </svg>
   );
 }

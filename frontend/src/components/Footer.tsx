@@ -115,8 +115,9 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-gray-500 text-xs">
+        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-gray-500 text-xs gap-4">
           <p>© 2026 AFERA INNOV ACADEMY. All rights reserved.</p>
+          <p className="font-medium">Developed by <a href="https://www.kkdes.co.ke" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-accent transition-colors">KKDES</a></p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link href={`/${lang}/about`} className="hover:text-white">Privacy Policy</Link>
             <Link href={`/${lang}/about`} className="hover:text-white">Terms of Service</Link>

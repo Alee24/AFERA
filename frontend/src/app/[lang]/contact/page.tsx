@@ -22,7 +22,7 @@ export default function ContactPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('/api/contacts', {
+      await axios.post('/contacts', {
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
         subject: formData.subject,

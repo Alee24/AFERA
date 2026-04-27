@@ -6,6 +6,7 @@ import * as messageController from '../controllers/messageController';
 import * as contactController from '../controllers/contactController';
 import * as userController from '../controllers/userController';
 import * as financeController from '../controllers/financeController';
+import * as academicController from '../controllers/academicController';
 import { authenticateJWT, authorizeRole } from '../middleware/auth';
 
 const router = Router();
@@ -57,5 +58,16 @@ router.put('/finance/mock-pay/:id', authenticateJWT, financeController.mockPayIn
 
 // ===== RESOURCES =====
 router.get('/resources/my', authenticateJWT, courseController.getMyResources);
+
+// ===== ACADEMIC HIERARCHY =====
+router.get('/academic/faculties', authenticateJWT, academicController.getFaculties);
+router.post('/academic/faculties', authenticateJWT, authorizeRole(['admin']), academicController.createFaculty);
+router.put('/academic/faculties/:id', authenticateJWT, authorizeRole(['admin']), academicController.updateFaculty);
+router.delete('/academic/faculties/:id', authenticateJWT, authorizeRole(['admin']), academicController.deleteFaculty);
+
+router.post('/academic/departments', authenticateJWT, authorizeRole(['admin']), academicController.createDepartment);
+router.delete('/academic/departments/:id', authenticateJWT, authorizeRole(['admin']), academicController.deleteDepartment);
+
+router.post('/academic/programs', authenticateJWT, authorizeRole(['admin']), academicController.createProgram);
 
 export default router;

@@ -8,17 +8,22 @@ export const submitContact = async (req: Request, res: Response) => {
     const contact = await Contact.create({ name, email, subject, message });
     
     // Send email to CEO
-    sendContactNotification({ 
-      first_name: name.split(' ')[0], 
-      last_name: name.split(' ').slice(1).join(' ') || '', 
-      email, 
-      subject, 
-      message 
-    });
+    try {
+      await sendContactNotification({ 
+        first_name: name.split(' ')[0], 
+        last_name: name.split(' ').slice(1).join(' ') || '', 
+        email, 
+        subject, 
+        message 
+      });
+    } catch (mailErr) {
+      console.error('Non-blocking mail error:', mailErr);
+    }
 
     res.status(201).json(contact);
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    console.error('Contact Submission Error:', error);
+    res.status(500).json({ message: error.message || 'Internal Server Error' });
   }
 };
 
