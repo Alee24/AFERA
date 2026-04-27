@@ -23,7 +23,9 @@ const fixDatabase = async () => {
     const studentFields = {
       nationality: { type: 'STRING' },
       gender: { type: 'STRING' },
-      date_of_birth: { type: 'DATEONLY' }
+      date_of_birth: { type: 'DATEONLY' },
+      status: { type: 'STRING', defaultValue: 'pending' },
+      enrollment_date: { type: 'DATE' }
     };
     for (const [col, def] of Object.entries(studentFields)) {
       if (!studentsCols[col]) {

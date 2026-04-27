@@ -18,7 +18,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { useParams } from 'next/navigation';
 
-const workshopDocs = [
+interface WorkshopDoc {
+  id: number;
+  title: string;
+  filename: string;
+  type: string;
+  category: string;
+  date: string;
+  thumbnail?: string;
+}
+
+const workshopDocs: WorkshopDoc[] = [
   {
     id: 9,
     title: "TREPP 2026 PRESENTATION - Dr Ali Alkassoum (SE-AFERA)",
