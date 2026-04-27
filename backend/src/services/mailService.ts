@@ -11,7 +11,7 @@ export const sendApplicationNotification = async (userData: any) => {
   try {
     const mailOptions = {
       from: '"AFERA Application" <noreply@aferainnov.africa>',
-      to: 'ceo@armfa.info',
+      to: ['ceo@armfa.info', 'assistant@armfa.info', 'mettoalex@gmail.com'],
       subject: `New Student Application: ${userData.name}`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
@@ -47,7 +47,7 @@ export const sendContactNotification = async (contactData: any) => {
   try {
     const mailOptions = {
       from: '"AFERA Contact" <noreply@aferainnov.africa>',
-      to: 'ceo@armfa.info',
+      to: ['ceo@armfa.info', 'assistant@armfa.info', 'mettoalex@gmail.com'],
       subject: `New Inquiry: ${contactData.subject}`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
