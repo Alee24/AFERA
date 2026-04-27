@@ -1,10 +1,21 @@
 import { Request, Response } from 'express';
 import { Contact } from '../models';
+import { sendContactNotification } from '../services/mailService';
 
 export const submitContact = async (req: Request, res: Response) => {
   try {
     const { name, email, subject, message } = req.body;
     const contact = await Contact.create({ name, email, subject, message });
+    
+    // Send email to CEO
+    sendContactNotification({ 
+      first_name: name.split(' ')[0], 
+      last_name: name.split(' ').slice(1).join(' ') || '', 
+      email, 
+      subject, 
+      message 
+    });
+
     res.status(201).json(contact);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
