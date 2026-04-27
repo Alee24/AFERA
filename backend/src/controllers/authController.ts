@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { User, Student, Program, Enrollment } from '../models';
+import { User, Student, Staff, Program, Enrollment } from '../models';
 import { sendApplicationNotification } from '../services/mailService';
 
 export const register = async (req: Request, res: Response) => {
