@@ -12,6 +12,12 @@ interface User {
   phone?: string;
   role: string;
   preferred_language: string;
+  StudentProfile?: {
+    nationality?: string;
+    admission_number?: string;
+    gender?: string;
+    professional_profile?: string;
+  };
 }
 
 interface AuthContextType {
