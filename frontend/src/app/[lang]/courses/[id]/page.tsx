@@ -31,29 +31,35 @@ export default function CourseDetailsPage() {
   const STATIC_COURSE_DETAILS: Record<string, any> = {
     'masters-resource-mobilization': {
       id: 'masters-resource-mobilization',
-      title_en: 'Advanced Resource Mobilization',
-      title_fr: 'Mobilisation des ressources avancée',
-      title_pt: 'Mobilização de Recursos Avançada',
-      title_sw: 'Ukusanyaji wa Rasilimali wa Juu',
-      description_en: 'Master the strategies for international resource mobilization for infrastructure projects. This program prepares leaders to bridge the gap between technical infrastructure needs and global capital markets.',
-      description_fr: 'Maîtriser les stratégies de mobilisation de ressources internationales pour les projets d\'infrastructure. Ce programme prépare les leaders à combler le fossé entre les besoins techniques et les marchés de capitaux mondiaux.',
-      description_pt: 'Dominar as estratégias de mobilização de recursos internacionais para projetos de infraestrutura. Este programa prepara líderes para colmatar a lacuna entre as necessidades técnicas e os mercados de capitais globais.',
-      description_sw: 'Bobea katika mikakati ya ukusanyaji wa rasilimali za kimataifa kwa miradi ya miundombinu. Mpango huu huandaa viongozi kuziba pengo kati ya mahitaji ya kiufundi ya miundombinu na masoko ya mitaji ya kimataifa.',
-      price: 1200,
-      duration: '12 Months',
-      modality: 'Hybrid',
+      title_en: 'Specialized Master’s Degree in Resource Mobilization, Financing and Maintenance',
+      title_fr: 'Master Spécialisé en Mobilisation de Ressources, Financement et Maintenance',
+      title_pt: 'Mestrado Especializado em Mobilização de Recursos, Financiamento e Manutenção',
+      title_sw: 'Shahada ya Uzamili ya Kitaalamu katika Ukusanyaji wa Rasilimali na Ufadhili',
+      description_en: 'This pan-African, high-level postgraduate programme is designed to develop elite professionals capable of transforming road infrastructure systems across Africa through policy, finance, and engineering.',
+      description_fr: 'Ce programme de troisième cycle de haut niveau est conçu pour former des professionnels d\'élite capables de transformer les systèmes d\'infrastructure routière en Afrique.',
+      description_pt: 'Este programa de pós-graduação de alto nível foi concebido para desenvolver profissionais de elite capazes de transformar os sistemas de infra-estruturas rodoviárias em África.',
+      description_sw: 'Mpango huu wa kiwango cha juu wa uzamili umeundwa ili kuendeleza wataalamu wasomi wenye uwezo wa kubadilisha mifumo ya miundombinu ya barabara kote Afrika.',
+      price: "Starting Soon",
+      duration: '2 Years (4 Semesters)',
+      modality: 'Hybrid (Online + In-person)',
       department: 'Infrastructure Management',
-      course_type: 'Master Degree',
+      course_type: 'Master’s Degree',
       outcomes: [
-        "International Donor Relations & Grant Management",
-        "Public-Private Partnership (PPP) Frameworks",
-        "Infrastructure Bond Markets & Green Finance",
-        "Advanced Financial Modeling for Road Projects"
+        "Master infrastructure financing models and PPPs",
+        "Design sustainable resource mobilization strategies",
+        "Apply advanced road maintenance technologies",
+        "Lead institutional transformation and policy reform",
+        "Implement climate-resilient maintenance policies",
+        "Deliver real-world impact through applied research"
       ],
       Modules: [
-        { order: 1, title: 'Strategic Funding Ecosystems', duration_weeks: 4, description: 'Understanding global capital flows and development bank operations.' },
-        { order: 2, title: 'PPP Design & Negotiation', duration_weeks: 6, description: 'Structuring complex contracts between public and private sectors.' },
-        { order: 3, title: 'Advanced Asset Management', duration_weeks: 4, description: 'Maximizing returns on existing infrastructure investments.' }
+        { order: 1, title: 'Governance & Institutional Frameworks', duration_weeks: 16, description: 'Road infrastructure governance, legal frameworks, and transport economics.' },
+        { order: 2, title: 'Resource Mobilization & Financing', duration_weeks: 16, description: 'PPPs, innovative financing (Fintech, Green Funds), and donor engagement.' },
+        { order: 3, title: 'Maintenance, Technology & Sustainability', duration_weeks: 16, description: 'Climate resilience, Asset Management Systems (HDM-4), and field visits.' },
+        { order: 4, title: 'Research & Professional Project', duration_weeks: 16, description: 'Master’s dissertation and oral defense before an expert jury.' }
+      ],
+      partners: [
+        "CESAG (Dakar)", "CBK-IMS (Nairobi)", "KIHBT (Nairobi)", "ENSTP (Yaoundé)", "World Bank", "AfDB", "European Union"
       ]
     },
     'certificate-rbm': {
