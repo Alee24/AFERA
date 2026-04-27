@@ -1,7 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database';
 import User from './User';
-import Course, { CourseUnit, Class } from './Course';
+import Course, { CourseUnit, Class, CourseResource } from './Course';
 import { Faculty, Department, Program } from './Academic';
 import { FeeStructure, Invoice, Payment } from './Finance';
 import Post from './Post';
@@ -70,15 +70,19 @@ class Enrollment extends Model {
   public id!: string;
   public student_id!: string;
   public program_id!: string;
+  public course_id!: string;
   public currency!: string;
   public fee_amount!: number;
   public status!: string;
+  public Student?: Student;
+  public Program?: Program;
 }
 Enrollment.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   academic_year: { type: DataTypes.STRING },
   fee_amount: { type: DataTypes.DECIMAL(10, 2), allowNull: true },
   currency: { type: DataTypes.STRING, defaultValue: 'USD' },
+  course_id: { type: DataTypes.UUID, allowNull: true },
   status: { type: DataTypes.ENUM('enrolled', 'pending_approval', 'withdrawn', 'completed'), defaultValue: 'pending_approval' },
 }, { sequelize, modelName: 'Enrollment', tableName: 'enrollments', underscored: true });
 

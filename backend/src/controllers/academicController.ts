@@ -27,7 +27,7 @@ export const createFaculty = async (req: Request, res: Response) => {
 
 export const updateFaculty = async (req: Request, res: Response) => {
   try {
-    const faculty = await Faculty.findByPk(req.params.id);
+    const faculty = await Faculty.findByPk(req.params.id as string);
     if (!faculty) return res.status(404).json({ message: 'Faculty not found' });
     await faculty.update(req.body);
     res.json(faculty);
@@ -38,7 +38,7 @@ export const updateFaculty = async (req: Request, res: Response) => {
 
 export const deleteFaculty = async (req: Request, res: Response) => {
   try {
-    const faculty = await Faculty.findByPk(req.params.id);
+    const faculty = await Faculty.findByPk(req.params.id as string);
     if (!faculty) return res.status(404).json({ message: 'Faculty not found' });
     await faculty.destroy();
     res.json({ message: 'Faculty deleted successfully' });
@@ -59,7 +59,7 @@ export const createDepartment = async (req: Request, res: Response) => {
 
 export const deleteDepartment = async (req: Request, res: Response) => {
   try {
-    const department = await Department.findByPk(req.params.id);
+    const department = await Department.findByPk(req.params.id as string);
     if (!department) return res.status(404).json({ message: 'Department not found' });
     await department.destroy();
     res.json({ message: 'Department deleted successfully' });
