@@ -146,7 +146,7 @@ export default function AdminCoursesPage() {
          {[
            { label: 'Total Programs', value: courses.length, icon: BookOpen, color: 'text-primary' },
            { label: 'Active Applications', value: '12', icon: Filter, color: 'text-accent' },
-           { label: 'Average Tuition', value: '$800', icon: DollarSign, color: 'text-emerald-500' }
+           { label: 'Status', value: 'Starting Soon', icon: Clock, color: 'text-emerald-500' }
          ].map((stat, i) => (
            <div key={i} className="bg-white dark:bg-slate-900 p-8 rounded-[32px] shadow-sm border border-gray-100 dark:border-slate-800 flex items-center space-x-6">
               <div className="w-14 h-14 bg-gray-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center">
@@ -182,7 +182,7 @@ export default function AdminCoursesPage() {
                     <th className="px-8 py-5">Department</th>
                     <th className="px-8 py-5">Type</th>
                     <th className="px-8 py-5">Duration</th>
-                    <th className="px-8 py-5">Tuition</th>
+                    <th className="px-8 py-5">Status</th>
                     <th className="px-8 py-5 text-right">Actions</th>
                  </tr>
               </thead>
@@ -204,7 +204,9 @@ export default function AdminCoursesPage() {
                          <span className="text-[10px] font-black text-accent bg-accent/10 px-3 py-1 rounded-full uppercase">{course.course_type}</span>
                       </td>
                       <td className="px-8 py-6 text-sm text-gray-500 font-medium">{course.duration}</td>
-                      <td className="px-8 py-6 font-bold text-primary dark:text-white">${Math.round(course.price)}</td>
+                      <td className="px-8 py-6 font-bold text-emerald-600">
+                         <span className="bg-emerald-50 px-3 py-1 rounded-lg text-[10px] uppercase">Starting Soon</span>
+                      </td>
                       <td className="px-8 py-6 text-right space-x-2">
                          <button onClick={() => openEdit(course)} className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg shadow-sm text-gray-400 hover:text-primary transition-all">
                             <Edit size={18} />
@@ -306,14 +308,10 @@ export default function AdminCoursesPage() {
                     </div>
 
                     <div>
-                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Tuition Fee (USD)</label>
-                       <input 
-                         required
-                         type="number" 
-                         className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 font-bold" 
-                         value={formData.price}
-                         onChange={(e) => setFormData({...formData, price: Number(e.target.value)})}
-                       />
+                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Tuition Status</label>
+                       <div className="w-full px-5 py-4 bg-gray-100 dark:bg-slate-800 rounded-2xl text-xs font-bold text-gray-400">
+                          Tuition Pending / Starting Soon
+                       </div>
                     </div>
 
                     <div>

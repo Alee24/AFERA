@@ -137,8 +137,7 @@ export default function CoursesPage({ params }: { params: any }) {
                    <div className="flex items-center justify-between mb-4">
                       <span className="text-[10px] font-black text-accent uppercase tracking-[0.2em]">{course.course_type || 'Degree Program'}</span>
                       <div className="flex items-center text-primary font-bold">
-                         <span className="text-xs mr-1">$</span>
-                         <span className="text-xl">{Math.round(course.price || 800)}</span>
+                         <span className="text-xs font-black bg-accent/10 text-accent px-3 py-1 rounded-full uppercase tracking-widest">Starting Soon</span>
                       </div>
                    </div>
 

@@ -266,11 +266,9 @@ export default function CourseDetailsPage() {
           <div className="lg:col-span-1">
              <div className="bg-white rounded-[40px] p-8 shadow-2xl border border-gray-100 sticky top-32">
                 <div className="text-center mb-8">
-                   <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Program Tuition</p>
-                   <div className="flex items-center justify-center space-x-1 text-primary">
-                      <DollarSign size={32} className="text-accent" />
-                      <span className="text-5xl font-black">{Math.round(course.price || 800)}</span>
-                      <span className="text-xl font-bold text-gray-400 ml-2">USD</span>
+                   <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Program Status</p>
+                   <div className="flex items-center justify-center">
+                      <span className="text-2xl font-black bg-accent/10 text-accent px-6 py-2 rounded-2xl uppercase tracking-[0.1em] shadow-sm">Starting Soon</span>
                    </div>
                 </div>
 
