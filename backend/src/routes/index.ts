@@ -50,6 +50,7 @@ router.post('/messages', authenticateJWT, messageController.sendMessage);
 router.post('/contacts', contactController.submitContact);
 router.get('/contacts', authenticateJWT, authorizeRole(['admin']), contactController.getContacts);
 router.put('/contacts/:id', authenticateJWT, authorizeRole(['admin']), contactController.updateContactStatus);
+router.delete('/contacts/:id', authenticateJWT, authorizeRole(['admin']), contactController.deleteContact);
 
 // ===== FINANCE =====
 router.get('/finance/my-invoices', authenticateJWT, financeController.getMyInvoices);

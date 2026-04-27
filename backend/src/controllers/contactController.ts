@@ -48,3 +48,15 @@ export const updateContactStatus = async (req: Request, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const deleteContact = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const contact = await Contact.findByPk(id as string);
+    if (!contact) return res.status(404).json({ message: 'Contact not found' });
+    await contact.destroy();
+    res.json({ message: 'Message deleted' });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
