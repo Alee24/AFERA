@@ -23,7 +23,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { useNotification } from '@/lib/NotificationContext';
 import api from '@/lib/api';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AdminStudentsPage() {
   const [students, setStudents] = useState<any[]>([]);
