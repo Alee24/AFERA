@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -32,6 +33,7 @@ import { Button } from '@/components/ui/Button';
 export default function StudentDashboard() {
   const { user } = useAuth();
   const { t, i18n } = useTranslation('common');
+  const router = useRouter();
   const { showNotification } = useNotification();
   const [enrollments, setEnrollments] = useState<any[]>([]);
   const [invoices, setInvoices] = useState<any[]>([]);
