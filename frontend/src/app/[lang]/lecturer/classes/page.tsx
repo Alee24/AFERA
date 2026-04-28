@@ -10,7 +10,8 @@ import {
   Save,
   Loader2,
   ArrowLeft,
-  BookOpen
+  BookOpen,
+  GraduationCap
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import api from '@/lib/api';

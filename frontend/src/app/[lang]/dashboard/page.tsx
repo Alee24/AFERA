@@ -24,7 +24,10 @@ import {
   ExternalLink,
   CheckCircle2,
   AlertCircle,
-  X
+  X,
+  Smartphone,
+  Globe,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
