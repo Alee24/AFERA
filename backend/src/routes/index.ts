@@ -109,7 +109,7 @@ router.get('/academic/transcript', authenticateJWT, academicController.generateT
 router.get('/academic/students/:studentId/grades', authenticateJWT, authorizeRole(['admin']), academicController.getStudentGrades);
 router.post('/academic/grades', authenticateJWT, authorizeRole(['admin', 'lecturer']), academicController.upsertGrade);
 router.get('/academic/structure', authenticateJWT, authorizeRole(['admin']), academicController.getFullAcademicStructure);
-router.get('/academic/classes/:classId/assessments', authenticateJWT, authorizeRole(['admin']), academicController.getAssessmentsByClass);
+router.get('/academic/classes/:classId/assessments', authenticateJWT, authorizeRole(['admin', 'lecturer']), academicController.getAssessmentsByClass);
 router.post('/academic/assessments', authenticateJWT, authorizeRole(['admin', 'lecturer']), academicController.createAssessment);
 
 // Workshops
