@@ -29,6 +29,22 @@ interface WorkshopDoc {
 
 const workshopDocs: WorkshopDoc[] = [
   {
+    id: 11,
+    title: "PRESENTATION fv1_TREPP2026_Dr Ali Alkassoum - ES",
+    filename: "PRESENTATION fv1_TREPP2026_Dr Ali Alkassoum - ES (1).pdf",
+    type: "PDF",
+    category: "Technical Workshop",
+    date: "Feb 2026"
+  },
+  {
+    id: 12,
+    title: "PRESENTATIONvf1_TREPP2026_Dr Ali Alkassoum - SE-AFERA",
+    filename: "PRESENTATIONvf1_TREPP2026_Dr Ali Alkassoum - SE-AFERA (1).pdf",
+    type: "PDF",
+    category: "Technical Workshop",
+    date: "Feb 2026"
+  },
+  {
     id: 1,
     title: "ARMFA-PPT-COST-ESTIMATION-FOR-ROADWORKS-IN-KENYA-19TH-NOV",
     filename: "ARMFA-PPT-COST-ESTIMATION-FOR-ROADWORKS-IN-KENYA-19TH-NOV.pptx",
@@ -162,9 +178,12 @@ export default function WorkshopsPage() {
     setSelectedDoc(null);
   };
 
-  const getViewerUrl = (filename: string) => {
+  const getViewerUrl = (doc: any) => {
     if (typeof window === 'undefined') return '';
-    const fileUrl = `${window.location.origin}/${filename}`;
+    const fileUrl = `${window.location.origin}/${doc.filename}`;
+    if (doc.type === 'PDF') {
+      return fileUrl;
+    }
     // Microsoft Office Online Viewer for PPTX
     return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(fileUrl)}`;
   };
@@ -360,7 +379,7 @@ export default function WorkshopsPage() {
                 {/* Viewer Frame */}
                 <div className="flex-1 bg-gray-100 relative">
                    <iframe 
-                     src={getViewerUrl(selectedDoc.filename)} 
+                     src={getViewerUrl(selectedDoc)} 
                      className="w-full h-full border-none"
                      title="Document Viewer"
                    />
