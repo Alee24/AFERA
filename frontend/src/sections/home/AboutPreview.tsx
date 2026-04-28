@@ -47,7 +47,7 @@ export default function AboutPreview() {
           >
             <div>
               <h2 className="text-accent font-semibold tracking-wide uppercase mb-3">{t('about_preview.tagline')}</h2>
-              <h3 className="text-3xl sm:text-4xl font-bold text-primary leading-tight">
+              <h3 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white leading-tight">
                 {t('about_preview.title')}
               </h3>
             </div>

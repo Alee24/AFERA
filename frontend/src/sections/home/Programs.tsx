@@ -69,7 +69,7 @@ export default function Programs() {
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-accent font-semibold tracking-wide uppercase mb-3">Our Academic Programs</h2>
-          <h3 className="text-3xl sm:text-4xl font-bold text-primary mb-6 leading-tight">
+          <h3 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
             Specialized Expertise for <br /> Infrastructure Leaders
           </h3>
           <p className="text-gray-600 dark:text-gray-400">

@@ -96,7 +96,7 @@ export default function News() {
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
           <div className="max-w-2xl">
             <h2 className="text-accent font-semibold tracking-wide uppercase mb-3">News & Events</h2>
-            <h3 className="text-3xl sm:text-4xl font-bold text-primary">
+            <h3 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">
               Stay Updated with Campus Life
             </h3>
           </div>

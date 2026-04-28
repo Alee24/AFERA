@@ -28,7 +28,7 @@ export default function Hero() {
   const prevSlide = () => setIndex((prev) => (prev - 1 + heroImages.length) % heroImages.length);
 
   return (
-    <div className="relative bg-white min-h-[90vh] flex items-center pt-24 pb-12 lg:pt-0 lg:pb-0 overflow-hidden">
+    <div className="relative bg-white dark:bg-slate-950 min-h-[90vh] flex items-center pt-24 pb-12 lg:pt-0 lg:pb-0 overflow-hidden">
       
       {/* Background Decorative Elements */}
       <div className="absolute top-0 right-0 w-1/3 h-full bg-gray-50/50 -z-10 skew-x-[-10deg] translate-x-1/2"></div>
@@ -58,7 +58,7 @@ export default function Hero() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.8 }}
-                className="text-5xl md:text-6xl lg:text-7xl font-bold text-primary leading-[1.1] tracking-tight font-serif"
+                className="text-5xl md:text-6xl lg:text-7xl font-bold text-primary dark:text-white leading-[1.1] tracking-tight font-serif"
               >
                 Learn Today. <br />
                 <span className="text-accent italic relative">
@@ -75,7 +75,7 @@ export default function Hero() {
                 transition={{ delay: 0.4, duration: 0.8 }}
                 className="text-lg md:text-xl text-gray-500 max-w-xl leading-relaxed"
               >
-                Discover a transformative educational experience that blends <span className="font-semibold text-primary">on-campus excellence</span> with <span className="font-semibold text-primary">online flexibility</span>.
+                Discover a transformative educational experience that blends <span className="font-semibold text-primary dark:text-accent">on-campus excellence</span> with <span className="font-semibold text-primary dark:text-accent">online flexibility</span>.
               </motion.p>
             </div>
 
