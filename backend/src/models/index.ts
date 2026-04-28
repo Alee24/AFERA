@@ -91,7 +91,12 @@ Enrollment.init({
   status: { type: DataTypes.ENUM('enrolled', 'pending_approval', 'withdrawn', 'completed'), defaultValue: 'pending_approval' },
 }, { sequelize, modelName: 'Enrollment', tableName: 'enrollments', underscored: true });
 
-class CourseRegistration extends Model {}
+class CourseRegistration extends Model {
+  public id!: string;
+  public student_id!: string;
+  public class_id!: string;
+  public Student?: Student;
+}
 CourseRegistration.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   registration_date: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },

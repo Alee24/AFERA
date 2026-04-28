@@ -109,7 +109,7 @@ export const handleCallback = async (req: Request, res: Response) => {
    const { gateway } = req.params;
    const data = req.body;
    
-   console.log(`💰 PAYMENT CALLBACK [${gateway.toUpperCase()}]:`, JSON.stringify(data));
+   console.log(`💰 PAYMENT CALLBACK [${(gateway as string).toUpperCase()}]:`, JSON.stringify(data));
 
    if (gateway === 'mpesa') {
       const { Body } = data;
