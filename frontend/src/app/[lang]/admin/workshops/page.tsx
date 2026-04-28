@@ -37,8 +37,34 @@ export default function AdminWorkshopsPage() {
     file_url: ''
   });
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState(false);
 
   const { showNotification } = useNotification();
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'image_url' | 'file_url') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (field === 'image_url') setUploadingImage(true);
+    else setUploadingFile(true);
+
+    try {
+      const data = new FormData();
+      data.append('file', file);
+      const res = await api.post('/upload', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      setFormData(prev => ({ ...prev, [field]: res.data.fileUrl }));
+      showNotification('File uploaded successfully!', 'success');
+    } catch (err) {
+      showNotification('Failed to upload file', 'error');
+    } finally {
+      if (field === 'image_url') setUploadingImage(false);
+      else setUploadingFile(false);
+    }
+  };
 
   useEffect(() => {
     fetchWorkshops();
@@ -171,34 +197,53 @@ export default function AdminWorkshopsPage() {
                      />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Thumbnail URL</label>
+                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Thumbnail Image</label>
                        <div className="relative">
                           <ImageIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                           <input 
                             value={formData.image_url} 
                             onChange={e => setFormData({...formData, image_url: e.target.value})} 
                             type="text" 
-                            className="w-full h-16 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl pl-14 pr-6 font-bold" 
-                            placeholder="https://..." 
+                            className="w-full h-16 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl pl-14 pr-28 font-bold text-sm" 
+                            placeholder="Image URL" 
                           />
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                             <label className="cursor-pointer bg-primary text-white text-xs font-black uppercase tracking-wider py-3 px-4 rounded-xl flex items-center shadow-lg hover:bg-accent hover:text-primary transition-all">
+                               {uploadingImage ? <Loader2 className="animate-spin h-4 w-4" /> : <><Upload size={14} className="mr-1" /> Upload</>}
+                               <input 
+                                 type="file" 
+                                 accept="image/*" 
+                                 className="hidden" 
+                                 onChange={e => handleFileUpload(e, 'image_url')} 
+                               />
+                             </label>
+                          </div>
                        </div>
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">File URL / Download Link</label>
+                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Workshop Document</label>
                        <div className="relative">
                           <FileText className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                           <input 
                             value={formData.file_url} 
                             onChange={e => setFormData({...formData, file_url: e.target.value})} 
                             type="text" 
-                            className="w-full h-16 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl pl-14 pr-6 font-bold" 
-                            placeholder="e.g. workshop.pptx" 
+                            className="w-full h-16 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl pl-14 pr-28 font-bold text-sm" 
+                            placeholder="File path" 
                           />
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                             <label className="cursor-pointer bg-primary text-white text-xs font-black uppercase tracking-wider py-3 px-4 rounded-xl flex items-center shadow-lg hover:bg-accent hover:text-primary transition-all">
+                               {uploadingFile ? <Loader2 className="animate-spin h-4 w-4" /> : <><Upload size={14} className="mr-1" /> Upload</>}
+                               <input 
+                                 type="file" 
+                                 className="hidden" 
+                                 onChange={e => handleFileUpload(e, 'file_url')} 
+                               />
+                             </label>
+                          </div>
                        </div>
                     </div>
-                  </div>
                </div>
 
                <div className="p-10 bg-gray-50 dark:bg-slate-800/50 flex space-x-4">
