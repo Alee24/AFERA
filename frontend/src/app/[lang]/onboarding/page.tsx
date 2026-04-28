@@ -16,7 +16,9 @@ import {
   GraduationCap,
   Briefcase,
   MapPin,
-  Heart
+  Heart,
+  Mail,
+  Lock
 } from 'lucide-react';
 
 export default function OnboardingPage() {
@@ -25,6 +27,8 @@ export default function OnboardingPage() {
   const { showNotification } = useNotification();
   
   const [formData, setFormData] = useState({
+    email: '',
+    password: '',
     first_name: '',
     last_name: '',
     phone: '',
@@ -40,32 +44,36 @@ export default function OnboardingPage() {
   });
   
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (!savedUser) {
-      router.push(`/${lang}/login`);
-      return;
-    }
-    const parsedUser = JSON.parse(savedUser);
-    setUser(parsedUser);
-    setFormData(prev => ({
-      ...prev,
-      first_name: parsedUser.first_name || '',
-      last_name: parsedUser.last_name || ''
-    }));
-  }, [lang, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
+      // 1. Create student account
+      await api.post('/auth/register', {
+        name: `${formData.first_name} ${formData.last_name}`,
+        email: formData.email,
+        password: formData.password,
+        role: 'student'
+      });
+      
+      // 2. Authenticate
+      const authRes = await api.post('/auth/login', {
+        email: formData.email,
+        password: formData.password
+      });
+      
+      const { user, token } = authRes.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      // 3. Store full profile payload
       await api.put('/users/profile', formData);
-      showNotification('Profile completed successfully! Welcome to Afera Innov Academy.', 'success');
+
+      showNotification('Account and profile setup completed successfully!', 'success');
       router.push(`/${lang}/dashboard`);
     } catch (err: any) {
-      const errMsg = err.response?.data?.message || 'Failed to update profile';
+      const errMsg = err.response?.data?.message || 'Could not finalize enrollment details';
       showNotification(errMsg, 'error');
     } finally {
       setLoading(false);
@@ -96,6 +104,47 @@ export default function OnboardingPage() {
           onSubmit={handleSubmit}
           className="bg-white dark:bg-slate-900 rounded-[40px] shadow-2xl shadow-primary/5 p-8 md:p-12 border border-gray-100 dark:border-slate-800 space-y-10"
         >
+          {/* Account Credentials */}
+          <section className="space-y-6">
+            <div className="flex items-center space-x-3 mb-2">
+               <div className="w-8 h-8 bg-primary/5 rounded-xl flex items-center justify-center text-primary dark:text-accent">
+                  <Mail size={18} />
+               </div>
+               <h3 className="text-lg font-bold text-primary dark:text-white">Account Credentials</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <input 
+                    type="email" 
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="w-full pl-12 pr-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-accent/20 transition-all text-sm"
+                    placeholder="name@example.com"
+                    required
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Create Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <input 
+                    type="password" 
+                    value={formData.password}
+                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    className="w-full pl-12 pr-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-accent/20 transition-all text-sm"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* Personal Info */}
           <section className="space-y-6">
             <div className="flex items-center space-x-3 mb-2">
