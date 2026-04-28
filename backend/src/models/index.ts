@@ -38,8 +38,14 @@ class Student extends Model {
   public nationality!: string;
   public gender!: string;
   public date_of_birth!: string;
-  public status!: 'active' | 'graduated' | 'suspended';
+  public status!: 'active' | 'pending' | 'graduated' | 'suspended' | 'inactive';
   public enrollment_date!: Date;
+  public institution!: string;
+  public job_title!: string;
+  public qualification!: string;
+  public address!: string;
+  public emergency_contact_name!: string;
+  public emergency_contact_phone!: string;
 }
 Student.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
@@ -50,6 +56,12 @@ Student.init({
   nationality: { type: DataTypes.STRING },
   enrollment_date: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   status: { type: DataTypes.ENUM('active', 'pending', 'graduated', 'suspended', 'inactive'), defaultValue: 'pending' },
+  institution: { type: DataTypes.STRING, allowNull: true },
+  job_title: { type: DataTypes.STRING, allowNull: true },
+  qualification: { type: DataTypes.STRING, allowNull: true },
+  address: { type: DataTypes.TEXT, allowNull: true },
+  emergency_contact_name: { type: DataTypes.STRING, allowNull: true },
+  emergency_contact_phone: { type: DataTypes.STRING, allowNull: true },
 }, { sequelize, modelName: 'Student', tableName: 'students', underscored: true });
 
 class StudentDocument extends Model {}

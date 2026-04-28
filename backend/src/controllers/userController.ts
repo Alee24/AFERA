@@ -84,7 +84,11 @@ export const getAdminStats = async (req: Request, res: Response) => {
 export const updateProfile = async (req: any, res: Response) => {
   try {
     const userId = req.user.id;
-    const { first_name, last_name, phone, nationality, gender, date_of_birth } = req.body;
+    const { 
+      first_name, last_name, phone, nationality, gender, date_of_birth,
+      institution, job_title, qualification, address, 
+      emergency_contact_name, emergency_contact_phone
+    } = req.body;
 
     const user = await User.findByPk(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -93,7 +97,11 @@ export const updateProfile = async (req: any, res: Response) => {
 
     let student = await Student.findOne({ where: { user_id: userId } });
     if (student) {
-      await student.update({ nationality, gender, date_of_birth });
+      await student.update({ 
+        nationality, gender, date_of_birth,
+        institution, job_title, qualification, address,
+        emergency_contact_name, emergency_contact_phone
+      });
     }
 
     const updatedUser = await User.findByPk(userId, {

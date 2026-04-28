@@ -13,7 +13,10 @@ import {
   Phone, 
   ArrowRight, 
   CheckCircle2,
-  GraduationCap
+  GraduationCap,
+  Briefcase,
+  MapPin,
+  Heart
 } from 'lucide-react';
 
 export default function OnboardingPage() {
@@ -27,7 +30,13 @@ export default function OnboardingPage() {
     phone: '',
     nationality: '',
     gender: '',
-    date_of_birth: ''
+    date_of_birth: '',
+    institution: '',
+    job_title: '',
+    qualification: '',
+    address: '',
+    emergency_contact_name: '',
+    emergency_contact_phone: ''
   });
   
   const [loading, setLoading] = useState(false);
@@ -186,6 +195,108 @@ export default function OnboardingPage() {
                     required
                   />
                 </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Professional Details */}
+          <section className="space-y-6 pt-4">
+            <div className="flex items-center space-x-3 mb-2">
+               <div className="w-8 h-8 bg-primary/5 rounded-xl flex items-center justify-center text-primary dark:text-accent">
+                  <Briefcase size={18} />
+               </div>
+               <h3 className="text-lg font-bold text-primary dark:text-white">Professional Information</h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Institution / Employer</label>
+                <input 
+                  type="text" 
+                  value={formData.institution}
+                  onChange={(e) => setFormData({...formData, institution: e.target.value})}
+                  className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-accent/20 transition-all text-sm"
+                  placeholder="e.g. Kenya Roads Board, FER Guinea"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Job Title / Role</label>
+                <input 
+                  type="text" 
+                  value={formData.job_title}
+                  onChange={(e) => setFormData({...formData, job_title: e.target.value})}
+                  className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-accent/20 transition-all text-sm"
+                  placeholder="e.g. Senior Engineer, Finance Manager"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Highest Academic Qualification</label>
+              <input 
+                type="text" 
+                value={formData.qualification}
+                onChange={(e) => setFormData({...formData, qualification: e.target.value})}
+                className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-accent/20 transition-all text-sm"
+                placeholder="e.g. Master in Civil Engineering, PhD, B.Sc. Accounting"
+                required
+              />
+            </div>
+          </section>
+
+          {/* Address & Emergency */}
+          <section className="space-y-6 pt-4">
+            <div className="flex items-center space-x-3 mb-2">
+               <div className="w-8 h-8 bg-primary/5 rounded-xl flex items-center justify-center text-primary dark:text-accent">
+                  <MapPin size={18} />
+               </div>
+               <h3 className="text-lg font-bold text-primary dark:text-white">Mailing Address</h3>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Residential / Official Address</label>
+              <textarea 
+                value={formData.address}
+                onChange={(e) => setFormData({...formData, address: e.target.value})}
+                className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-accent/20 transition-all text-sm resize-none h-24"
+                placeholder="Full mailing address details..."
+                required
+              />
+            </div>
+          </section>
+
+          <section className="space-y-6 pt-4">
+            <div className="flex items-center space-x-3 mb-2">
+               <div className="w-8 h-8 bg-primary/5 rounded-xl flex items-center justify-center text-primary dark:text-accent">
+                  <Heart size={18} />
+               </div>
+               <h3 className="text-lg font-bold text-primary dark:text-white">Emergency Contact</h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Contact Name</label>
+                <input 
+                  type="text" 
+                  value={formData.emergency_contact_name}
+                  onChange={(e) => setFormData({...formData, emergency_contact_name: e.target.value})}
+                  className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-accent/20 transition-all text-sm"
+                  placeholder="Full name of emergency contact"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Contact Phone</label>
+                <input 
+                  type="tel" 
+                  value={formData.emergency_contact_phone}
+                  onChange={(e) => setFormData({...formData, emergency_contact_phone: e.target.value})}
+                  className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-accent/20 transition-all text-sm"
+                  placeholder="Phone number"
+                  required
+                />
               </div>
             </div>
           </section>
