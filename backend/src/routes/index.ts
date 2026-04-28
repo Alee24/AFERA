@@ -13,6 +13,20 @@ import * as lecturerController from '../controllers/lecturerController';
 import * as systemController from '../controllers/systemController';
 import * as newsPostController from '../controllers/newsPostController';
 import { authenticateJWT, authorizeRole } from '../middleware/auth';
+import multer from 'multer';
+import path from 'path';
+
+// Multer Setup
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../../uploads'));
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage });
 
 const router = Router();
 
@@ -52,6 +66,15 @@ router.get('/news-posts', newsPostController.getNewsPosts);
 router.post('/news-posts', authenticateJWT, authorizeRole(['admin']), newsPostController.createNewsPost);
 router.put('/news-posts/:id', authenticateJWT, authorizeRole(['admin']), newsPostController.updateNewsPost);
 router.delete('/news-posts/:id', authenticateJWT, authorizeRole(['admin']), newsPostController.deleteNewsPost);
+
+// ===== FILE UPLOADS =====
+router.post('/upload', authenticateJWT, upload.single('file'), (req: any, res: any) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'No file uploaded' });
+  }
+  const fileUrl = `/api/uploads/${req.file.filename}`;
+  res.json({ url: fileUrl, filename: req.file.filename });
+});
 
 // ===== MESSAGES =====
 router.get('/messages', authenticateJWT, messageController.getMessages);

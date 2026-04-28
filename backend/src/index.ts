@@ -23,7 +23,17 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+import path from 'path';
+import fs from 'fs';
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 // API Routes
+app.use('/api/uploads', express.static(uploadsDir));
 app.use('/api', routes);
 
 app.get('/', (req: Request, res: Response) => {

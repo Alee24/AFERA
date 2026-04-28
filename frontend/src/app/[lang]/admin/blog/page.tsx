@@ -111,6 +111,30 @@ export default function AdminBlogPage() {
     }
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'image' | 'filename') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      showNotification('Uploading file...', 'info');
+      const uploadData = new FormData();
+      uploadData.append('file', file);
+
+      const res = await api.post('/upload', uploadData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      if (field === 'image') {
+        setFormData(prev => ({ ...prev, image: res.data.url }));
+      } else {
+        setFormData(prev => ({ ...prev, filename: res.data.url }));
+      }
+      showNotification('File uploaded successfully', 'success');
+    } catch (err: any) {
+      showNotification('File upload failed', 'error');
+    }
+  };
+
   const filteredPosts = posts.filter(p => 
     p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.author.toLowerCase().includes(searchTerm.toLowerCase())
@@ -277,25 +301,41 @@ export default function AdminBlogPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Image Link / URL</label>
-                  <input 
-                    type="text" 
-                    value={formData.image}
-                    onChange={(e) => setFormData({...formData, image: e.target.value})}
-                    className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl px-4 py-3 font-semibold text-sm focus:ring-2 focus:ring-primary/20"
-                    placeholder="https://images.unsplash.com/..."
-                  />
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Image Link / Upload</label>
+                  <div className="flex flex-col gap-2">
+                    <input 
+                      type="text" 
+                      value={formData.image}
+                      onChange={(e) => setFormData({...formData, image: e.target.value})}
+                      className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl px-4 py-3 font-semibold text-sm focus:ring-2 focus:ring-primary/20"
+                      placeholder="Image URL or choose file below"
+                    />
+                    <input 
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload(e, 'image')}
+                      className="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Document Path / Filename</label>
-                  <input 
-                    type="text" 
-                    value={formData.filename}
-                    onChange={(e) => setFormData({...formData, filename: e.target.value})}
-                    className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl px-4 py-3 font-semibold text-sm focus:ring-2 focus:ring-primary/20"
-                    placeholder="e.g. academic-presentation.pptx"
-                  />
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Document Attachment / Upload</label>
+                  <div className="flex flex-col gap-2">
+                    <input 
+                      type="text" 
+                      value={formData.filename}
+                      onChange={(e) => setFormData({...formData, filename: e.target.value})}
+                      className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl px-4 py-3 font-semibold text-sm focus:ring-2 focus:ring-primary/20"
+                      placeholder="Doc path or choose file below"
+                    />
+                    <input 
+                      type="file"
+                      accept=".pptx,.pdf,.doc,.docx"
+                      onChange={(e) => handleFileUpload(e, 'filename')}
+                      className="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                    />
+                  </div>
                 </div>
               </div>
 
