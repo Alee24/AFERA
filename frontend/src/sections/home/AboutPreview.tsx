@@ -7,9 +7,11 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'next/navigation';
 
 export default function AboutPreview() {
   const { t } = useTranslation('common');
+  const { lang } = useParams();
 
   return (
     <section className="py-24 bg-white dark:bg-slate-900">
@@ -70,7 +72,7 @@ export default function AboutPreview() {
             </ul>
 
             <div className="pt-4">
-              <Link href="/about">
+              <Link href={`/${lang}/about`}>
                 <Button variant="outline" size="lg" className="rounded-full border-primary text-primary hover:bg-primary hover:text-white group">
                   {t('about_preview.learn_more')} <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
