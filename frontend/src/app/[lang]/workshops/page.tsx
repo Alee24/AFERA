@@ -29,75 +29,83 @@ interface WorkshopDoc {
 
 const workshopDocs: WorkshopDoc[] = [
   {
-    id: 9,
-    title: "TREPP 2026 PRESENTATION - Dr Ali Alkassoum (SE-AFERA)",
-    filename: "TREPP-2026-PRESENTATION-Dr-Ali-Alkassoum.pptx",
-    type: "PPTX",
-    category: "Case Study",
-    date: "April 2026"
-  },
-  {
     id: 1,
-    title: "ARMFA 22nd AGM Liberia - Namibia Case Study",
-    filename: "ARMFA-22nd-AGM-Liberia-17-21-Nov-2025-Sophia-Tekie-Namibia.pptx",
-    type: "PPTX",
-    category: "Annual General Meeting",
-    date: "Nov 2025"
-  },
-  {
-    id: 2,
-    title: "Cost Estimation for Roadworks in Kenya",
+    title: "ARMFA-PPT-COST-ESTIMATION-FOR-ROADWORKS-IN-KENYA-19TH-NOV",
     filename: "ARMFA-PPT-COST-ESTIMATION-FOR-ROADWORKS-IN-KENYA-19TH-NOV.pptx",
     type: "PPTX",
     category: "Technical Workshop",
     date: "Nov 2025"
   },
   {
-    id: 3,
-    title: "ASAFG Presentation V2",
-    filename: "ASAFG-Presentation-V2.pptx",
+    id: 2,
+    title: "ARMFA-SSATP D1-1 INTRODUCTION",
+    filename: "ARMFA-SSATP-D1-1-INTRODUCTION.pptx",
     type: "PPTX",
-    category: "Strategic Planning",
-    date: "Sept 2025"
+    category: "Technical Workshop",
+    date: "Nov 2025"
+  },
+  {
+    id: 3,
+    title: "ARMFA-SSATP D2-1 SURVEY CONTENT",
+    filename: "ARMFA-SSATP-D2-1-SURVEY-CONTENT.pptx",
+    type: "PPTX",
+    category: "Technical Workshop",
+    date: "Nov 2025"
   },
   {
     id: 4,
-    title: "AFERA Innov Centre Academy Vision",
-    filename: "Centre-Academy-AFERA-Innov.pptx",
+    title: "ARMFA-SSATP D3-1 PARTNERS-SESSION",
+    filename: "ARMFA-SSATP-D3-1-PARTNERS-SESSION.pptx",
     type: "PPTX",
-    category: "Institutional",
-    date: "Sept 2025"
+    category: "Technical Workshop",
+    date: "Nov 2025"
   },
   {
     id: 5,
-    title: "Gouvernance des FER - Maurice Niaty Mouamba",
-    filename: "La-Gouvernance-des-FER-Maurice-Niaty-Mouamba.pptx",
+    title: "ARMFA-SSATP D3-2 EU CORRIDORS PRESENTATION",
+    filename: "ARMFA-SSATP-D3-2-EU-CORRIDORS-PRESENTATION.pptx",
     type: "PPTX",
-    category: "Governance",
-    date: "Oct 2025"
+    category: "Technical Workshop",
+    date: "Nov 2025"
   },
   {
     id: 6,
-    title: "Modèle de Financement Péage FER SA Guinée",
-    filename: "MODELE-DE-FINANCEMENT-PEAGE-FER-SA-GUINEE.pptx",
+    title: "ARMFA-SSATP D3-4 GROUP 1 GOVERNANCE",
+    filename: "ARMFA-SSATP-D3-4-GROUP-1-GOVERNANCE.pptx",
     type: "PPTX",
-    category: "Finance",
+    category: "Technical Workshop",
     date: "Nov 2025"
   },
   {
     id: 7,
-    title: "AFERA Vision, Engagement et Projets",
-    filename: "PRESENTATION-1-PRESIDENT-Nouvelle-Dynamique-AFERA-_-Vision-Engagement-et-Projets-2.pptx",
+    title: "ARMFA-SSATP D3-5 GROUP 2 FINANCE",
+    filename: "ARMFA-SSATP-D3-5-GROUP-2-FINANCE.pptx",
     type: "PPTX",
-    category: "Leadership",
+    category: "Technical Workshop",
     date: "Nov 2025"
   },
   {
     id: 8,
-    title: "Road Fund Performance & Capacity Building",
-    filename: "PRESENTATION-3-PROF-ANGELO-PRES-SCIENTIFIC-COMMITTEE-ARMFA-Mission_-PrAngelo-Road-Fund-Performance-and-Capacity-Building.pptx",
+    title: "ARMFA-SSATP D3-6 GROUP 3 OPERATIONS-RESILIENCE-EQUITY",
+    filename: "ARMFA-SSATP-D3-6-GROUP-3-OPERATIONS-RESILIENCE-EQUITY.pptx",
     type: "PPTX",
-    category: "Academic",
+    category: "Technical Workshop",
+    date: "Nov 2025"
+  },
+  {
+    id: 9,
+    title: "ARMFA-SSATP D3-7 GROUP 4 CORRIDORS",
+    filename: "ARMFA-SSATP-D3-7-GROUP-4-CORRIDORS.pptx",
+    type: "PPTX",
+    category: "Technical Workshop",
+    date: "Nov 2025"
+  },
+  {
+    id: 10,
+    title: "ASAFG-Presentation-V2",
+    filename: "ASAFG-Presentation-V2.pptx",
+    type: "PPTX",
+    category: "Technical Workshop",
     date: "Nov 2025"
   }
 ];
