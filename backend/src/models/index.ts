@@ -11,6 +11,7 @@ import Contact from './Contact';
 import Workshop from './Workshop';
 import GatewaySetting from './GatewaySetting';
 import SystemSetting from './SystemSetting';
+import NewsPost from './NewsPost';
 
 // ===== 1. AUTH & ROLES =====
 class Role extends Model { public id!: string; public name!: string; }
@@ -285,6 +286,7 @@ export {
   CourseUnit, Class, FeeStructure, Invoice, Payment, Post, File,
   Message, Notification, ActivityLog, OnlineCourse, Lesson, LessonProgress,
   Enrollment, Student, Staff, Grade, Assessment, Attendance, CourseRegistration,
-  Role, Permission, RolePermission, StudentDocument, Workshop, GatewaySetting, SystemSetting
+  Role, Permission, RolePermission, StudentDocument, Workshop, GatewaySetting, SystemSetting,
+  NewsPost
 };
 export default sequelize;

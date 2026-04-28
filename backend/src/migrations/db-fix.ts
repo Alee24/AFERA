@@ -74,6 +74,9 @@ const fixDatabase = async () => {
     await Attendance.sync();
     await CourseRegistration.sync();
     
+    const { NewsPost } = require('../models');
+    await NewsPost.sync();
+    
     console.log('✅ All Portal and Payment tables synchronized.');
 
     console.log('✅ Database Schema Fix COMPLETED!');

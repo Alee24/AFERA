@@ -11,6 +11,7 @@ import * as workshopController from '../controllers/workshopController';
 import * as paymentController from '../controllers/paymentController';
 import * as lecturerController from '../controllers/lecturerController';
 import * as systemController from '../controllers/systemController';
+import * as newsPostController from '../controllers/newsPostController';
 import { authenticateJWT, authorizeRole } from '../middleware/auth';
 
 const router = Router();
@@ -45,6 +46,12 @@ router.get('/posts/:id', postController.getPostById);
 router.post('/posts', authenticateJWT, authorizeRole(['admin', 'lecturer']), postController.createPost);
 router.put('/posts/:id', authenticateJWT, authorizeRole(['admin', 'lecturer']), postController.updatePost);
 router.delete('/posts/:id', authenticateJWT, authorizeRole(['admin']), postController.deletePost);
+
+// ===== HOME NEWS POSTS =====
+router.get('/news-posts', newsPostController.getNewsPosts);
+router.post('/news-posts', authenticateJWT, authorizeRole(['admin']), newsPostController.createNewsPost);
+router.put('/news-posts/:id', authenticateJWT, authorizeRole(['admin']), newsPostController.updateNewsPost);
+router.delete('/news-posts/:id', authenticateJWT, authorizeRole(['admin']), newsPostController.deleteNewsPost);
 
 // ===== MESSAGES =====
 router.get('/messages', authenticateJWT, messageController.getMessages);

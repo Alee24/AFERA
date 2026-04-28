@@ -264,6 +264,44 @@ export default function WorkshopsPage() {
               </motion.div>
             ))}
          </div>
+          {/* Grid Section End */}
+          
+          {/* Training Sessions Gallery */}
+          <section className="mt-32">
+             <div className="text-center max-w-2xl mx-auto mb-16">
+                <span className="text-accent font-bold uppercase tracking-widest text-[10px] bg-accent/10 px-3 py-1 rounded-full">Gallery</span>
+                <h2 className="text-3xl md:text-4xl font-bold text-primary dark:text-white mt-4">Training Sessions Held During Workshops</h2>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Highlights of practical training, collaboration, and certificate ceremonies across various modules.</p>
+             </div>
+
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {[
+                  { src: '/workshops/media__1777354078456.jpg', title: 'Interactive Lecture on Strategic Funding' },
+                  { src: '/workshops/media__1777354078606.jpg', title: 'Policy Harmonization Roundtable' },
+                  { src: '/workshops/media__1777354078663.jpg', title: 'Awarding Academic Diplomas' },
+                  { src: '/workshops/media__1777354078760.jpg', title: 'Participant Attestation Ceremony' },
+                  { src: '/workshops/media__1777354078788.jpg', title: 'Graduation Certification Handover' },
+                ].map((img, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="relative rounded-[32px] overflow-hidden group shadow-premium hover:shadow-2xl transition-all"
+                  >
+                    <img 
+                      src={img.src} 
+                      alt={img.title} 
+                      className="w-full h-80 object-cover transition-transform duration-700 group-hover:scale-110" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/30 to-transparent flex items-end p-8">
+                      <p className="text-white font-bold text-lg leading-tight">{img.title}</p>
+                    </div>
+                  </motion.div>
+                ))}
+             </div>
+          </section>
       </section>
 
       {/* Document Viewer Modal */}

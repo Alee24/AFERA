@@ -1,87 +1,38 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Calendar, User, ArrowRight, Presentation, FileText, Eye, Download, X } from 'lucide-react';
 
-const newsItems = [
-  {
-    id: 1,
-    title: "ARMFA 22nd AGM Liberia - Namibia Case Study",
-    excerpt: "Detailed case study on road maintenance financing presented at the 2025 ARMFA AGM.",
-    date: "Nov 12, 2025",
-    author: "Sophia Tekie",
-    type: "PPTX",
-    filename: "ARMFA-22nd-AGM-Liberia-17-21-Nov-2025-Sophia-Tekie-Namibia.pptx",
-    image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    id: 2,
-    title: "Cost Estimation for Roadworks in Kenya",
-    excerpt: "Technical presentation regarding the optimized cost estimation models for East African infrastructure.",
-    date: "Nov 19, 2025",
-    author: "Technical Committee",
-    type: "PPTX",
-    filename: "ARMFA-PPT-COST-ESTIMATION-FOR-ROADWORKS-IN-KENYA-19TH-NOV.pptx",
-    image: "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    id: 3,
-    title: "AFERA Innov Centre Academy Vision",
-    excerpt: "The institutional roadmap for 2026-2030, detailing our expansion into digital learning.",
-    date: "Sep 28, 2025",
-    author: "Directorate",
-    type: "PPTX",
-    filename: "Centre-Academy-AFERA-Innov.pptx",
-    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    id: 4,
-    title: "Gouvernance des FER - Maurice Niaty Mouamba",
-    excerpt: "An in-depth analysis of Road Fund Governance models presented by Maurice Niaty Mouamba.",
-    date: "Oct 15, 2025",
-    author: "Maurice Niaty",
-    type: "PPTX",
-    filename: "La-Gouvernance-des-FER-Maurice-Niaty-Mouamba.pptx",
-    image: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    id: 5,
-    title: "Modèle de Financement Péage FER SA Guinée",
-    excerpt: "Presentation on the innovative toll financing model implemented by the Guinea Road Fund.",
-    date: "Nov 05, 2025",
-    author: "Finance Dept",
-    type: "PPTX",
-    filename: "MODELE-DE-FINANCEMENT-PEAGE-FER-SA-GUINEE.pptx",
-    image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    id: 6,
-    title: "Road Fund Performance & Capacity Building",
-    excerpt: "Academic research on building sustainable capacity within African Road Maintenance Funds.",
-    date: "Nov 21, 2025",
-    author: "Prof. Angelo",
-    type: "PPTX",
-    filename: "PRESENTATION-3-PROF-ANGELO-PRES-SCIENTIFIC-COMMITTEE-ARMFA-Mission_-PrAngelo-Road-Fund-Performance-and-Capacity-Building.pptx",
-    image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=800",
-  }
-];
-
 export default function News() {
+  const [newsItems, setNewsItems] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
 
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const res = await axios.get('/api/news-posts');
+        setNewsItems(res.data);
+      } catch (err) {
+        console.error('Failed to fetch news posts', err);
+      }
+    };
+    fetchNews();
+  }, []);
+
   // Auto-rotation every 30 seconds
   useEffect(() => {
+    if (newsItems.length === 0) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 3 >= newsItems.length ? 0 : prev + 3));
     }, 30000);
     return () => clearInterval(interval);
-  }, []);
-
+  }, [newsItems]);
   const visibleItems = newsItems.slice(currentIndex, currentIndex + 3);
 
   const getViewerUrl = (filename: string) => {
