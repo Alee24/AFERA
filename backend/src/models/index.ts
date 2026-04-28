@@ -252,6 +252,8 @@ Program.hasMany(FeeStructure, { foreignKey: 'program_id' });
 FeeStructure.belongsTo(Program, { foreignKey: 'program_id' });
 Student.hasMany(Invoice, { foreignKey: 'student_id' });
 Invoice.belongsTo(Student, { foreignKey: 'student_id' });
+Invoice.belongsTo(Enrollment, { foreignKey: 'enrollment_id' });
+Enrollment.hasMany(Invoice, { foreignKey: 'enrollment_id' });
 Invoice.hasMany(Payment, { foreignKey: 'invoice_id' });
 Payment.belongsTo(Invoice, { foreignKey: 'invoice_id' });
 Student.hasMany(Payment, { foreignKey: 'student_id' });
