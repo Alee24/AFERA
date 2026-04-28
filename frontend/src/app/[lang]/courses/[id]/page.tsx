@@ -128,9 +128,31 @@ export default function CourseDetailsPage() {
     }
 
     const fetchCourse = async () => {
+      let backendCourseId = id;
+      try {
+        const coursesRes = await api.get('/courses');
+        const dbCourses = coursesRes.data;
+        
+        let matched: any = null;
+        if (id === 'masters-resource-mobilization') {
+          matched = dbCourses.find((c: any) => c.title_en.toLowerCase().includes('mobilization'));
+        } else if (id === 'certificate-rbm') {
+          matched = dbCourses.find((c: any) => c.title_en.toLowerCase().includes('results-based'));
+        }
+
+        if (matched) {
+          backendCourseId = matched.id;
+        }
+      } catch (err) {
+        console.error('Failed to pre-fetch course references', err);
+      }
+
       // Check static data first
       if (typeof id === 'string' && STATIC_COURSE_DETAILS[id]) {
-        setCourse(STATIC_COURSE_DETAILS[id]);
+        setCourse({
+          ...STATIC_COURSE_DETAILS[id],
+          id: backendCourseId
+        });
         setLoading(false);
         return;
       }
