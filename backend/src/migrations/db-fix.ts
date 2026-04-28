@@ -59,11 +59,13 @@ const fixDatabase = async () => {
       Assessment, 
       Grade, 
       Attendance,
-      CourseRegistration
+      CourseRegistration,
+      SystemSetting
     } = require('../models');
     
     await Workshop.sync();
     await GatewaySetting.sync();
+    await SystemSetting.sync();
     await Staff.sync();
     await CourseUnit.sync();
     await Class.sync();

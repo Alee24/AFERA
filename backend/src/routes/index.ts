@@ -10,6 +10,7 @@ import * as academicController from '../controllers/academicController';
 import * as workshopController from '../controllers/workshopController';
 import * as paymentController from '../controllers/paymentController';
 import * as lecturerController from '../controllers/lecturerController';
+import * as systemController from '../controllers/systemController';
 import { authenticateJWT, authorizeRole } from '../middleware/auth';
 
 const router = Router();
@@ -99,5 +100,9 @@ router.get('/lecturer/dashboard', authenticateJWT, authorizeRole(['lecturer', 'a
 router.get('/lecturer/classes', authenticateJWT, authorizeRole(['lecturer', 'admin']), lecturerController.getLecturerClasses);
 router.get('/lecturer/classes/:classId/students', authenticateJWT, authorizeRole(['lecturer', 'admin']), lecturerController.getClassStudents);
 router.post('/lecturer/attendance', authenticateJWT, authorizeRole(['lecturer', 'admin']), lecturerController.markAttendance);
+
+// ===== SYSTEM SETTINGS =====
+router.get('/system/settings', systemController.getSettings);
+router.put('/system/settings', authenticateJWT, authorizeRole(['admin']), systemController.updateSettings);
 
 export default router;

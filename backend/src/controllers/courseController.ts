@@ -116,30 +116,50 @@ export const enrollInCourse = async (req: any, res: Response) => {
     let student = await Student.findOne({ where: { user_id: userId } });
     if (!student) {
       // Auto-create student profile
-      const user = await User.findByPk(userId);
       const admNum = `ADM-${Date.now()}`;
       student = await Student.create({ user_id: userId, admission_number: admNum });
     }
 
     // Check if already enrolled
-    const existing = await Enrollment.findOne({ where: { student_id: student.id, course_id: courseId } });
-    if (existing) {
+    let enrollment = await Enrollment.findOne({ where: { student_id: student.id, course_id: courseId } });
+    
+    if (enrollment && enrollment.status === 'enrolled') {
       return res.status(400).json({ message: 'Already enrolled in this course' });
     }
 
-    // Calculate fee based on professional_profile
-    let feeAmount = 3600.00; // Default External
-    if (student.professional_profile === 'member_fund') feeAmount = 1800.00;
-    else if (student.professional_profile === 'ministry') feeAmount = 2400.00;
+    if (!enrollment) {
+      // Calculate fee based on professional_profile
+      let feeAmount = 3600.00; // Default External
+      if (student.professional_profile === 'member_fund') feeAmount = 1800.00;
+      else if (student.professional_profile === 'ministry') feeAmount = 2400.00;
 
-    const enrollment = await Enrollment.create({ 
-      student_id: student.id, 
-      course_id: courseId, 
-      fee_amount: feeAmount,
-      currency: 'USD',
-      status: 'pending_approval' 
-    });
-    res.status(201).json({ message: 'Successfully enrolled!', enrollment });
+      enrollment = await Enrollment.create({ 
+        student_id: student.id, 
+        course_id: courseId, 
+        fee_amount: feeAmount,
+        currency: 'USD',
+        status: 'pending_approval' 
+      });
+    }
+
+    // Generate immediate invoice for checkout
+    const { Invoice } = require('../models');
+    let invoice = await Invoice.findOne({ where: { student_id: student.id, enrollment_id: enrollment.id } });
+    
+    if (!invoice) {
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 30);
+      
+      invoice = await Invoice.create({
+        student_id: student.id,
+        enrollment_id: enrollment.id,
+        total_amount: enrollment.fee_amount || 3600.00,
+        status: 'pending',
+        due_date: dueDate
+      });
+    }
+
+    res.status(201).json({ message: 'Ready for checkout', enrollment, invoice });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
