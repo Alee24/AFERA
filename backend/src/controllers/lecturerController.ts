@@ -160,3 +160,18 @@ export const markAttendance = async (req: any, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const updateVirtualLink = async (req: Request, res: Response) => {
+  try {
+    const { classId } = req.params;
+    const { virtual_link } = req.body;
+    
+    const cls = await Class.findByPk(classId);
+    if (!cls) return res.status(404).json({ message: 'Class not found' });
+    
+    await cls.update({ virtual_link });
+    res.json({ message: 'Virtual classroom updated successfully!', data: cls });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};

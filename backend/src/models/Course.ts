@@ -87,6 +87,7 @@ export class Class extends Model {
   public academic_year!: string;
   public semester!: number;
   public schedule!: string;
+  public virtual_link!: string;
 }
 Class.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
@@ -95,6 +96,7 @@ Class.init({
   academic_year: { type: DataTypes.STRING, allowNull: false },
   semester: { type: DataTypes.INTEGER, allowNull: false },
   schedule: { type: DataTypes.STRING },
+  virtual_link: { type: DataTypes.STRING, allowNull: true },
 }, { sequelize, modelName: 'Class', tableName: 'classes', underscored: true });
 
 export class CourseResource extends Model {

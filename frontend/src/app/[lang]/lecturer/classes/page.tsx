@@ -26,6 +26,7 @@ export default function LecturerClasses() {
   const [loading, setLoading] = useState(true);
   const [marking, setMarking] = useState(false);
   const [fetchingStudents, setFetchingStudents] = useState(false);
+  const [jitsiRoom, setJitsiRoom] = useState<string | null>(null);
   const { showNotification } = useNotification();
 
   useEffect(() => {
@@ -78,6 +79,18 @@ export default function LecturerClasses() {
       showNotification('Failed to mark attendance', 'error');
     } finally {
       setMarking(false);
+    }
+  };
+
+  const startVirtualClass = async () => {
+    if (!selectedClass) return;
+    const room = `Afera_Class_${selectedClass.id.replace(/-/g, '')}`;
+    try {
+      await api.put(`/lecturer/classes/${selectedClass.id}/virtual`, { virtual_link: room });
+      setJitsiRoom(room);
+      showNotification('Virtual Class session initiated successfully!', 'success');
+    } catch (err) {
+      showNotification('Failed to launch session link', 'error');
     }
   };
 
@@ -152,6 +165,30 @@ export default function LecturerClasses() {
                </div>
             </div>
 
+            {jitsiRoom && (
+               <div className="w-full bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-lg border border-primary/20">
+                 <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <h3 className="text-lg font-bold text-primary dark:text-white flex items-center">
+                         <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping mr-2"></span>
+                         Live Classroom Session
+                      </h3>
+                      <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Powered by Jitsi Meet</p>
+                    </div>
+                    <Button onClick={() => setJitsiRoom(null)} className="bg-red-50 text-red-500 h-10 px-4 rounded-xl text-xs font-bold border-none hover:bg-red-100">
+                       End Session
+                    </Button>
+                 </div>
+                 <div className="w-full h-[60vh] rounded-3xl overflow-hidden border border-gray-100 dark:border-slate-800 shadow-inner">
+                    <iframe 
+                      src={`https://meet.jit.si/${jitsiRoom}`} 
+                      className="w-full h-full"
+                      allow="camera; microphone; fullscreen; display-capture; autoplay"
+                    />
+                 </div>
+               </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                {/* Student Attendance List */}
                <div className="lg:col-span-8 bg-white dark:bg-slate-900 p-10 rounded-[40px] shadow-sm border border-gray-50 dark:border-slate-800">
@@ -224,6 +261,10 @@ export default function LecturerClasses() {
                   <div className="bg-white dark:bg-slate-900 p-10 rounded-[40px] shadow-sm border border-gray-50 dark:border-slate-800">
                      <h3 className="text-xl font-bold text-primary dark:text-white mb-8">Unit Resources</h3>
                      <div className="space-y-4">
+                        <Button onClick={startVirtualClass} className="w-full h-14 justify-start bg-accent text-white rounded-2xl font-bold px-6 border-none hover:bg-accent/90 group shadow-lg shadow-accent/20">
+                           <Users className="mr-4 text-white" size={20} />
+                           Start Virtual Class (Jitsi)
+                        </Button>
                         <Button className="w-full h-14 justify-start bg-gray-50 dark:bg-slate-800 text-primary dark:text-white rounded-2xl font-bold px-6 border-none hover:bg-primary hover:text-white group">
                            <BookOpen className="mr-4 text-gray-400 group-hover:text-white" size={20} />
                            Upload Lecture Notes

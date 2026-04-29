@@ -135,6 +135,7 @@ router.get('/lecturer/dashboard', authenticateJWT, authorizeRole(['lecturer', 'a
 router.get('/lecturer/classes', authenticateJWT, authorizeRole(['lecturer', 'admin']), lecturerController.getLecturerClasses);
 router.get('/lecturer/classes/:classId/students', authenticateJWT, authorizeRole(['lecturer', 'admin']), lecturerController.getClassStudents);
 router.post('/lecturer/attendance', authenticateJWT, authorizeRole(['lecturer', 'admin']), lecturerController.markAttendance);
+router.put('/lecturer/classes/:classId/virtual', authenticateJWT, authorizeRole(['lecturer', 'admin']), lecturerController.updateVirtualLink);
 
 // ===== SYSTEM SETTINGS =====
 router.get('/system/settings', systemController.getSettings);
