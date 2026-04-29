@@ -148,14 +148,8 @@ export default function CourseDetailsPage() {
       }
 
       // Check static data first
-      if (typeof id === 'string' && STATIC_COURSE_DETAILS[id]) {
-        setCourse({
-          ...STATIC_COURSE_DETAILS[id],
-          id: backendCourseId
-        });
-        setLoading(false);
-        return;
-      }
+      // Rely entirely on API data
+
 
       try {
         const res = await api.get(`/courses/${id}`);
@@ -224,6 +218,19 @@ export default function CourseDetailsPage() {
   const currentLang = (lang as string) || 'en';
   const title = course[`title_${currentLang}`] || course.title_en || course.title || 'Specialized Program';
   const description = course[`description_${currentLang}`] || course.description_en || course.description || '';
+
+  const outcomesArray = course.learning_outcomes 
+    ? course.learning_outcomes.split('\n').map((s: any) => s.trim()).filter(Boolean)
+    : Array.isArray(course.outcomes) && course.outcomes.length > 0
+    ? course.outcomes
+    : [
+        "Advanced financial modeling for road projects",
+        "Deep understanding of PPP legal frameworks",
+        "Strategic asset management principles",
+        "Resource mobilization in developing economies",
+        "Results-based management applications",
+        "Performance monitoring and evaluation"
+      ];
 
   return (
     <main className="pt-24 min-h-screen bg-gray-50/50 dark:bg-slate-950 pb-20 overflow-hidden">
@@ -311,14 +318,7 @@ export default function CourseDetailsPage() {
  
               <h3 className="text-xl font-bold text-primary dark:text-white mb-6">Learning Outcomes</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {(course.outcomes || [
-                  "Advanced financial modeling for road projects",
-                  "Deep understanding of PPP legal frameworks",
-                  "Strategic asset management principles",
-                  "Resource mobilization in developing economies",
-                  "Results-based management applications",
-                  "Performance monitoring and evaluation"
-                ]).map((item: string, i: number) => (
+                {outcomesArray.map((item: string, i: number) => (
                   <div key={i} className="flex items-start space-x-3 bg-gray-50 dark:bg-slate-800 p-4 rounded-2xl">
                     <CheckCircle className="text-accent w-5 h-5 flex-shrink-0 mt-1" />
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item}</span>
