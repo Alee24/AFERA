@@ -82,7 +82,7 @@ export const getLecturerClasses = async (req: any, res: Response) => {
 
     let classes = await Class.findAll({
       where: { lecturer_id: staff.id },
-      include: [{ all: true, nested: true }]
+      include: [{ model: CourseUnit, include: [{ all: true }] }]
     });
 
     if (classes.length === 0) {
@@ -109,7 +109,7 @@ export const getLecturerClasses = async (req: any, res: Response) => {
         
         classes = await Class.findAll({
           where: { lecturer_id: staff.id },
-          include: [{ all: true, nested: true }]
+          include: [{ model: CourseUnit, include: [{ all: true }] }]
         });
       }
     }
