@@ -128,3 +128,42 @@ export const updateProfile = async (req: any, res: Response) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+// POST /api/users/bulk
+export const bulkCreateUsers = async (req: Request, res: Response) => {
+  try {
+    const { users } = req.body;
+    if (!Array.isArray(users)) return res.status(400).json({ message: 'Invalid payload' });
+    
+    const createdUsers = [];
+    const bcrypt = require('bcryptjs');
+
+    for (const u of users) {
+      const existing = await User.findOne({ where: { email: u.email } });
+      if (existing) continue;
+
+      const password_hash = await bcrypt.hash('Student123!', 10);
+      const user = await User.create({
+        first_name: u.first_name,
+        last_name: u.last_name,
+        email: u.email,
+        phone: u.phone,
+        role: u.role || 'student',
+        password_hash
+      });
+
+      if (user.role === 'student') {
+        const admission_number = 'AFR' + Math.floor(100000 + Math.random() * 900000);
+        await Student.create({
+          user_id: user.id,
+          admission_number,
+          status: 'pending'
+        });
+      }
+      createdUsers.push(user);
+    }
+    res.status(201).json({ message: `Successfully onboarded ${createdUsers.length} users.`, count: createdUsers.length });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};

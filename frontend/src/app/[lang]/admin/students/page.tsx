@@ -18,7 +18,8 @@ import {
   X,
   PlusCircle,
   Save,
-  Loader2
+  Loader2,
+  Upload
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useNotification } from '@/lib/NotificationContext';
@@ -137,14 +138,46 @@ export default function AdminStudentsPage() {
           <h1 className="text-3xl font-bold text-primary dark:text-white">Unified User Directory</h1>
           <p className="text-gray-500 mt-2 font-medium">Cross-portal visibility across students, faculty, and administrators.</p>
         </div>
-        <div className="flex items-center space-x-3">
-           <Button variant="outline" className="rounded-2xl border-gray-100 bg-white shadow-sm px-6">
-              <Download size={18} className="mr-2" /> Export CSV
-           </Button>
-           <Button className="bg-primary text-white rounded-2xl px-8 shadow-lg shadow-primary/20">
-              <UserPlus size={18} className="mr-2" /> Enroll New Student
-           </Button>
-        </div>
+         <div className="flex items-center space-x-3">
+            <Button variant="outline" className="rounded-2xl border-gray-100 bg-white shadow-sm px-6">
+               <Download size={18} className="mr-2" /> Export CSV
+            </Button>
+            <label className="flex items-center px-6 py-3 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-sm text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 cursor-pointer transition-all">
+              <Upload size={18} className="mr-2 text-accent" />
+              <span>Bulk Onboard</span>
+              <input 
+                type="file" 
+                accept=".csv" 
+                className="hidden" 
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = async (event) => {
+                      const text = event.target?.result as string;
+                      const rows = text.split('\n').slice(1); // skip header
+                      const data = rows.map(row => {
+                        const cols = row.split(',');
+                        return { first_name: cols[0]?.trim(), last_name: cols[1]?.trim(), email: cols[2]?.trim(), phone: cols[3]?.trim(), role: cols[4]?.trim() || 'student' };
+                      }).filter(r => r.email);
+
+                      try {
+                        await api.post('/users/bulk', { users: data });
+                        showNotification(`Successfully imported ${data.length} users!`, 'success');
+                        window.location.reload();
+                      } catch (err) {
+                        showNotification('Import failed', 'error');
+                      }
+                    };
+                    reader.readAsText(file);
+                  }
+                }}
+              />
+            </label>
+            <Button className="bg-primary text-white rounded-2xl px-8 shadow-lg shadow-primary/20">
+               <UserPlus size={18} className="mr-2" /> Enroll New Student
+            </Button>
+         </div>
       </div>
 
       {/* Advanced Stats */}

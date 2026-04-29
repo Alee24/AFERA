@@ -156,6 +156,30 @@ export default function StudentDashboard() {
           </motion.div>
         )}
 
+        {(!user?.StudentProfile?.nationality || !user?.StudentProfile?.gender || !user?.StudentProfile?.religion) && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="mb-8 p-6 bg-red-500/10 border border-red-500/20 rounded-[32px] flex flex-col md:flex-row items-center justify-between gap-4"
+          >
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-red-500 rounded-2xl flex items-center justify-center text-white">
+                <AlertCircle size={24} />
+              </div>
+              <div>
+                <h3 className="font-bold text-red-700 dark:text-red-400">Profile Incomplete</h3>
+                <p className="text-sm text-gray-500 font-medium">Please finalize your onboarding bio-data (Nationality, Religion, Gender) to unlock all features.</p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setActiveTab('profile')}
+              className="px-6 py-3 bg-red-500 text-white font-bold text-xs uppercase tracking-widest rounded-2xl hover:bg-red-600 transition-all shadow-xl shadow-red-500/20 flex items-center"
+            >
+              Complete Profile <ChevronRight size={16} className="ml-1" />
+            </button>
+          </motion.div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
           {/* Main Workspace */}
