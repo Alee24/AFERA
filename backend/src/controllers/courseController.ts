@@ -180,10 +180,26 @@ export const getMyEnrollments = async (req: any, res: Response) => {
           as: 'Course',
           include: [{ model: CourseModule, as: 'Modules' }] 
         },
-        { model: Program }
+        { 
+          model: Program,
+          as: 'Program',
+          include: [{ 
+            model: Course, 
+            include: [{ model: CourseModule, as: 'Modules' }] 
+          }] 
+        }
       ]
     });
-    res.json(enrollments);
+
+    const mappedEnrollments = enrollments.map((e: any) => {
+      const plain = e.get({ plain: true });
+      if (!plain.Course && plain.Program && plain.Program.Courses && plain.Program.Courses.length > 0) {
+        plain.Course = plain.Program.Courses[0];
+      }
+      return plain;
+    });
+
+    res.json(mappedEnrollments);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
