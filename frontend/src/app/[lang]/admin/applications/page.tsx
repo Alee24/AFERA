@@ -14,10 +14,14 @@ import {
   Download,
   Users,
   Clock,
-  ChevronDown
+  ChevronDown,
+  LogIn,
+  Key,
+  UserPlus
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useNotification } from '@/lib/NotificationContext';
+import { useAuth } from '@/lib/AuthContext';
 import api from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -27,6 +31,55 @@ export default function AdminApplicationsPage() {
   const [selectedApp, setSelectedApp] = useState<any>(null);
   const { showNotification } = useNotification();
   const [searchTerm, setSearchTerm] = useState('');
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [selectedUserForReset, setSelectedUserForReset] = useState<any>(null);
+  
+  const [newUser, setNewUser] = useState({ first_name: '', last_name: '', email: '', password: '', role: 'student' });
+  const [newPassword, setNewPassword] = useState('');
+  const { login: impersonateLogin } = useAuth();
+
+  const handleImpersonate = async (userId: string) => {
+    try {
+      const res = await api.post(`/admin/impersonate/${userId}`);
+      impersonateLogin(res.data.user, res.data.token);
+      showNotification('Logged in as user successfully', 'success');
+      
+      const role = res.data.user.role;
+      if (role === 'admin') window.location.href = '/admin';
+      else if (role === 'lecturer') window.location.href = '/lecturer';
+      else if (role === 'finance') window.location.href = '/admin/finance';
+      else if (role === 'admissions') window.location.href = '/admin/students';
+      else window.location.href = '/dashboard';
+    } catch (err: any) {
+      showNotification(err.response?.data?.message || 'Impersonation failed', 'error');
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.post('/admin/users/reset-password', { id: selectedUserForReset?.id, newPassword });
+      showNotification('Password reset successfully', 'success');
+      setIsResetModalOpen(false);
+      setNewPassword('');
+    } catch (err: any) {
+      showNotification(err.response?.data?.message || 'Password reset failed', 'error');
+    }
+  };
+
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.post('/admin/users', newUser);
+      showNotification('User created successfully', 'success');
+      setIsCreateModalOpen(false);
+      setNewUser({ first_name: '', last_name: '', email: '', password: '', role: 'student' });
+    } catch (err: any) {
+      showNotification(err.response?.data?.message || 'Failed to create user', 'error');
+    }
+  };
 
   useEffect(() => {
     fetchApplications();
