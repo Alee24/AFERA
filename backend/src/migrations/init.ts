@@ -6,7 +6,7 @@ const migrate = async () => {
     await sequelize.authenticate();
     console.log('Database connection established.');
     
-    await Course.sync({ alter: true });
+    await sequelize.sync({ force: true });
     console.log('Database synced successfully.');
     process.exit(0);
   } catch (error) {
