@@ -93,14 +93,27 @@ export const updateProfile = async (req: any, res: Response) => {
     const user = await User.findByPk(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
+    // Clean empty fields
+    const dob = date_of_birth === '' ? null : date_of_birth;
+
     await user.update({ first_name, last_name, phone, avatar_url });
 
     let student = await Student.findOne({ where: { user_id: userId } });
     if (student) {
       await student.update({ 
-        nationality, gender, date_of_birth,
+        nationality, gender, date_of_birth: dob,
         institution, job_title, qualification, address,
         emergency_contact_name, emergency_contact_phone
+      });
+    } else {
+      const admission_number = 'AFR' + Math.floor(100000 + Math.random() * 900000);
+      await Student.create({
+        user_id: userId,
+        admission_number,
+        nationality, gender, date_of_birth: dob,
+        institution, job_title, qualification, address,
+        emergency_contact_name, emergency_contact_phone,
+        status: 'pending'
       });
     }
 

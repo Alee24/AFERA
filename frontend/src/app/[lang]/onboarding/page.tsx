@@ -107,46 +107,47 @@ export default function OnboardingPage() {
           onSubmit={handleSubmit}
           className="bg-white dark:bg-slate-900 rounded-[40px] shadow-2xl shadow-primary/5 p-8 md:p-12 border border-gray-100 dark:border-slate-800 space-y-10"
         >
-          {/* Account Credentials */}
-          <section className="space-y-6">
-            <div className="flex items-center space-x-3 mb-2">
-               <div className="w-8 h-8 bg-primary/5 rounded-xl flex items-center justify-center text-primary dark:text-accent">
-                  <Mail size={18} />
-               </div>
-               <h3 className="text-lg font-bold text-primary dark:text-white">Account Credentials</h3>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                  <input 
-                    type="email" 
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full pl-12 pr-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-accent/20 transition-all text-sm"
-                    placeholder="name@example.com"
-                    required
-                  />
+          {!isAuthenticated && (
+            <section className="space-y-6">
+              <div className="flex items-center space-x-3 mb-2">
+                 <div className="w-8 h-8 bg-primary/5 rounded-xl flex items-center justify-center text-primary dark:text-accent">
+                    <Mail size={18} />
+                 </div>
+                 <h3 className="text-lg font-bold text-primary dark:text-white">Account Credentials</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <input 
+                      type="email" 
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      className="w-full pl-12 pr-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-accent/20 transition-all text-sm"
+                      placeholder="name@example.com"
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Create Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <input 
+                      type="password" 
+                      value={formData.password}
+                      onChange={(e) => setFormData({...formData, password: e.target.value})}
+                      className="w-full pl-12 pr-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-accent/20 transition-all text-sm"
+                      placeholder="••••••••"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Create Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                  <input 
-                    type="password" 
-                    value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
-                    className="w-full pl-12 pr-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-accent/20 transition-all text-sm"
-                    placeholder="••••••••"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* Personal Info */}
           <section className="space-y-6">
@@ -225,14 +226,23 @@ export default function OnboardingPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Nationality</label>
-                <input 
-                  type="text" 
+                <select 
                   value={formData.nationality}
                   onChange={(e) => setFormData({...formData, nationality: e.target.value})}
-                  className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-accent/20 transition-all text-sm"
-                  placeholder="e.g. Kenya, Nigeria, South Africa"
+                  className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-accent/20 transition-all text-sm appearance-none"
                   required
-                />
+                >
+                  <option value="">Select Country</option>
+                  {[
+                    "Benin", "Burkina Faso", "Burundi", "Cameroon", "Chad", "Comoros",
+                    "Democratic Republic of Congo", "Djibouti", "Gabon", "Guinea",
+                    "Ivory Coast", "Kenya", "Madagascar", "Mali", "Mozambique",
+                    "Namibia", "Niger", "Nigeria", "Rwanda", "Senegal", "South Africa",
+                    "Tanzania", "Togo", "Uganda", "Zambia", "Zimbabwe"
+                  ].map((country) => (
+                    <option key={country} value={country}>{country}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
