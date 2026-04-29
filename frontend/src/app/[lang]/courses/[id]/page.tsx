@@ -182,6 +182,12 @@ export default function CourseDetailsPage() {
       return;
     }
 
+    if (user?.role === 'student' && !user?.StudentProfile?.nationality) {
+      showNotification('Please complete your profile details first.', 'info');
+      router.push(`/${lang}/onboarding`);
+      return;
+    }
+
     setEnrolling(true);
     try {
       const res = await api.post(`/courses/${course.id}/enroll`);

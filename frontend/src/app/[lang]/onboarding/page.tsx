@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useNotification } from '@/lib/NotificationContext';
+import { useAuth } from '@/lib/AuthContext';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { motion } from 'framer-motion';
@@ -23,6 +24,7 @@ import {
 
 export default function OnboardingPage() {
   const { lang } = useParams();
+  const { isAuthenticated, user: authUser, login } = useAuth();
   const router = useRouter();
   const { showNotification } = useNotification();
   
@@ -49,23 +51,24 @@ export default function OnboardingPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      // 1. Create student account
-      await api.post('/auth/register', {
-        name: `${formData.first_name} ${formData.last_name}`,
-        email: formData.email,
-        password: formData.password,
-        role: 'student'
-      });
-      
-      // 2. Authenticate
-      const authRes = await api.post('/auth/login', {
-        email: formData.email,
-        password: formData.password
-      });
-      
-      const { user, token } = authRes.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      if (!isAuthenticated) {
+        // 1. Create student account
+        await api.post('/auth/register', {
+          name: `${formData.first_name} ${formData.last_name}`,
+          email: formData.email,
+          password: formData.password,
+          role: 'student'
+        });
+        
+        // 2. Authenticate
+        const authRes = await api.post('/auth/login', {
+          email: formData.email,
+          password: formData.password
+        });
+        
+        const { user, token } = authRes.data;
+        login(user, token);
+      }
 
       // 3. Store full profile payload
       await api.put('/users/profile', formData);

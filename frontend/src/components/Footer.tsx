@@ -85,7 +85,7 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-6">Academics</h3>
             <ul className="space-y-4 text-gray-400 text-sm">
-              <li><Link href={`/${lang}/register`} className="hover:text-accent transition-colors font-black text-accent flex items-center group">Apply Now <span className="ml-1 transform group-hover:translate-x-1 transition-transform">→</span></Link></li>
+              <li><Link href={`/${lang}/onboarding`} className="hover:text-accent transition-colors font-black text-accent flex items-center group">Apply Now <span className="ml-1 transform group-hover:translate-x-1 transition-transform">→</span></Link></li>
               <li><Link href={`/${lang}/courses?type=masters`} className="hover:text-accent transition-colors">Postgraduate Study</Link></li>
               <li><Link href={`/${lang}/courses?type=certificate`} className="hover:text-accent transition-colors">Certifications</Link></li>
               <li><Link href={`/${lang}/onboarding`} className="hover:text-accent transition-colors">New Student Orientation</Link></li>
