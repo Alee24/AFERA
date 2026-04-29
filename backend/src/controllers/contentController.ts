@@ -50,7 +50,7 @@ export const getLearningPaths = async (req: Request, res: Response) => {
 
 export const getLearningPathById = async (req: Request, res: Response) => {
   try {
-    const lp = await LearningPath.findByPk(req.params.id, {
+    const lp = await LearningPath.findByPk(req.params.id as string, {
       include: [{ model: LearningPathItem, as: 'Items', order: [['order', 'ASC']] }]
     });
     if (!lp) return res.status(404).json({ message: 'Learning Path not found' });
@@ -62,7 +62,7 @@ export const getLearningPathById = async (req: Request, res: Response) => {
 
 export const updateLearningPath = async (req: Request, res: Response) => {
   try {
-    const lp = await LearningPath.findByPk(req.params.id);
+    const lp = await LearningPath.findByPk(req.params.id as string);
     if (!lp) return res.status(404).json({ message: 'Learning Path not found' });
     await lp.update(req.body);
     res.json(lp);
@@ -83,7 +83,7 @@ export const addItemToPath = async (req: Request, res: Response) => {
 
 export const removeItemFromPath = async (req: Request, res: Response) => {
   try {
-    const item = await LearningPathItem.findByPk(req.params.itemId);
+    const item = await LearningPathItem.findByPk(req.params.itemId as string);
     if (!item) return res.status(404).json({ message: 'Item not found' });
     await item.destroy();
     res.json({ message: 'Item removed' });

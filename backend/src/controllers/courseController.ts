@@ -174,7 +174,7 @@ export const addModuleContent = async (req: Request, res: Response) => {
 export const updateModuleContent = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const content = await ModuleContent.findByPk(id);
+    const content = await ModuleContent.findByPk(id as string);
     if (!content) return res.status(404).json({ message: 'Content not found' });
     await content.update(req.body);
     res.json(content);
@@ -187,7 +187,7 @@ export const updateModuleContent = async (req: Request, res: Response) => {
 export const deleteModuleContent = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const content = await ModuleContent.findByPk(id);
+    const content = await ModuleContent.findByPk(id as string);
     if (!content) return res.status(404).json({ message: 'Content not found' });
     await content.destroy();
     res.json({ message: 'Content deleted successfully' });
