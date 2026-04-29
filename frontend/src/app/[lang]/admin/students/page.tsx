@@ -33,6 +33,9 @@ export default function AdminStudentsPage() {
   const [academicStructure, setAcademicStructure] = useState<any[]>([]);
   const [currentGrades, setCurrentGrades] = useState<any[]>([]);
   const [submittingGrade, setSubmittingGrade] = useState(false);
+  const [studentInvoices, setStudentInvoices] = useState<any[]>([]);
+  const [studentEnrollments, setStudentEnrollments] = useState<any[]>([]);
+  const [activeModalTab, setActiveModalTab] = useState<'profile' | 'applications' | 'payments' | 'grades'>('profile');
   const { showNotification } = useNotification();
 
   useEffect(() => {
@@ -64,13 +67,32 @@ export default function AdminStudentsPage() {
   const handleManageGrades = async (student: any) => {
     setSelectedStudent(student);
     setIsGradesModalOpen(true);
+    setActiveModalTab('profile');
     if (academicStructure.length === 0) fetchAcademicStructure();
     
     try {
-      const res = await api.get(`/academic/students/${student.StudentProfile.id}/grades`);
+      const res = await api.get(`/academic/students/${student.StudentProfile?.id}/grades`);
       setCurrentGrades(res.data);
     } catch (err) {
-      showNotification('Failed to load student grades', 'error');
+      console.error('Failed to load student grades', err);
+    }
+
+    try {
+      // Fetch Applications (Admissions)
+      const admRes = await api.get('/admin/admissions');
+      const filteredAdm = admRes.data.filter((e: any) => e.student_id === student.StudentProfile?.id);
+      setStudentEnrollments(filteredAdm);
+    } catch (err) {
+      console.error('Failed to load student applications', err);
+    }
+
+    try {
+      // Fetch Invoices
+      const finRes = await api.get('/finance/all-invoices');
+      const filteredFin = finRes.data.filter((i: any) => i.student_id === student.StudentProfile?.id || i.student_id === student.id);
+      setStudentInvoices(filteredFin);
+    } catch (err) {
+      console.error('Failed to load student financial ledger', err);
     }
   };
 
@@ -256,7 +278,7 @@ export default function AdminStudentsPage() {
                       {selectedStudent.first_name[0]}{selectedStudent.last_name[0]}
                     </div>
                     <div>
-                      <h3 className="text-2xl font-black text-primary dark:text-white leading-tight">Manage Academic Grades</h3>
+                      <h3 className="text-2xl font-black text-primary dark:text-white leading-tight">Student Academic Folder</h3>
                       <p className="text-gray-500 font-medium">{selectedStudent.first_name} {selectedStudent.last_name} • {selectedStudent.StudentProfile?.admission_number}</p>
                     </div>
                   </div>
@@ -268,9 +290,92 @@ export default function AdminStudentsPage() {
                   </button>
                </div>
 
+               <div className="flex border-b border-gray-100 dark:border-slate-800 bg-gray-50/10 px-10">
+                 {[
+                   { id: 'profile', name: 'Profile Overview' },
+                   { id: 'applications', name: 'Applications' },
+                   { id: 'payments', name: 'Payments Ledger' },
+                   { id: 'grades', name: 'Academic Grades' }
+                 ].map((t) => (
+                   <button
+                     key={t.id}
+                     onClick={() => setActiveModalTab(t.id as any)}
+                     className={`py-4 px-6 text-xs font-black uppercase tracking-widest border-b-2 transition-all ${
+                       activeModalTab === t.id 
+                         ? 'border-accent border-b-accent text-accent' 
+                         : 'border-transparent text-gray-400 hover:text-primary'
+                     }`}
+                   >
+                     {t.name}
+                   </button>
+                 ))}
+               </div>
+
                <div className="flex-1 overflow-y-auto p-10 space-y-10">
-                  {/* Academic Structure Explorer */}
-                  {academicStructure.map((program) => (
+                 {activeModalTab === 'profile' && (
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                     <div className="p-8 bg-gray-50 dark:bg-slate-800/50 rounded-3xl space-y-4">
+                       <h4 className="font-bold text-lg text-primary dark:text-white border-b pb-2">Bio-Data & Identification</h4>
+                       <p className="text-sm text-gray-500 font-medium"><strong>Full Name:</strong> {selectedStudent.first_name} {selectedStudent.last_name}</p>
+                       <p className="text-sm text-gray-500 font-medium"><strong>Email:</strong> {selectedStudent.email}</p>
+                       <p className="text-sm text-gray-500 font-medium"><strong>Phone:</strong> {selectedStudent.phone || 'Not Provided'}</p>
+                       <p className="text-sm text-gray-500 font-medium"><strong>Nationality:</strong> {selectedStudent.StudentProfile?.nationality || 'Not Specified'}</p>
+                       <p className="text-sm text-gray-500 font-medium"><strong>Date of Birth:</strong> {selectedStudent.StudentProfile?.date_of_birth || 'Not Specified'}</p>
+                     </div>
+                     <div className="p-8 bg-gray-50 dark:bg-slate-800/50 rounded-3xl space-y-4">
+                       <h4 className="font-bold text-lg text-primary dark:text-white border-b pb-2">Professional Credentials</h4>
+                       <p className="text-sm text-gray-500 font-medium"><strong>Job Title:</strong> {selectedStudent.StudentProfile?.job_title || 'Not Specified'}</p>
+                       <p className="text-sm text-gray-500 font-medium"><strong>Institution:</strong> {selectedStudent.StudentProfile?.institution || 'Not Specified'}</p>
+                       <p className="text-sm text-gray-500 font-medium"><strong>Profile Type:</strong> {selectedStudent.StudentProfile?.professional_profile || 'Standard'}</p>
+                       <p className="text-sm text-gray-500 font-medium"><strong>Admission No:</strong> {selectedStudent.StudentProfile?.admission_number}</p>
+                     </div>
+                   </div>
+                 )}
+
+                 {activeModalTab === 'applications' && (
+                   <div className="space-y-4">
+                     <h4 className="font-bold text-lg text-primary dark:text-white mb-4">Enrollment History</h4>
+                     {studentEnrollments.length > 0 ? (
+                       studentEnrollments.map((e: any) => (
+                         <div key={e.id} className="p-6 bg-gray-50 dark:bg-slate-800 rounded-2xl flex items-center justify-between">
+                           <div>
+                             <p className="font-bold text-primary dark:text-white">{e.Program?.name || 'Academic Program'}</p>
+                             <p className="text-xs text-gray-400 font-medium mt-1">Applied: {new Date(e.created_at).toLocaleDateString()}</p>
+                           </div>
+                           <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-100 text-amber-600">
+                             {e.status}
+                           </span>
+                         </div>
+                       ))
+                     ) : (
+                       <p className="text-gray-400 text-sm italic py-10 text-center">No submitted applications recorded.</p>
+                     )}
+                   </div>
+                 )}
+
+                 {activeModalTab === 'payments' && (
+                   <div className="space-y-4">
+                     <h4 className="font-bold text-lg text-primary dark:text-white mb-4">Transaction Ledger</h4>
+                     {studentInvoices.length > 0 ? (
+                       studentInvoices.map((i: any) => (
+                         <div key={i.id} className="p-6 bg-gray-50 dark:bg-slate-800 rounded-2xl flex items-center justify-between">
+                           <div>
+                             <p className="font-bold text-primary dark:text-white">Invoice ID: {i.id?.slice(0, 8).toUpperCase()}</p>
+                             <p className="text-xs text-gray-400 font-medium mt-1">Amount: ${parseFloat(i.total_amount).toLocaleString()}</p>
+                           </div>
+                           <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${i.status === 'paid' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
+                             {i.status}
+                           </span>
+                         </div>
+                       ))
+                     ) : (
+                       <p className="text-gray-400 text-sm italic py-10 text-center">No payment history recorded.</p>
+                     )}
+                   </div>
+                 )}
+
+                 {activeModalTab === 'grades' && (
+                   academicStructure.map((program) => (
                     <div key={program.id} className="space-y-6">
                       <div className="flex items-center space-x-4">
                         <div className="h-px flex-1 bg-gray-100 dark:bg-slate-800"></div>
@@ -307,7 +412,7 @@ export default function AdminStudentsPage() {
                         ))}
                       </div>
                     </div>
-                  ))}
+                  )))}
                </div>
             </motion.div>
           </div>
