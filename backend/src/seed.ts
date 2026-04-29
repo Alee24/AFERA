@@ -94,13 +94,14 @@ const seed = async () => {
         description_fr: 'Un programme de troisième cycle de haut niveau conçu pour former des professionnels d\'élite.',
         description_pt: 'Um programa de pós-graduação de alto nível concebido para desenvolver profissionais de elite.',
         description_sw: 'Mpango wa kiwango cha juu wa uzamili ulioundwa ili kuendeleza wataalamu wasomi.',
-        price: 0,
+        price: 800,
         duration: '2 Years',
         modality: 'Hybrid',
         department: 'Infrastructure',
         course_type: 'Master Degree',
         program_id: program.id,
-        course_code: 'INF-501'
+        course_code: 'INF-501',
+        slug: 'masters-resource-mobilization'
       },
       {
         title_en: 'Specialist Certification in Results-Based Management (RBM)',
@@ -111,21 +112,25 @@ const seed = async () => {
         description_fr: 'Équiper les professionnels du secteur routier d\'outils GAR pratiques pour la performance et la responsabilité.',
         description_pt: 'Equipar profissionais do sector rodoviário com ferramentas RBM práticas para o desempenho.',
         description_sw: 'Kuandaa wataalamu wa sekta ya barabara na zana za RBM za vitendo kwa utendaji.',
-        price: 0,
+        price: 800,
         duration: '13 Weeks',
         modality: 'Hybrid',
         department: 'Management',
         course_type: 'Certificate',
         program_id: program.id,
-        course_code: 'MGT-204'
+        course_code: 'MGT-204',
+        slug: 'certificate-rbm'
       }
     ];
 
-    for (const course of coursesData) {
-      await Course.findOrCreate({
-        where: { title_en: course.title_en },
-        defaults: course
+    for (const courseData of coursesData) {
+      const [cRecord, created] = await Course.findOrCreate({
+        where: { title_en: courseData.title_en },
+        defaults: courseData
       });
+      if (!created) {
+        await cRecord.update(courseData);
+      }
     }
 
     console.log('✅ Seeding completed successfully!');
