@@ -72,7 +72,8 @@ export default function CourseBuilderPage() {
         setH5pItems(JSON.parse(savedH5P));
       }
     } catch (err: any) {
-      showNotification('Failed to retrieve course data', 'error');
+      const msg = err.response?.data?.message || err.message || 'Failed to retrieve course data';
+      showNotification(msg, 'error');
     } finally {
       setLoading(false);
     }

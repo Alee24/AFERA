@@ -23,14 +23,25 @@ export const getCourseById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const isUuid = id.length === 36 && id.includes('-');
     
-    const course = await Course.findOne({
+    let course = await Course.findOne({
       where: isUuid ? { id } : { slug: id },
       include: [
         { model: CourseModule, as: 'Modules' },
         { model: Enrollment, as: 'Enrollments', attributes: ['id', 'status'] }
-      ],
-      order: [[{ model: CourseModule, as: 'Modules' }, 'order', 'ASC']]
+      ]
     });
+
+    // Final fallback for legacy/static titles
+    if (!course && !isUuid) {
+       const titleSearch = id.replace(/-/g, ' ');
+       course = await Course.findOne({
+          where: { title_en: { [require('sequelize').Op.like]: `%${titleSearch}%` } },
+          include: [
+            { model: CourseModule, as: 'Modules' },
+            { model: Enrollment, as: 'Enrollments', attributes: ['id', 'status'] }
+          ]
+       });
+    }
 
     if (!course) return res.status(404).json({ message: 'Course not found' });
     res.json(course);
