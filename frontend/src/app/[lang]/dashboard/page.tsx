@@ -806,11 +806,39 @@ export default function StudentDashboard() {
           <div className="lg:col-span-4 space-y-8">
              {/* Profile Card */}
              <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-sm border border-gray-50 dark:border-slate-800 text-center">
-                <div className="relative inline-block mb-6">
-                   <div className="w-24 h-24 rounded-[32px] bg-primary flex items-center justify-center text-white text-3xl font-black shadow-2xl relative z-10">
-                      {user?.first_name?.[0] || 'S'}
-                   </div>
-                   <div className="absolute inset-0 bg-accent rounded-[32px] translate-x-2 translate-y-2 opacity-20"></div>
+                <div className="relative inline-block mb-6 group">
+                    <div className="w-24 h-24 rounded-[32px] bg-primary flex items-center justify-center text-white text-3xl font-black shadow-2xl relative z-10 overflow-hidden">
+                       {(user as any)?.avatar_url ? (
+                         <img src={(user as any).avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                       ) : (
+                         user?.first_name?.[0] || 'S'
+                       )}
+                    </div>
+                    <div className="absolute inset-0 bg-accent rounded-[32px] translate-x-2 translate-y-2 opacity-20"></div>
+                    
+                    <label className="absolute bottom-0 right-0 z-20 w-8 h-8 bg-accent text-primary rounded-xl flex items-center justify-center cursor-pointer shadow-lg hover:scale-110 transition-all">
+                       <input 
+                         type="file" 
+                         accept="image/*" 
+                         className="hidden" 
+                         onChange={async (e) => {
+                           const file = e.target.files?.[0];
+                           if (file) {
+                             const formData = new FormData();
+                             formData.append('file', file);
+                             try {
+                               const res = await api.post('/upload', formData);
+                               await api.put('/users/profile', { avatar_url: res.data.url });
+                               updateUser({ ...(user as any), avatar_url: res.data.url });
+                               showNotification('Profile picture updated!', 'success');
+                             } catch (err) {
+                               showNotification('Failed to upload image', 'error');
+                             }
+                           }
+                         }}
+                       />
+                       <Download size={14} />
+                    </label>
                 </div>
                 <h3 className="text-xl font-bold text-primary dark:text-white">{user?.first_name} {user?.last_name}</h3>
                 <p className="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">Enrollment No: AFR-2026-901</p>

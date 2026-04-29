@@ -24,6 +24,7 @@ import { useNotification } from '@/lib/NotificationContext';
 import { useAuth } from '@/lib/AuthContext';
 import api from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import jsPDF from 'jspdf';
 
 export default function AdminApplicationsPage() {
   const [applications, setApplications] = useState<any[]>([]);
@@ -107,6 +108,68 @@ export default function AdminApplicationsPage() {
       fetchApplications();
     } catch (err) {
       showNotification('Operation failed', 'error');
+    }
+  };
+
+  const downloadPDFReceipt = (inv: any) => {
+    try {
+      const doc = new jsPDF();
+      doc.setFillColor(230, 24, 44); 
+      doc.rect(0, 0, 210, 40, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.setFont('Helvetica', 'bold');
+      doc.text('AFERA INNOV ACADEMY', 15, 25);
+      
+      doc.setTextColor(50, 50, 50);
+      doc.setFontSize(16);
+      doc.text('OFFICIAL PAYMENT RECEIPT', 15, 60);
+      
+      doc.setFontSize(11);
+      doc.setFont('Helvetica', 'normal');
+      doc.text(`Receipt No: REC-${inv.id?.substring(0, 8).toUpperCase()}`, 15, 75);
+      doc.text(`Date Issued: ${new Date(inv.created_at).toLocaleDateString()}`, 15, 82);
+      doc.text(`Status: ${inv.status.toUpperCase()}`, 15, 89);
+      
+      doc.setDrawColor(200, 200, 200);
+      doc.line(15, 95, 195, 95);
+      
+      doc.setFontSize(12);
+      doc.setFont('Helvetica', 'bold');
+      doc.text('Billed To:', 15, 110);
+      
+      doc.setFontSize(11);
+      doc.setFont('Helvetica', 'normal');
+      doc.text(`Scholar Name: ${selectedApp.Student?.User?.first_name} ${selectedApp.Student?.User?.last_name}`, 15, 118);
+      doc.text(`Scholar ID: ${selectedApp.Student?.admission_number || 'N/A'}`, 15, 125);
+      doc.text(`Email: ${selectedApp.Student?.User?.email}`, 15, 132);
+      
+      doc.line(15, 140, 195, 140);
+      doc.setFont('Helvetica', 'bold');
+      doc.text('Description', 15, 150);
+      doc.text('Amount Paid', 160, 150);
+      doc.line(15, 155, 195, 155);
+      
+      doc.setFont('Helvetica', 'normal');
+      doc.text(`${inv.Enrollment?.Program?.name || 'Academic Fee Clearance'}`, 15, 165);
+      doc.text(`$${inv.amount}`, 160, 165);
+      
+      doc.line(15, 175, 195, 175);
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text('Total Paid:', 115, 190);
+      doc.text(`$${inv.amount}`, 160, 190);
+      
+      doc.setFontSize(9);
+      doc.setFont('Helvetica', 'italic');
+      doc.setTextColor(150, 150, 150);
+      doc.text('Thank you for trusting Afera Innov Academy.', 105, 250, { align: 'center' });
+      doc.text('This is a computer-generated receipt, no signature required.', 105, 256, { align: 'center' });
+      
+      doc.save(`Receipt_${inv.id?.substring(0,8)}.pdf`);
+    } catch (err) {
+      showNotification('Failed to generate PDF receipt', 'error');
     }
   };
 
@@ -205,11 +268,20 @@ export default function AdminApplicationsPage() {
                               <p className="font-bold text-primary dark:text-white">{inv.Enrollment?.Program?.name || 'Academic Fees'}</p>
                               <p className="text-xs text-gray-400 font-medium mt-1">Invoice ID: {inv.id?.substring(0,8)} • {new Date(inv.created_at).toLocaleDateString()}</p>
                            </div>
-                           <div className="text-right">
-                              <p className="font-black text-primary dark:text-white">${inv.amount}</p>
-                              <span className={`text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${inv.status === 'paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                                 {inv.status}
-                              </span>
+                           <div className="flex items-center space-x-6">
+                              <div className="text-right">
+                                 <p className="font-black text-primary dark:text-white">${inv.amount}</p>
+                                 <span className={`text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${inv.status === 'paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                                    {inv.status}
+                                 </span>
+                              </div>
+                              <button 
+                                onClick={() => downloadPDFReceipt(inv)}
+                                className="w-12 h-12 bg-white dark:bg-slate-900 text-gray-400 hover:text-primary rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 dark:border-slate-800 transition-all active:scale-95"
+                                title="Download PDF Receipt"
+                              >
+                                 <Download size={18} />
+                              </button>
                            </div>
                         </div>
                       ))}

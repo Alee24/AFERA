@@ -87,13 +87,13 @@ export const updateProfile = async (req: any, res: Response) => {
     const { 
       first_name, last_name, phone, nationality, gender, date_of_birth,
       institution, job_title, qualification, address, 
-      emergency_contact_name, emergency_contact_phone
+      emergency_contact_name, emergency_contact_phone, avatar_url
     } = req.body;
 
     const user = await User.findByPk(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    await user.update({ first_name, last_name, phone });
+    await user.update({ first_name, last_name, phone, avatar_url });
 
     let student = await Student.findOne({ where: { user_id: userId } });
     if (student) {

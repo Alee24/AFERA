@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import * as authController from '../controllers/authController';
 import * as courseController from '../controllers/courseController';
 import * as postController from '../controllers/postController';
@@ -138,5 +138,11 @@ router.post('/lecturer/attendance', authenticateJWT, authorizeRole(['lecturer', 
 // ===== SYSTEM SETTINGS =====
 router.get('/system/settings', systemController.getSettings);
 router.put('/system/settings', authenticateJWT, authorizeRole(['admin']), systemController.updateSettings);
+
+router.post('/upload', authenticateJWT, upload.single('file'), (req: any, res: Response) => {
+  if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+  const fileUrl = `/api/uploads/${req.file.filename}`;
+  res.json({ url: fileUrl });
+});
 
 export default router;
