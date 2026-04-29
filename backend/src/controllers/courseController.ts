@@ -32,7 +32,7 @@ export const getCourseById = async (req: Request, res: Response) => {
     });
 
     // Final fallback for legacy/static titles
-    if (!course && !isUuid) {
+    if (!course && !isUuid && typeof id === 'string') {
        const titleSearch = id.replace(/-/g, ' ');
        course = await Course.findOne({
           where: { title_en: { [require('sequelize').Op.like]: `%${titleSearch}%` } },

@@ -16,7 +16,7 @@ export const getLecturerDashboard = async (req: any, res: Response) => {
     let classes = await Class.findAll({
       where: { lecturer_id: staff.id },
       include: [
-        { model: CourseUnit, include: [{ all: true }] }
+        { model: CourseUnit, include: [{ model: Course }] }
       ]
     });
 
@@ -44,7 +44,7 @@ export const getLecturerDashboard = async (req: any, res: Response) => {
         
         classes = await Class.findAll({
           where: { lecturer_id: staff.id },
-          include: [{ model: CourseUnit, include: [{ all: true }] }]
+          include: [{ model: CourseUnit, include: [{ model: Course }] }]
         });
       }
     }
@@ -85,7 +85,7 @@ export const getLecturerClasses = async (req: any, res: Response) => {
       where: { lecturer_id: staff.id },
       include: [{ 
         model: CourseUnit, 
-        include: [{ model: Course, as: 'Course' }] 
+        include: [{ model: Course }] 
       }]
     });
 
@@ -104,7 +104,7 @@ export const getLecturerClasses = async (req: any, res: Response) => {
           where: { lecturer_id: staff.id },
           include: [{ 
             model: CourseUnit, 
-            include: [{ model: Course, as: 'Course' }] 
+            include: [{ model: Course }] 
           }]
         });
       }
