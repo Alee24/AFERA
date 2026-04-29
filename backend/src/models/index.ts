@@ -62,6 +62,7 @@ Student.init({
   address: { type: DataTypes.TEXT, allowNull: true },
   emergency_contact_name: { type: DataTypes.STRING, allowNull: true },
   emergency_contact_phone: { type: DataTypes.STRING, allowNull: true },
+  religion: { type: DataTypes.STRING, allowNull: true },
 }, { sequelize, modelName: 'Student', tableName: 'students', underscored: true });
 
 class StudentDocument extends Model {}

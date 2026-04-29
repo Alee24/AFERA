@@ -10,7 +10,10 @@ const fixDatabase = async () => {
 
     // 1. Fix courses table
     const coursesCols = await queryInterface.describeTable('courses');
-    const contentCols = ['content_en', 'content_fr', 'content_pt', 'content_sw'];
+    const contentCols = [
+      'content_en', 'content_fr', 'content_pt', 'content_sw',
+      'image_url', 'program_overview', 'learning_outcomes', 'curriculum_structure'
+    ];
     for (const col of contentCols) {
       if (!coursesCols[col]) {
         console.log(`➕ Adding column ${col} to courses...`);
@@ -26,7 +29,8 @@ const fixDatabase = async () => {
       date_of_birth: { type: 'DATEONLY' },
       status: { type: 'STRING', defaultValue: 'pending' },
       enrollment_date: { type: 'DATE' },
-      professional_profile: { type: 'STRING' }
+      professional_profile: { type: 'STRING' },
+      religion: { type: 'STRING' }
     };
     for (const [col, def] of Object.entries(studentFields)) {
       if (!studentsCols[col]) {
