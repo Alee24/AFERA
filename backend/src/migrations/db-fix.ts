@@ -24,13 +24,13 @@ const fixDatabase = async () => {
     // 2. Fix students table
     const studentsCols = await queryInterface.describeTable('students');
     const studentFields = {
-      nationality: { type: 'STRING' },
-      gender: { type: 'STRING' },
-      date_of_birth: { type: 'DATEONLY' },
-      status: { type: 'STRING', defaultValue: 'pending' },
-      enrollment_date: { type: 'DATE' },
-      professional_profile: { type: 'STRING' },
-      religion: { type: 'STRING' }
+      nationality: { type: 'VARCHAR(255)' },
+      gender: { type: 'VARCHAR(255)' },
+      date_of_birth: { type: 'DATE' },
+      status: { type: 'VARCHAR(255)', defaultValue: 'pending' },
+      enrollment_date: { type: 'DATETIME' },
+      professional_profile: { type: 'VARCHAR(255)' },
+      religion: { type: 'VARCHAR(255)' }
     };
     for (const [col, def] of Object.entries(studentFields)) {
       if (!studentsCols[col]) {
@@ -43,14 +43,14 @@ const fixDatabase = async () => {
     const usersCols = await queryInterface.describeTable('users');
     if (!usersCols['phone']) {
       console.log('➕ Adding column phone to users...');
-      await queryInterface.addColumn('users', 'phone', { type: 'STRING' });
+      await queryInterface.addColumn('users', 'phone', { type: 'VARCHAR(255)' });
     }
 
     // 4. Fix enrollments table (Add course_id)
     const enrollmentCols = await queryInterface.describeTable('enrollments');
     if (!enrollmentCols['course_id']) {
       console.log('➕ Adding column course_id to enrollments...');
-      await queryInterface.addColumn('enrollments', 'course_id', { type: 'UUID' });
+      await queryInterface.addColumn('enrollments', 'course_id', { type: 'VARCHAR(255)' });
     }
 
     // 5. Ensure all Portal tables exist
