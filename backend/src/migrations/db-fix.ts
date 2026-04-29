@@ -98,8 +98,15 @@ const fixDatabase = async () => {
     await Attendance.sync();
     await CourseRegistration.sync();
     
-    const { NewsPost } = require('../models');
+    const { NewsPost, ModuleContent, LearningPath, LearningPathItem, Page, Quiz, Assignment, Wiki } = require('../models');
     await NewsPost.sync();
+    await ModuleContent.sync();
+    await LearningPath.sync();
+    await LearningPathItem.sync();
+    await Page.sync();
+    await Quiz.sync();
+    await Assignment.sync();
+    await Wiki.sync();
     
     console.log('✅ All Portal and Payment tables synchronized.');
 

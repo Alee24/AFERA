@@ -12,6 +12,7 @@ import * as paymentController from '../controllers/paymentController';
 import * as lecturerController from '../controllers/lecturerController';
 import * as systemController from '../controllers/systemController';
 import * as newsPostController from '../controllers/newsPostController';
+import * as contentController from '../controllers/contentController';
 import { authenticateJWT, authorizeRole } from '../middleware/auth';
 import multer from 'multer';
 import path from 'path';
@@ -55,6 +56,11 @@ router.post('/courses', authenticateJWT, authorizeRole(['admin']), courseControl
 router.put('/courses/:id', authenticateJWT, authorizeRole(['admin']), courseController.updateCourse);
 router.delete('/courses/:id', authenticateJWT, authorizeRole(['admin']), courseController.deleteCourse);
 router.post('/courses/:id/modules', authenticateJWT, authorizeRole(['admin', 'lecturer']), courseController.addModule);
+router.put('/modules/:id', authenticateJWT, authorizeRole(['admin', 'lecturer']), courseController.updateModule);
+router.delete('/modules/:id', authenticateJWT, authorizeRole(['admin', 'lecturer']), courseController.deleteModule);
+router.post('/modules/:id/contents', authenticateJWT, authorizeRole(['admin', 'lecturer']), courseController.addModuleContent);
+router.put('/contents/:id', authenticateJWT, authorizeRole(['admin', 'lecturer']), courseController.updateModuleContent);
+router.delete('/contents/:id', authenticateJWT, authorizeRole(['admin', 'lecturer']), courseController.deleteModuleContent);
 router.post('/courses/:id/enroll', authenticateJWT, courseController.enrollInCourse);
 router.get('/enrollments/my', authenticateJWT, courseController.getMyEnrollments);
 
@@ -70,6 +76,24 @@ router.get('/news-posts', newsPostController.getNewsPosts);
 router.post('/news-posts', authenticateJWT, authorizeRole(['admin']), newsPostController.createNewsPost);
 router.put('/news-posts/:id', authenticateJWT, authorizeRole(['admin']), newsPostController.updateNewsPost);
 router.delete('/news-posts/:id', authenticateJWT, authorizeRole(['admin']), newsPostController.deleteNewsPost);
+
+// ===== CONTENT MANAGEMENT (Learning Paths, Pages, etc.) =====
+router.get('/library', authenticateJWT, contentController.getLibrary);
+router.post('/learning-paths', authenticateJWT, authorizeRole(['admin', 'lecturer']), contentController.createLearningPath);
+router.get('/learning-paths', contentController.getLearningPaths);
+router.get('/learning-paths/:id', contentController.getLearningPathById);
+router.put('/learning-paths/:id', authenticateJWT, authorizeRole(['admin', 'lecturer']), contentController.updateLearningPath);
+router.post('/learning-paths/:id/items', authenticateJWT, authorizeRole(['admin', 'lecturer']), contentController.addItemToPath);
+router.delete('/learning-paths/:id/items/:itemId', authenticateJWT, authorizeRole(['admin', 'lecturer']), contentController.removeItemFromPath);
+
+router.post('/pages', authenticateJWT, authorizeRole(['admin', 'lecturer']), contentController.createPage);
+router.get('/pages', contentController.getPages);
+
+router.post('/quizzes', authenticateJWT, authorizeRole(['admin', 'lecturer']), contentController.createQuiz);
+router.get('/quizzes', contentController.getQuizzes);
+
+router.post('/assignments', authenticateJWT, authorizeRole(['admin', 'lecturer']), contentController.createAssignment);
+router.post('/wikis', authenticateJWT, authorizeRole(['admin', 'lecturer']), contentController.createWiki);
 
 // ===== FILE UPLOADS =====
 router.post('/upload', authenticateJWT, upload.single('file'), (req: any, res: any) => {

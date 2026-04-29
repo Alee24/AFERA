@@ -13,26 +13,42 @@ import {
   MonitorPlay, 
   Puzzle, 
   Edit3, 
-  ExternalLink 
+  ExternalLink,
+  File,
+  X,
+  Search,
+  ClipboardList,
+  GitMerge,
+  HelpCircle,
+  Type,
+  Video,
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useNotification } from '@/lib/NotificationContext';
 import api from '@/lib/api';
 import { useParams, useRouter } from 'next/navigation';
+import SelectLibraryModal from '@/components/admin/SelectLibraryModal';
+import CreateContentModal from '@/components/admin/CreateContentModal';
 
 interface Module {
   id: string;
   title_en: string;
   description_en: string;
   order: number;
+  Contents?: ModuleContent[];
 }
 
-interface H5PItem {
+interface ModuleContent {
   id: string;
-  moduleId: string;
-  type: 'quiz' | 'presentation' | 'video' | 'interactive';
-  embedCode: string;
+  module_id: string;
+  type: 'text' | 'video' | 'h5p' | 'document' | 'image' | 'quiz' | 'assignment' | 'wiki' | 'page';
   title: string;
+  content_en?: string;
+  file_url?: string;
+  video_url?: string;
+  h5p_embed?: string;
+  order: number;
 }
 
 export default function CourseBuilderPage() {
@@ -42,7 +58,6 @@ export default function CourseBuilderPage() {
   
   const [course, setCourse] = useState<any>(null);
   const [modules, setModules] = useState<Module[]>([]);
-  const [h5pItems, setH5pItems] = useState<H5PItem[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Creation States
@@ -50,10 +65,14 @@ export default function CourseBuilderPage() {
   const [moduleTitle, setModuleTitle] = useState('');
   const [moduleDesc, setModuleDesc] = useState('');
   
-  const [isH5pModalOpen, setIsH5pModalOpen] = useState(false);
+  const [isContentModalOpen, setIsContentModalOpen] = useState(false);
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+  const [isCreateContentOpen, setIsCreateContentOpen] = useState(false);
   const [selectedModuleId, setSelectedModuleId] = useState('');
-  const [h5pTitle, setH5pTitle] = useState('');
-  const [h5pType, setH5pType] = useState<'quiz' | 'presentation' | 'video' | 'interactive'>('quiz');
+  const [contentType, setContentType] = useState<'text' | 'video' | 'h5p' | 'document'>('text');
+  const [contentTitle, setContentTitle] = useState('');
+  const [contentText, setContentText] = useState('');
+  const [contentUrl, setContentUrl] = useState('');
   const [h5pEmbed, setH5pEmbed] = useState('');
 
   useEffect(() => {
@@ -65,12 +84,6 @@ export default function CourseBuilderPage() {
       const courseRes = await api.get(`/courses/${id}`);
       setCourse(courseRes.data);
       setModules(courseRes.data?.Modules || []);
-      
-      // Load dummy/stored H5P items safely
-      const savedH5P = localStorage.getItem(`course_${id}_h5p`);
-      if (savedH5P) {
-        setH5pItems(JSON.parse(savedH5P));
-      }
     } catch (err: any) {
       const msg = err.response?.data?.message || err.message || 'Failed to retrieve course data';
       showNotification(msg, 'error');
@@ -89,7 +102,7 @@ export default function CourseBuilderPage() {
         duration_weeks: 4
       });
       showNotification('Module added successfully', 'success');
-      setModules([...modules, res.data]);
+      setModules([...modules, { ...res.data, Contents: [] }]);
       setIsModuleModalOpen(false);
       setModuleTitle('');
       setModuleDesc('');
@@ -98,36 +111,74 @@ export default function CourseBuilderPage() {
     }
   };
 
-  const handleAddH5P = (e: React.FormEvent) => {
+  const handleAddContent = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!h5pEmbed.trim() || !h5pTitle.trim()) {
-      showNotification('Please fill in all H5P item fields', 'error');
+    if (!contentTitle.trim()) {
+      showNotification('Please provide a title', 'error');
       return;
     }
     
-    const newItem: H5PItem = {
-      id: Math.random().toString(36).substr(2, 9),
-      moduleId: selectedModuleId,
-      type: h5pType,
-      title: h5pTitle,
-      embedCode: h5pEmbed
+    const payload: any = {
+      type: contentType,
+      title: contentTitle,
+      order: (modules.find(m => m.id === selectedModuleId)?.Contents?.length || 0) + 1
     };
 
-    const updated = [...h5pItems, newItem];
-    setH5pItems(updated);
-    localStorage.setItem(`course_${id}_h5p`, JSON.stringify(updated));
-    showNotification('Interactive H5P Item attached!', 'success');
-    
-    setIsH5pModalOpen(false);
-    setH5pTitle('');
-    setH5pEmbed('');
+    if (contentType === 'text') payload.content_en = contentText;
+    if (contentType === 'video') payload.video_url = contentUrl;
+    if (contentType === 'document') payload.file_url = contentUrl;
+    if (contentType === 'h5p') payload.h5p_embed = h5pEmbed;
+
+    try {
+      const res = await api.post(`/modules/${selectedModuleId}/contents`, payload);
+      
+      setModules(modules.map(m => {
+        if (m.id === selectedModuleId) {
+          return { ...m, Contents: [...(m.Contents || []), res.data] };
+        }
+        return m;
+      }));
+
+      showNotification('Content added successfully!', 'success');
+      setIsContentModalOpen(false);
+      resetContentForm();
+    } catch (err: any) {
+      showNotification(err.response?.data?.message || 'Failed to add content', 'error');
+    }
   };
 
-  const deleteH5PItem = (itemId: string) => {
-    const updated = h5pItems.filter(item => item.id !== itemId);
-    setH5pItems(updated);
-    localStorage.setItem(`course_${id}_h5p`, JSON.stringify(updated));
-    showNotification('H5P item removed', 'info');
+  const resetContentForm = () => {
+    setContentTitle('');
+    setContentText('');
+    setContentUrl('');
+    setH5pEmbed('');
+    setContentType('text');
+  };
+
+  const deleteContent = async (contentId: string, moduleId: string) => {
+    try {
+      await api.delete(`/contents/${contentId}`);
+      setModules(modules.map(m => {
+        if (m.id === moduleId) {
+          return { ...m, Contents: m.Contents?.filter(c => c.id !== contentId) };
+        }
+        return m;
+      }));
+      showNotification('Content removed', 'info');
+    } catch (err: any) {
+      showNotification('Failed to remove content', 'error');
+    }
+  };
+
+  const deleteModuleLocal = async (modId: string) => {
+    if (!window.confirm('Are you sure you want to delete this module and all its contents?')) return;
+    try {
+      await api.delete(`/modules/${modId}`);
+      setModules(modules.filter(m => m.id !== modId));
+      showNotification('Module deleted', 'info');
+    } catch (err: any) {
+      showNotification('Failed to delete module', 'error');
+    }
   };
 
   if (loading) return (
@@ -162,12 +213,6 @@ export default function CourseBuilderPage() {
          </div>
 
          <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => {
-              setSelectedModuleId(modules[0]?.id || '');
-              setIsH5pModalOpen(true);
-            }} className="rounded-2xl font-bold text-xs uppercase tracking-wider h-12">
-               <Puzzle size={16} className="mr-2 text-accent" /> Integrate H5P
-            </Button>
             <Button variant="accent" onClick={() => setIsModuleModalOpen(true)} className="rounded-2xl font-bold text-xs uppercase tracking-wider h-12">
                <Plus size={16} className="mr-2" /> New Module
             </Button>
@@ -186,8 +231,8 @@ export default function CourseBuilderPage() {
                   <p className="text-gray-400 text-sm max-w-sm mx-auto mt-2">Initialize modules cleanly to start populating interactive assets across your portal.</p>
                </div>
             ) : (
-               modules.map((mod, index) => {
-                 const moduleH5P = h5pItems.filter(h => h.moduleId === mod.id);
+               modules.sort((a,b) => a.order - b.order).map((mod, index) => {
+                 const contents = mod.Contents || [];
 
                  return (
                    <div key={mod.id} className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-md border border-gray-50 dark:border-slate-800 hover:shadow-xl transition-all">
@@ -199,34 +244,50 @@ export default function CourseBuilderPage() {
                             <h3 className="text-xl font-bold text-primary dark:text-white mt-2">{mod.title_en}</h3>
                             <p className="text-sm text-gray-400 mt-1">{mod.description_en}</p>
                          </div>
-                         <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" onClick={() => {
-                              setSelectedModuleId(mod.id);
-                              setIsH5pModalOpen(true);
-                            }} className="rounded-xl text-xs">
-                               <Plus size={14} className="mr-1" /> Add H5P
-                            </Button>
-                         </div>
+                          <div className="flex items-center gap-2">
+                             <Button variant="outline" size="sm" onClick={() => {
+                               setSelectedModuleId(mod.id);
+                               setIsLibraryOpen(true);
+                             }} className="rounded-xl text-[10px] font-bold h-9">
+                                <Search size={12} className="mr-1" /> Library
+                             </Button>
+                             <Button variant="outline" size="sm" onClick={() => {
+                               setSelectedModuleId(mod.id);
+                               setIsCreateContentOpen(true);
+                             }} className="rounded-xl text-[10px] font-bold h-9">
+                                <Plus size={12} className="mr-1" /> Create
+                             </Button>
+                             <Button variant="outline" size="sm" onClick={() => deleteModuleLocal(mod.id)} className="rounded-xl h-9 w-9 p-0 text-red-500 hover:bg-red-50 border-red-100">
+                                <Trash2 size={14} />
+                             </Button>
+                          </div>
                       </div>
 
-                      {/* Attached H5P Tools/Objects */}
+                      {/* Attached Contents */}
                       <div className="mt-6 pt-6 border-t border-gray-50 dark:border-slate-800 space-y-3">
-                         {moduleH5P.length === 0 ? (
-                            <p className="text-xs text-gray-400 italic">No H5P interactive tools added to this module yet.</p>
+                         {contents.length === 0 ? (
+                            <p className="text-xs text-gray-400 italic">No content added to this module yet.</p>
                          ) : (
-                            moduleH5P.map(hItem => (
-                               <div key={hItem.id} className="flex items-center justify-between bg-gray-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-transparent hover:border-primary/10 transition-all">
+                            contents.sort((a,b) => a.order - b.order).map(c => (
+                               <div key={c.id} className="flex items-center justify-between bg-gray-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-transparent hover:border-primary/10 transition-all">
                                   <div className="flex items-center space-x-3">
                                      <div className="w-10 h-10 bg-accent/10 text-accent rounded-xl flex items-center justify-center shrink-0">
-                                        <Puzzle size={18} />
+                                        {c.type === 'text' && <Type size={18} />}
+                                        {c.type === 'video' && <Video size={18} />}
+                                        {c.type === 'h5p' && <Puzzle size={18} />}
+                                        {c.type === 'document' && <FileText size={18} />}
+                                        {c.type === 'quiz' && <HelpCircle size={18} />}
+                                        {c.type === 'assignment' && <ClipboardList size={18} />}
+                                        {c.type === 'wiki' && <Search size={18} />}
+                                        {c.type === 'page' && <FileText size={18} />}
                                      </div>
                                      <div>
-                                        <p className="text-sm font-bold text-primary dark:text-white">{hItem.title}</p>
-                                        <p className="text-[9px] text-gray-400 uppercase font-black tracking-widest mt-0.5">{hItem.type}</p>
+                                        <p className="text-sm font-bold text-primary dark:text-white">{c.title}</p>
+                                        <p className="text-[9px] text-gray-400 uppercase font-black tracking-widest mt-0.5">{c.type}</p>
                                      </div>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                     <Button variant="outline" size="sm" className="h-8 w-8 p-0 rounded-lg text-red-500 hover:bg-red-50 border-none" onClick={() => deleteH5PItem(hItem.id)}>
+                                     <Button variant="outline" size="sm" className="h-8 w-8 p-0 rounded-lg text-red-500 hover:bg-red-50 border-none" onClick={() => deleteContent(c.id, mod.id)}>
                                         <Trash2 size={14} />
                                      </Button>
                                   </div>
@@ -245,21 +306,22 @@ export default function CourseBuilderPage() {
             <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-sm border border-gray-100 dark:border-slate-800">
                <div className="flex items-center space-x-3 mb-6">
                   <Puzzle size={24} className="text-accent" />
-                  <h4 className="font-bold text-primary dark:text-white">H5P Sandbox Guidelines</h4>
+                  <h4 className="font-bold text-primary dark:text-white">Modular Architecture</h4>
                </div>
                <p className="text-xs text-gray-500 leading-relaxed">
-                  Use tools like <strong>Lumi Education</strong> or <strong>H5P.org</strong> to construct interactive quizzes. Copy the <code>&lt;iframe&gt;</code> embed codes safely.
+                  You can now add multiple content types to a single module. <strong>Text</strong> for reading, <strong>Video</strong> for visual learning, and <strong>H5P</strong> for interactivity.
                </p>
                <hr className="my-6 border-gray-50 dark:border-slate-800" />
                <div className="space-y-4">
-                  <a href="https://h5p.org" target="_blank" className="flex items-center justify-between text-xs font-bold text-primary dark:text-white hover:text-accent transition-colors">
-                     <span>Launch H5P.org Editor</span>
-                     <ExternalLink size={14} />
-                  </a>
-                  <a href="https://app.lumi.education" target="_blank" className="flex items-center justify-between text-xs font-bold text-primary dark:text-white hover:text-accent transition-colors">
-                     <span>Explore Lumi Apps</span>
-                     <ExternalLink size={14} />
-                  </a>
+                  <div className="flex items-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                     <Type size={14} className="mr-2" /> Textual Content
+                  </div>
+                  <div className="flex items-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                     <Video size={14} className="mr-2" /> Video Streaming
+                  </div>
+                  <div className="flex items-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                     <Puzzle size={14} className="mr-2" /> H5P Interactivity
+                  </div>
                </div>
             </div>
          </div>
@@ -269,6 +331,9 @@ export default function CourseBuilderPage() {
       {isModuleModalOpen && (
          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white dark:bg-slate-900 rounded-[40px] p-10 max-w-md w-full shadow-2xl relative">
+               <button onClick={() => setIsModuleModalOpen(false)} className="absolute top-6 right-6 text-gray-400 hover:text-primary transition-all">
+                  <X size={24} />
+               </button>
                <h3 className="text-2xl font-black text-primary dark:text-white mb-6">Append New Module</h3>
                <form onSubmit={handleAddModule} className="space-y-4">
                   <div className="space-y-1">
@@ -301,72 +366,127 @@ export default function CourseBuilderPage() {
          </div>
       )}
 
-      {/* H5P Modal */}
-      {isH5pModalOpen && (
+      {/* Content Modal */}
+      {isContentModalOpen && (
          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-[40px] p-10 max-w-md w-full shadow-2xl relative">
-               <h3 className="text-2xl font-black text-primary dark:text-white mb-6">Configure H5P Interaction</h3>
-               <form onSubmit={handleAddH5P} className="space-y-4">
-                  <div className="space-y-1">
-                     <label className="text-[10px] font-black uppercase text-gray-400">Attach To Module</label>
-                     <select 
-                       value={selectedModuleId} 
-                       onChange={(e) => setSelectedModuleId(e.target.value)}
-                       className="w-full h-14 px-4 bg-gray-50 dark:bg-slate-800 border-none rounded-xl font-medium focus:ring-4 focus:ring-primary/5 transition-all outline-none"
-                       required
-                     >
-                        {modules.map(m => (
-                           <option key={m.id} value={m.id}>{m.title_en}</option>
-                        ))}
-                     </select>
-                  </div>
+            <div className="bg-white dark:bg-slate-900 rounded-[40px] p-10 max-w-lg w-full shadow-2xl relative overflow-hidden">
+               <button onClick={() => setIsContentModalOpen(false)} className="absolute top-6 right-6 text-gray-400 hover:text-primary transition-all">
+                  <X size={24} />
+               </button>
+               <h3 className="text-2xl font-black text-primary dark:text-white mb-6">Add Module Content</h3>
+               
+               <div className="flex space-x-2 mb-8 bg-gray-50 dark:bg-slate-800 p-1.5 rounded-2xl">
+                  {[
+                    { id: 'text', icon: Type, label: 'Text' },
+                    { id: 'video', icon: Video, label: 'Video' },
+                    { id: 'h5p', icon: Puzzle, label: 'H5P' },
+                    { id: 'document', icon: FileText, label: 'Doc' }
+                  ].map(t => (
+                    <button 
+                      key={t.id}
+                      onClick={() => setContentType(t.id as any)}
+                      className={`flex-1 flex flex-col items-center justify-center py-3 rounded-xl transition-all ${
+                        contentType === t.id ? 'bg-primary text-white shadow-lg' : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                       <t.icon size={20} className="mb-1" />
+                       <span className="text-[10px] font-black uppercase tracking-tighter">{t.label}</span>
+                    </button>
+                  ))}
+               </div>
 
+               <form onSubmit={handleAddContent} className="space-y-4">
                   <div className="space-y-1">
-                     <label className="text-[10px] font-black uppercase text-gray-400">Interaction Title</label>
+                     <label className="text-[10px] font-black uppercase text-gray-400">Content Title</label>
                      <input 
                        type="text" 
-                       value={h5pTitle} 
-                       onChange={(e) => setH5pTitle(e.target.value)} 
-                       placeholder="e.g. End of Module Exam"
+                       value={contentTitle} 
+                       onChange={(e) => setContentTitle(e.target.value)} 
+                       placeholder="e.g. Introduction to RBM"
                        className="w-full h-14 px-4 bg-gray-50 dark:bg-slate-800 border-none rounded-xl font-medium focus:ring-4 focus:ring-primary/5 transition-all outline-none"
                        required
                      />
                   </div>
 
-                  <div className="space-y-1">
-                     <label className="text-[10px] font-black uppercase text-gray-400">Format</label>
-                     <select 
-                       value={h5pType} 
-                       onChange={(e) => setH5pType(e.target.value as any)}
-                       className="w-full h-14 px-4 bg-gray-50 dark:bg-slate-800 border-none rounded-xl font-medium focus:ring-4 focus:ring-primary/5 transition-all outline-none"
-                     >
-                        <option value="quiz">Interactive Quiz</option>
-                        <option value="presentation">Presentation</option>
-                        <option value="video">Interactive Video</option>
-                        <option value="interactive">Drag & Drop Space</option>
-                     </select>
-                  </div>
+                  {contentType === 'text' && (
+                    <div className="space-y-1">
+                       <label className="text-[10px] font-black uppercase text-gray-400">Textual Content (Markdown supported)</label>
+                       <textarea 
+                         value={contentText} 
+                         onChange={(e) => setContentText(e.target.value)} 
+                         placeholder="Type or paste your lesson content here..."
+                         className="w-full h-40 p-4 bg-gray-50 dark:bg-slate-800 border-none rounded-xl font-medium focus:ring-4 focus:ring-primary/5 transition-all outline-none"
+                         required
+                       />
+                    </div>
+                  )}
 
-                  <div className="space-y-1">
-                     <label className="text-[10px] font-black uppercase text-gray-400">H5P Embed Code / URL</label>
-                     <textarea 
-                       value={h5pEmbed} 
-                       onChange={(e) => setH5pEmbed(e.target.value)} 
-                       placeholder="<iframe>...</iframe>"
-                       className="w-full h-24 p-4 bg-gray-50 dark:bg-slate-800 border-none rounded-xl font-mono text-xs focus:ring-4 focus:ring-primary/5 transition-all outline-none"
-                       required
-                     />
-                  </div>
+                  {(contentType === 'video' || contentType === 'document') && (
+                    <div className="space-y-1">
+                       <label className="text-[10px] font-black uppercase text-gray-400">{contentType === 'video' ? 'Video URL (YouTube/Vimeo)' : 'Document URL'}</label>
+                       <input 
+                         type="url" 
+                         value={contentUrl} 
+                         onChange={(e) => setContentUrl(e.target.value)} 
+                         placeholder="https://..."
+                         className="w-full h-14 px-4 bg-gray-50 dark:bg-slate-800 border-none rounded-xl font-medium focus:ring-4 focus:ring-primary/5 transition-all outline-none"
+                         required
+                       />
+                    </div>
+                  )}
+
+                  {contentType === 'h5p' && (
+                    <div className="space-y-1">
+                       <label className="text-[10px] font-black uppercase text-gray-400">H5P Embed Code</label>
+                       <textarea 
+                         value={h5pEmbed} 
+                         onChange={(e) => setH5pEmbed(e.target.value)} 
+                         placeholder="<iframe>...</iframe>"
+                         className="w-full h-32 p-4 bg-gray-50 dark:bg-slate-800 border-none rounded-xl font-mono text-xs focus:ring-4 focus:ring-primary/5 transition-all outline-none"
+                         required
+                       />
+                    </div>
+                  )}
 
                   <div className="flex gap-3 justify-end mt-6">
-                     <Button type="button" variant="outline" onClick={() => setIsH5pModalOpen(false)} className="rounded-xl">Cancel</Button>
-                     <Button type="submit" variant="accent" className="rounded-xl">Deploy H5P</Button>
+                     <Button type="button" variant="outline" onClick={() => setIsContentModalOpen(false)} className="rounded-xl">Cancel</Button>
+                     <Button type="submit" variant="primary" className="rounded-xl">Save Content</Button>
                   </div>
                </form>
             </div>
          </div>
       )}
 
+      <SelectLibraryModal 
+        isOpen={isLibraryOpen}
+        onClose={() => setIsLibraryOpen(false)}
+        onSelect={async (selected) => {
+          for (const item of selected) {
+            await api.post(`/modules/${selectedModuleId}/contents`, {
+              type: item.type,
+              title: item.title,
+              reference_id: item.id,
+              order: (modules.find(m => m.id === selectedModuleId)?.Contents?.length || 0) + 1
+            });
+          }
+          fetchCourseAndModules();
+          showNotification(`Added ${selected.length} items from library`, 'success');
+        }}
+      />
+
+      <CreateContentModal 
+        isOpen={isCreateContentOpen}
+        onClose={() => setIsCreateContentOpen(false)}
+        onSelect={(type) => {
+          setIsCreateContentOpen(false);
+          if (['text', 'video', 'h5p', 'document'].includes(type)) {
+            setContentType(type as any);
+            setIsContentModalOpen(true);
+          } else {
+            router.push(`/${lang}/admin/content/${type}/new?module_id=${selectedModuleId}`);
+          }
+        }}
+      />
     </div>
   );
 }

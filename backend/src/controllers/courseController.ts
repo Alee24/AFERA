@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Course, CourseModule, Enrollment, Student, User, Program, CourseResource } from '../models';
+import { Course, CourseModule, Enrollment, Student, User, Program, CourseResource, ModuleContent } from '../models';
 import * as mailService from '../services/mailService';
 
 // GET /api/courses
@@ -7,7 +7,12 @@ export const getCourses = async (req: Request, res: Response) => {
   try {
     const courses = await Course.findAll({
       include: [
-        { model: CourseModule, as: 'Modules', attributes: ['id', 'title_en', 'title_fr', 'title_pt', 'order', 'duration_weeks'] }
+        { 
+          model: CourseModule, 
+          as: 'Modules', 
+          attributes: ['id', 'title_en', 'title_fr', 'title_pt', 'order', 'duration_weeks'],
+          include: [{ model: ModuleContent, as: 'Contents' }]
+        }
       ],
       order: [['created_at', 'DESC']]
     });
@@ -26,7 +31,11 @@ export const getCourseById = async (req: Request, res: Response) => {
     let course = await Course.findOne({
       where: isUuid ? { id } : { slug: id },
       include: [
-        { model: CourseModule, as: 'Modules' },
+        { 
+          model: CourseModule, 
+          as: 'Modules',
+          include: [{ model: ModuleContent, as: 'Contents' }]
+        },
         { model: Enrollment, as: 'Enrollments', attributes: ['id', 'status'] }
       ]
     });
@@ -113,10 +122,77 @@ export const addModule = async (req: Request, res: Response) => {
   try {
     const course = await Course.findByPk(req.params.id as string);
     if (!course) return res.status(404).json({ message: 'Course not found' });
-    const module = await CourseModule.create({ ...req.body, course_id: req.params.id });
+    const module = await CourseModule.create({ 
+      ...req.body, 
+      course_id: req.params.id,
+      h5p_content: req.body.h5p_content || null,
+      video_url: req.body.video_url || null,
+      document_url: req.body.document_url || null
+    });
     res.status(201).json(module);
   } catch (error: any) {
     res.status(400).json({ message: error.message });
+  }
+};
+
+// PUT /api/modules/:id
+export const updateModule = async (req: Request, res: Response) => {
+  try {
+    const module = await CourseModule.findByPk(req.params.id as string);
+    if (!module) return res.status(404).json({ message: 'Module not found' });
+    await module.update(req.body);
+    res.json(module);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// DELETE /api/modules/:id
+export const deleteModule = async (req: Request, res: Response) => {
+  try {
+    const module = await CourseModule.findByPk(req.params.id as string);
+    if (!module) return res.status(404).json({ message: 'Module not found' });
+    await module.destroy();
+    res.json({ message: 'Module deleted successfully' });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// POST /api/modules/:id/contents
+export const addModuleContent = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const content = await ModuleContent.create({ ...req.body, module_id: id });
+    res.status(201).json(content);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// PUT /api/contents/:id
+export const updateModuleContent = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const content = await ModuleContent.findByPk(id);
+    if (!content) return res.status(404).json({ message: 'Content not found' });
+    await content.update(req.body);
+    res.json(content);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// DELETE /api/contents/:id
+export const deleteModuleContent = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const content = await ModuleContent.findByPk(id);
+    if (!content) return res.status(404).json({ message: 'Content not found' });
+    await content.destroy();
+    res.json({ message: 'Content deleted successfully' });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -195,14 +271,22 @@ export const getMyEnrollments = async (req: any, res: Response) => {
         { 
           model: Course, 
           as: 'Course',
-          include: [{ model: CourseModule, as: 'Modules' }] 
+          include: [{ 
+            model: CourseModule, 
+            as: 'Modules',
+            include: [{ model: ModuleContent, as: 'Contents' }]
+          }] 
         },
         { 
           model: Program,
           as: 'Program',
           include: [{ 
             model: Course, 
-            include: [{ model: CourseModule, as: 'Modules' }] 
+            include: [{ 
+              model: CourseModule, 
+              as: 'Modules',
+              include: [{ model: ModuleContent, as: 'Contents' }]
+            }] 
           }] 
         }
       ]

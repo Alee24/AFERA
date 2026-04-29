@@ -27,7 +27,11 @@ import {
   X,
   Smartphone,
   Globe,
-  Loader2
+  Loader2,
+  Puzzle,
+  Type,
+  Video,
+  File
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
@@ -54,6 +58,10 @@ export default function StudentDashboard() {
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [mpesaPhone, setMpesaPhone] = useState('');
   const [paying, setPaying] = useState(false);
+  
+  // H5P Viewer States
+  const [selectedModule, setSelectedModule] = useState<any>(null);
+  const [isContentViewerOpen, setIsContentViewerOpen] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -279,7 +287,7 @@ export default function StudentDashboard() {
                           const modules = course?.Modules || [];
                           
                           return (
-                            <div key={enrollment.id} className="space-y-6">
+                              <div key={enrollment.id} className="space-y-6">
                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-primary/5 rounded-[32px] border border-primary/10">
                                   <div className="flex items-center space-x-4">
                                      <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-lg">
@@ -298,9 +306,19 @@ export default function StudentDashboard() {
                                         </div>
                                      </div>
                                   </div>
-                                  <Link href={`/${currentLang}/courses/${course?.id || '#'}`}>
-                                     <Button variant="outline" size="sm" className="rounded-xl font-bold">View Program Info</Button>
-                                  </Link>
+                                  <div className="flex gap-2">
+                                     <Link href={`/${currentLang}/courses/${course?.id || '#'}`}>
+                                        <Button variant="outline" size="sm" className="rounded-xl font-bold">Details</Button>
+                                     </Link>
+                                     {enrollment.status === 'enrolled' && (
+                                       <Button variant="primary" size="sm" onClick={() => {
+                                         if (modules.length > 0) {
+                                           setSelectedModule(modules[0]);
+                                           setIsContentViewerOpen(true);
+                                         }
+                                       }} className="rounded-xl font-bold">Start Learning</Button>
+                                     )}
+                                  </div>
                                </div>
 
                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-4 md:pl-8">
@@ -315,9 +333,17 @@ export default function StudentDashboard() {
                                             <p className="text-[10px] text-gray-400 font-medium mb-3 line-clamp-1">{mod[`description_${currentLang}`] || 'Course module content'}</p>
                                             <div className="flex items-center justify-between">
                                                <span className="text-[9px] font-black text-accent uppercase tracking-widest">{mod.duration_weeks} Weeks</span>
-                                               <button className="text-[9px] font-black text-primary dark:text-white uppercase tracking-widest flex items-center hover:text-accent transition-colors">
-                                                  Details <ChevronRight size={10} className="ml-1" />
-                                               </button>
+                                               {enrollment.status === 'enrolled' && (
+                                                 <button 
+                                                   onClick={() => {
+                                                     setSelectedModule(mod);
+                                                     setIsContentViewerOpen(true);
+                                                   }}
+                                                   className="text-[9px] font-black text-primary dark:text-white uppercase tracking-widest flex items-center hover:text-accent transition-colors"
+                                                 >
+                                                    Enter Module <ChevronRight size={10} className="ml-1" />
+                                                 </button>
+                                               )}
                                             </div>
                                          </div>
                                       </div>
@@ -1050,8 +1076,105 @@ export default function StudentDashboard() {
                 </div>
              </div>
           </div>
-       </div>
+     </div>
+
+      {/* Content Viewer Modal */}
+      <AnimatePresence>
+        {isContentViewerOpen && selectedModule && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-primary/40 backdrop-blur-md">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="bg-white dark:bg-slate-900 w-full max-w-5xl h-[90vh] rounded-[40px] shadow-2xl overflow-hidden flex flex-col"
+            >
+              <div className="p-8 bg-primary text-white flex justify-between items-center shrink-0">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="px-2 py-0.5 bg-accent text-primary text-[8px] font-black uppercase rounded">Module {selectedModule.order}</span>
+                    <h3 className="text-xl font-bold">{selectedModule.title_en || selectedModule.title}</h3>
+                  </div>
+                  <p className="text-xs opacity-60 font-medium">{selectedModule.description_en || selectedModule.description}</p>
+                </div>
+                <button onClick={() => setIsContentViewerOpen(false)} className="p-3 hover:bg-white/10 rounded-2xl transition-all">
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="flex-grow overflow-y-auto p-10 space-y-12">
+                {selectedModule.Contents && selectedModule.Contents.length > 0 ? (
+                  selectedModule.Contents.sort((a:any, b:any) => a.order - b.order).map((content: any, i: number) => (
+                    <div key={content.id} className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${i * 100}ms` }}>
+                       <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-accent/10 text-accent rounded-lg flex items-center justify-center">
+                             {content.type === 'text' && <Type size={16} />}
+                             {content.type === 'video' && <Video size={16} />}
+                             {content.type === 'h5p' && <Puzzle size={16} />}
+                             {content.type === 'document' && <FileText size={16} />}
+                          </div>
+                          <h4 className="text-lg font-bold text-primary dark:text-white">{content.title}</h4>
+                       </div>
+
+                       {content.type === 'text' && (
+                         <div className="prose prose-lg dark:prose-invert max-w-none bg-gray-50 dark:bg-slate-800/50 p-8 rounded-3xl border border-gray-100 dark:border-slate-800">
+                            {content.content_en}
+                         </div>
+                       )}
+
+                       {content.type === 'video' && (
+                         <div className="aspect-video w-full rounded-3xl overflow-hidden shadow-xl bg-black">
+                            <iframe 
+                              src={content.video_url?.includes('youtube.com') ? content.video_url.replace('watch?v=', 'embed/') : content.video_url}
+                              className="w-full h-full border-none"
+                              allowFullScreen
+                            ></iframe>
+                         </div>
+                       )}
+
+                       {content.type === 'h5p' && (
+                         <div className="w-full rounded-3xl overflow-hidden shadow-xl bg-white min-h-[600px] border border-gray-100">
+                            <div dangerouslySetInnerHTML={{ __html: content.h5p_embed }} />
+                         </div>
+                       )}
+
+                       {content.type === 'document' && (
+                         <div className="flex items-center justify-between p-6 bg-primary/5 rounded-3xl border border-primary/10">
+                            <div className="flex items-center space-x-4">
+                               <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white">
+                                  <File size={24} />
+                               </div>
+                               <div>
+                                  <p className="font-bold text-primary dark:text-white">Downloadable Resource</p>
+                                  <p className="text-xs text-gray-400">PDF / Documentation Asset</p>
+                               </div>
+                            </div>
+                            <a href={content.file_url} target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-primary text-white font-bold text-xs uppercase tracking-widest rounded-xl shadow-lg">Download File</a>
+                         </div>
+                       )}
+                       
+                       {i < selectedModule.Contents.length - 1 && <hr className="border-gray-100 dark:border-slate-800" />}
+                    </div>
+                  ))
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-20">
+                     <div className="w-20 h-20 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-gray-300">
+                        <BookOpen size={40} />
+                     </div>
+                     <div>
+                        <h4 className="text-xl font-bold text-primary dark:text-white">No content yet</h4>
+                        <p className="text-gray-500 max-w-xs mx-auto">This module hasn't been populated with learning materials yet.</p>
+                     </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-8 border-t border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 flex justify-end shrink-0">
+                 <Button onClick={() => setIsContentViewerOpen(false)} variant="primary" className="rounded-2xl px-10 h-14 shadow-xl">Close Viewer</Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
-

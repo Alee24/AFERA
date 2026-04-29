@@ -17,7 +17,8 @@ import {
   DollarSign,
   Presentation,
   CreditCard,
-  Video
+  Video,
+  GitMerge
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -29,6 +30,7 @@ const menuItems = [
   { icon: UserCheck, label: 'Users', href: '/admin/applications' },
   { icon: Users, label: 'Students', href: '/admin/students' },
   { icon: BookOpen, label: 'Programs & Courses', href: '/admin/courses' },
+  { icon: GitMerge, label: 'Learning Paths', href: '/admin/learning-paths' },
   { icon: ShieldCheck, label: 'Academic Structure', href: '/admin/academic' },
   { icon: Presentation, label: 'Workshops', href: '/admin/workshops' },
   { icon: FileText, label: 'Manage Blog Posts', href: '/admin/blog' },

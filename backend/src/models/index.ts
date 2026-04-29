@@ -12,6 +12,12 @@ import Workshop from './Workshop';
 import GatewaySetting from './GatewaySetting';
 import SystemSetting from './SystemSetting';
 import NewsPost from './NewsPost';
+import ModuleContent from './ModuleContent';
+import LearningPath, { LearningPathItem } from './LearningPath';
+import Page from './Page';
+import Quiz from './Quiz';
+import Assignment from './Assignment';
+import Wiki from './Wiki';
 
 // ===== 1. AUTH & ROLES =====
 class Role extends Model { public id!: string; public name!: string; }
@@ -235,9 +241,17 @@ Staff.hasMany(Class, { foreignKey: 'lecturer_id' });
 Class.belongsTo(Staff, { foreignKey: 'lecturer_id' });
 Course.hasMany(CourseModule, { foreignKey: 'course_id', as: 'Modules' });
 CourseModule.belongsTo(Course, { foreignKey: 'course_id' });
+CourseModule.hasMany(ModuleContent, { foreignKey: 'module_id', as: 'Contents' });
+ModuleContent.belongsTo(CourseModule, { foreignKey: 'module_id' });
 
 Course.hasMany(CourseResource, { foreignKey: 'course_id', as: 'Resources' });
 CourseResource.belongsTo(Course, { foreignKey: 'course_id' });
+
+// Learning Path Associations
+LearningPath.hasMany(LearningPathItem, { foreignKey: 'learning_path_id', as: 'Items' });
+LearningPathItem.belongsTo(LearningPath, { foreignKey: 'learning_path_id' });
+LearningPath.belongsTo(User, { as: 'Trainer', foreignKey: 'trainer_id' });
+User.hasMany(LearningPath, { foreignKey: 'trainer_id' });
 
 // Enrollment
 Student.hasMany(Enrollment, { foreignKey: 'student_id' });
@@ -302,6 +316,6 @@ export {
   Message, Notification, ActivityLog, OnlineCourse, Lesson, LessonProgress,
   Enrollment, Student, Staff, Grade, Assessment, Attendance, CourseRegistration,
   Role, Permission, RolePermission, StudentDocument, Workshop, GatewaySetting, SystemSetting,
-  NewsPost
+  NewsPost, ModuleContent, LearningPath, LearningPathItem, Page, Quiz, Assignment, Wiki
 };
 export default sequelize;

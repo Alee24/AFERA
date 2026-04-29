@@ -1,5 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database';
+import ModuleContent from './ModuleContent';
 
 class CourseModule extends Model {
   public id!: string;
@@ -17,6 +18,11 @@ class CourseModule extends Model {
   public document_url!: string;
   public h5p_content!: string;
   public video_url!: string;
+
+  public static associate() {
+    CourseModule.hasMany(ModuleContent, { foreignKey: 'module_id', as: 'Contents' });
+    ModuleContent.belongsTo(CourseModule, { foreignKey: 'module_id' });
+  }
 }
 
 CourseModule.init(
