@@ -23,6 +23,9 @@ done
 echo "🗄️ Synchronizing newly added database models (SystemSettings etc.)..."
 docker-compose exec -T backend npm run db-fix
 
+echo "👤 Re-seeding administration credentials..."
+docker-compose exec -T backend npm run seed
+
 echo "🔄 Restarting backend/frontend to ensure new code runs perfectly..."
 docker-compose restart backend frontend
 

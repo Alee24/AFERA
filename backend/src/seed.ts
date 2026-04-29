@@ -8,10 +8,10 @@ const seed = async () => {
     console.log('Database connection established for seeding.');
 
     // 0. Create Default Admin
-    const adminPassword = 'Digital2025';
+    const adminPassword = 'Admin123!';
     const hashedPassword = await bcrypt.hash(adminPassword, 10);
     
-    await User.findOrCreate({
+    const [userRecord, created] = await User.findOrCreate({
       where: { email: 'admin@aferainnov.africa' },
       defaults: {
         first_name: 'System',
@@ -22,7 +22,11 @@ const seed = async () => {
         status: 'active'
       }
     });
-    console.log(`👤 Default admin created: admin@aferainnov.africa / ${adminPassword}`);
+
+    if (!created) {
+      await userRecord.update({ password_hash: hashedPassword });
+    }
+    console.log(`👤 Default admin updated/created: admin@aferainnov.africa / ${adminPassword}`);
 
     // 1. Create a Faculty
     const [faculty] = await Faculty.findOrCreate({
