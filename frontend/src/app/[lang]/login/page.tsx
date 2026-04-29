@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/lib/AuthContext';
 import { useNotification } from '@/lib/NotificationContext';
 import api from '@/lib/api';
@@ -12,6 +12,7 @@ import Image from 'next/image';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
+  const { lang } = useParams();
   const { t, i18n } = useTranslation('common');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -127,7 +128,7 @@ export default function LoginPage() {
 
           <div className="mt-8 pt-8 border-t border-gray-100 dark:border-slate-700 text-center">
             <p className="text-gray-600 dark:text-gray-400">
-              Don't have an account? <Link href="/register" className="font-bold text-accent hover:text-primary transition-colors">Apply Now</Link>
+              Don't have an account? <Link href={`/${lang}/register`} className="font-bold text-accent hover:text-primary transition-colors">Apply Now</Link>
             </p>
           </div>
         </div>
