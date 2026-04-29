@@ -63,6 +63,7 @@ Student.init({
   emergency_contact_name: { type: DataTypes.STRING, allowNull: true },
   emergency_contact_phone: { type: DataTypes.STRING, allowNull: true },
   religion: { type: DataTypes.STRING, allowNull: true },
+  user_id: { type: DataTypes.UUID, allowNull: false },
 }, { sequelize, modelName: 'Student', tableName: 'students', underscored: true });
 
 class StudentDocument extends Model {}
@@ -83,6 +84,7 @@ Staff.init({
   staff_number: { type: DataTypes.STRING, unique: true, allowNull: false },
   position: { type: DataTypes.STRING },
   hire_date: { type: DataTypes.DATEONLY },
+  user_id: { type: DataTypes.UUID, allowNull: false },
 }, { sequelize, modelName: 'Staff', tableName: 'staff', underscored: true });
 
 // ===== 4. ENROLLMENT & REGISTRATION =====

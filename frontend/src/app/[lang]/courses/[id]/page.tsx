@@ -128,37 +128,19 @@ export default function CourseDetailsPage() {
     }
 
     const fetchCourse = async () => {
-      let backendCourseId = id;
-      try {
-        const coursesRes = await api.get('/courses');
-        const dbCourses = coursesRes.data;
-        
-        let matched: any = null;
-        if (id === 'masters-resource-mobilization') {
-          matched = dbCourses.find((c: any) => c.title_en.toLowerCase().includes('mobilization'));
-        } else if (id === 'certificate-rbm') {
-          matched = dbCourses.find((c: any) => c.title_en.toLowerCase().includes('results-based'));
-        }
-
-        if (matched) {
-          backendCourseId = matched.id;
-        }
-      } catch (err) {
-        console.error('Failed to pre-fetch course references', err);
-      }
-
-      // Check static data first
-      // Rely entirely on API data
-
-
       try {
         const res = await api.get(`/courses/${id}`);
         setCourse(res.data);
         
         // Check if user is already enrolled
         if (isAuthenticated && res.data.Enrollments) {
-          const enrolled = res.data.Enrollments.some((e: any) => e.student_id === user?.id);
-          setIsEnrolled(enrolled);
+          // Find student profile for current user
+          const userRes = await api.get('/users/me');
+          const studentProfile = userRes.data.StudentProfile;
+          if (studentProfile) {
+            const enrolled = res.data.Enrollments.some((e: any) => e.student_id === studentProfile.id);
+            setIsEnrolled(enrolled);
+          }
         }
       } catch (err) {
         console.error('Failed to fetch course details', err);

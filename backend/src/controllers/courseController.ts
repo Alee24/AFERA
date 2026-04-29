@@ -20,12 +20,18 @@ export const getCourses = async (req: Request, res: Response) => {
 // GET /api/courses/:id
 export const getCourseById = async (req: Request, res: Response) => {
   try {
-    const course = await Course.findByPk(req.params.id as string, {
+    const { id } = req.params;
+    const isUuid = id.length === 36 && id.includes('-');
+    
+    const course = await Course.findOne({
+      where: isUuid ? { id } : { slug: id },
       include: [
-        { model: CourseModule, as: 'Modules', order: [['order', 'ASC']] as any },
+        { model: CourseModule, as: 'Modules' },
         { model: Enrollment, as: 'Enrollments', attributes: ['id', 'status'] }
-      ]
+      ],
+      order: [[{ model: CourseModule, as: 'Modules' }, 'order', 'ASC']]
     });
+
     if (!course) return res.status(404).json({ message: 'Course not found' });
     res.json(course);
   } catch (error: any) {

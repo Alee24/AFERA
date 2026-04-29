@@ -60,6 +60,7 @@ Course.init({
   program_overview: { type: DataTypes.TEXT, allowNull: true },
   learning_outcomes: { type: DataTypes.TEXT, allowNull: true },
   curriculum_structure: { type: DataTypes.TEXT, allowNull: true },
+  slug: { type: DataTypes.STRING, unique: true, allowNull: true },
 }, {
   sequelize,
   modelName: 'Course',

@@ -73,6 +73,7 @@ export const getLecturerClasses = async (req: any, res: Response) => {
     const userId = req.user.id;
     let staff = await Staff.findOne({ where: { user_id: userId } });
     if (!staff) {
+      // Auto-create staff if missing
       staff = await Staff.create({
         user_id: userId,
         staff_number: 'STF' + Math.floor(1000 + Math.random() * 9000),
@@ -82,22 +83,14 @@ export const getLecturerClasses = async (req: any, res: Response) => {
 
     let classes = await Class.findAll({
       where: { lecturer_id: staff.id },
-      include: [{ model: CourseUnit, include: [{ all: true }] }]
+      include: [{ 
+        model: CourseUnit, 
+        include: [{ model: Course, as: 'Course' }] 
+      }]
     });
 
     if (classes.length === 0) {
-      let unit = await CourseUnit.findOne();
-      if (!unit) {
-        const course = await Course.findOne();
-        if (course) {
-          unit = await CourseUnit.create({
-            course_id: course.id,
-            name: 'Introduction to Infrastructure Management',
-            semester: 1
-          });
-        }
-      }
-      
+      const unit = await CourseUnit.findOne();
       if (unit) {
         await Class.create({
           course_unit_id: unit.id,
@@ -109,13 +102,17 @@ export const getLecturerClasses = async (req: any, res: Response) => {
         
         classes = await Class.findAll({
           where: { lecturer_id: staff.id },
-          include: [{ model: CourseUnit, include: [{ all: true }] }]
+          include: [{ 
+            model: CourseUnit, 
+            include: [{ model: Course, as: 'Course' }] 
+          }]
         });
       }
     }
     
     res.json(classes);
   } catch (error: any) {
+    console.error('getLecturerClasses error:', error);
     res.status(500).json({ message: error.message });
   }
 };

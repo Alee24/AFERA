@@ -135,6 +135,14 @@ export default function CourseBuilderPage() {
     </div>
   );
 
+  if (!course) return (
+    <div className="h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-slate-950 text-center">
+      <h2 className="text-3xl font-black text-primary dark:text-white mb-4">Course Not Found</h2>
+      <p className="text-gray-400 mb-8 font-bold uppercase tracking-widest text-xs">The studio cannot load the requested program data.</p>
+      <Button onClick={() => router.push(`/${lang}/admin/courses`)} variant="primary" className="rounded-2xl">Return to Program Catalog</Button>
+    </div>
+  );
+
   return (
     <div className="max-w-7xl mx-auto space-y-10 pb-20">
       
