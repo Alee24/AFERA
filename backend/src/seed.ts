@@ -7,26 +7,59 @@ const seed = async () => {
     await sequelize.authenticate();
     console.log('Database connection established for seeding.');
 
-    // 0. Create Default Admin
-    const adminPassword = 'Admin123!';
-    const hashedPassword = await bcrypt.hash(adminPassword, 10);
-    
-    const [userRecord, created] = await User.findOrCreate({
-      where: { email: 'admin@aferainnov.africa' },
-      defaults: {
-        first_name: 'System',
-        last_name: 'Admin',
-        email: 'admin@aferainnov.africa',
-        password_hash: hashedPassword,
-        role: 'admin',
-        status: 'active'
-      }
-    });
+    // 0. Create Default Roles Matrix
+    const defaultUsers = [
+      { email: 'admin@aferainnov.africa', first_name: 'System', last_name: 'Admin', role: 'admin', pass: 'Admin123!' },
+      { email: 'student@aferainnov.africa', first_name: 'Sample', last_name: 'Student', role: 'student', pass: 'Student123!' },
+      { email: 'lecturer@aferainnov.africa', first_name: 'Sample', last_name: 'Lecturer', role: 'lecturer', pass: 'Lecturer123!' },
+      { email: 'finance@aferainnov.africa', first_name: 'Sample', last_name: 'Finance', role: 'finance', pass: 'Finance123!' },
+      { email: 'admissions@aferainnov.africa', first_name: 'Sample', last_name: 'Admissions', role: 'admissions', pass: 'Admissions123!' },
+    ];
 
-    if (!created) {
-      await userRecord.update({ password_hash: hashedPassword });
+    const { Staff, Student: StudentProfile } = require('./models');
+
+    for (const u of defaultUsers) {
+      const hash = await bcrypt.hash(u.pass, 10);
+      const [userRecord, created] = await User.findOrCreate({
+        where: { email: u.email },
+        defaults: {
+          first_name: u.first_name,
+          last_name: u.last_name,
+          email: u.email,
+          password_hash: hash,
+          role: u.role,
+          status: 'active'
+        }
+      });
+
+      if (!created) {
+        await userRecord.update({ password_hash: hash });
+      }
+      console.log(`👤 Profile Setup: ${u.email} / ${u.pass} (${u.role})`);
+
+      // Seed mapping helpers
+      if (u.role === 'lecturer' || u.role === 'finance' || u.role === 'admissions') {
+        await Staff.findOrCreate({
+          where: { user_id: userRecord.id },
+          defaults: {
+            staff_number: `AFR-STF-${userRecord.id.slice(0, 4).toUpperCase()}`,
+            position: u.role.toUpperCase(),
+            hire_date: new Date()
+          }
+        });
+      }
+
+      if (u.role === 'student') {
+        await StudentProfile.findOrCreate({
+          where: { user_id: userRecord.id },
+          defaults: {
+            admission_number: `AFR-STU-${userRecord.id.slice(0, 4).toUpperCase()}`,
+            nationality: 'Kenyan',
+            status: 'active'
+          }
+        });
+      }
     }
-    console.log(`👤 Default admin updated/created: admin@aferainnov.africa / ${adminPassword}`);
 
     // 1. Create a Faculty
     const [faculty] = await Faculty.findOrCreate({

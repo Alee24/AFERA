@@ -27,6 +27,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AdminStudentsPage() {
   const [students, setStudents] = useState<any[]>([]);
+  const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [roleFilter, setRoleFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [isGradesModalOpen, setIsGradesModalOpen] = useState(false);
@@ -44,14 +46,23 @@ export default function AdminStudentsPage() {
 
   const fetchStudents = async () => {
     try {
-      // In our system, students are users with the student role and a student profile
       const res = await api.get('/users');
-      const studentUsers = res.data.filter((u: any) => u.role === 'student');
-      setStudents(studentUsers);
+      setAllUsers(res.data);
+      setStudents(res.data);
     } catch (err: any) {
-      showNotification(err.response?.data?.message || 'Failed to load student directory', 'error');
+      showNotification(err.response?.data?.message || 'Failed to load user directory', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFilterChange = (role: string) => {
+    setRoleFilter(role);
+    if (role === 'all') {
+      setStudents(allUsers);
+    } else {
+      const filtered = allUsers.filter((u: any) => u.role === role);
+      setStudents(filtered);
     }
   };
 
@@ -123,8 +134,8 @@ export default function AdminStudentsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-primary dark:text-white">Student Directory</h1>
-          <p className="text-gray-500 mt-2 font-medium">Managing 248 active scholars across 12 African nations.</p>
+          <h1 className="text-3xl font-bold text-primary dark:text-white">Unified User Directory</h1>
+          <p className="text-gray-500 mt-2 font-medium">Cross-portal visibility across students, faculty, and administrators.</p>
         </div>
         <div className="flex items-center space-x-3">
            <Button variant="outline" className="rounded-2xl border-gray-100 bg-white shadow-sm px-6">
@@ -162,18 +173,22 @@ export default function AdminStudentsPage() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
               <input 
                 type="text" 
-                placeholder="Search scholars by name, ID or email..." 
+                placeholder="Search database records securely..." 
                 className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10"
               />
            </div>
            <div className="flex items-center space-x-3">
-              <Button variant="outline" className="rounded-xl border-gray-50 px-5">
-                 <Filter size={18} className="mr-2" /> Filter
-              </Button>
-              <select className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/10">
-                 <option>All Programs</option>
-                 <option>Master's Degree</option>
-                 <option>Professional Cert</option>
+              <select 
+                value={roleFilter}
+                onChange={(e) => handleFilterChange(e.target.value)}
+                className="bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-800 rounded-xl text-xs font-black uppercase tracking-widest px-4 py-2.5 focus:ring-2 focus:ring-primary/10 text-gray-500"
+              >
+                <option value="all">All Roles</option>
+                <option value="student">Students</option>
+                <option value="lecturer">Lecturers</option>
+                <option value="finance">Finance Staff</option>
+                <option value="admissions">Admissions Staff</option>
+                <option value="admin">Administrators</option>
               </select>
            </div>
         </div>
