@@ -130,20 +130,27 @@ export default function CourseDetailsPage() {
     const fetchCourse = async () => {
       try {
         const res = await api.get(`/courses/${id}`);
-        setCourse(res.data);
-        
-        // Check if user is already enrolled
-        if (isAuthenticated && res.data.Enrollments) {
-          // Find student profile for current user
-          const userRes = await api.get('/users/me');
-          const studentProfile = userRes.data.StudentProfile;
-          if (studentProfile) {
-            const enrolled = res.data.Enrollments.some((e: any) => e.student_id === studentProfile.id);
-            setIsEnrolled(enrolled);
+        if (res.data) {
+          setCourse(res.data);
+          
+          // Check if user is already enrolled
+          if (isAuthenticated && res.data.Enrollments) {
+            const userRes = await api.get('/users/me');
+            const studentProfile = userRes.data.StudentProfile;
+            if (studentProfile) {
+              const enrolled = res.data.Enrollments.some((e: any) => e.student_id === studentProfile.id);
+              setIsEnrolled(enrolled);
+            }
           }
+        } else if (STATIC_COURSE_DETAILS[id as string]) {
+          setCourse(STATIC_COURSE_DETAILS[id as string]);
         }
       } catch (err) {
         console.error('Failed to fetch course details', err);
+        // Fallback to static data
+        if (STATIC_COURSE_DETAILS[id as string]) {
+          setCourse(STATIC_COURSE_DETAILS[id as string]);
+        }
       } finally {
         setLoading(false);
       }
