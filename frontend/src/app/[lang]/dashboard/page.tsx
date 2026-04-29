@@ -156,7 +156,7 @@ export default function StudentDashboard() {
           </motion.div>
         )}
 
-        {(!user?.StudentProfile?.nationality || !user?.StudentProfile?.gender || !user?.StudentProfile?.religion) && (
+        {(!(user?.StudentProfile as any)?.nationality || !(user?.StudentProfile as any)?.gender || !(user?.StudentProfile as any)?.religion) && (
           <motion.div 
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
@@ -807,7 +807,7 @@ export default function StudentDashboard() {
                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Religion</label>
                                <input 
                                  name="religion"
-                                 defaultValue={user?.StudentProfile?.religion}
+                                 defaultValue={(user?.StudentProfile as any)?.religion}
                                  className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-6 py-4 text-sm font-bold text-primary dark:text-white focus:ring-2 focus:ring-accent transition-all" 
                                />
                             </div>

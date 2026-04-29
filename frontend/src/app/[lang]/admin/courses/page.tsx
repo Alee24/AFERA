@@ -24,6 +24,7 @@ export default function AdminCoursesPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCourse, setCurrentCourse] = useState<any>(null);
+  const [formTab, setFormTab] = useState<'basic' | 'academic' | 'meta'>('basic');
   const { showNotification } = useNotification();
 
   // Form State
@@ -261,130 +262,176 @@ export default function AdminCoursesPage() {
                     </button>
                  </div>
 
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="md:col-span-2">
-                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Program Title (EN)</label>
-                       <input 
-                         required
-                         type="text" 
-                         className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10" 
-                         placeholder="Enter program title..."
-                         value={formData.title_en}
-                         onChange={(e) => setFormData({...formData, title_en: e.target.value})}
-                       />
-                    </div>
-                    
-                    <div className="md:col-span-2">
-                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Description (Short)</label>
-                       <textarea 
-                          required
-                          className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[80px]" 
-                          placeholder="Brief summary..."
-                          value={formData.description_en}
-                          onChange={(e) => setFormData({...formData, description_en: e.target.value})}
-                       />
-                    </div>
-
-                    <div className="md:col-span-2">
-                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Full Program Content (Syllabus/Details)</label>
-                       <textarea 
-                          className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[150px]" 
-                          placeholder="Enter full course details, syllabus, or academic content..."
-                          value={formData.content_en}
-                          onChange={(e) => setFormData({...formData, content_en: e.target.value})}
-                       />
-                    </div>
-
-                    <div className="md:col-span-2">
-                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Program Image URL</label>
-                       <input 
-                         type="text" 
-                         className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10" 
-                         placeholder="Image URL or drop location..."
-                         value={formData.image_url}
-                         onChange={(e) => setFormData({...formData, image_url: e.target.value})}
-                       />
-                    </div>
-
-                    <div className="md:col-span-2">
-                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Program Overview</label>
-                       <textarea 
-                          className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[100px]" 
-                          placeholder="High level overview..."
-                          value={formData.program_overview}
-                          onChange={(e) => setFormData({...formData, program_overview: e.target.value})}
-                       />
-                    </div>
-
-                    <div className="md:col-span-2">
-                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Learning Outcomes</label>
-                       <textarea 
-                          className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[100px]" 
-                          placeholder="Enter learning outcomes, separated by lines..."
-                          value={formData.learning_outcomes}
-                          onChange={(e) => setFormData({...formData, learning_outcomes: e.target.value})}
-                       />
-                    </div>
-
-                    <div className="md:col-span-2">
-                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Curriculum Structure</label>
-                       <textarea 
-                          className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[100px]" 
-                          placeholder="Enter curriculum modules or semesters..."
-                          value={formData.curriculum_structure}
-                          onChange={(e) => setFormData({...formData, curriculum_structure: e.target.value})}
-                       />
-                    </div>
-
-                    <div>
-                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Department</label>
-                       <input 
-                         required
-                         type="text" 
-                         className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10" 
-                         placeholder="e.g. Infrastructure"
-                         value={formData.department}
-                         onChange={(e) => setFormData({...formData, department: e.target.value})}
-                       />
-                    </div>
-
-                    <div>
-                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Duration</label>
-                       <input 
-                         required
-                         type="text" 
-                         className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10" 
-                         placeholder="e.g. 18 Months"
-                         value={formData.duration}
-                         onChange={(e) => setFormData({...formData, duration: e.target.value})}
-                       />
-                    </div>
-
-                    <div>
-                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Tuition Status</label>
-                       <div className="w-full px-5 py-4 bg-gray-100 dark:bg-slate-800 rounded-2xl text-xs font-bold text-gray-400">
-                          Tuition Pending / Starting Soon
-                       </div>
-                    </div>
-
-                    <div>
-                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Format / Modality</label>
-                       <select 
-                         className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10"
-                         value={formData.modality}
-                         onChange={(e) => setFormData({...formData, modality: e.target.value})}
-                       >
-                          <option>Online</option>
-                          <option>In-House</option>
-                          <option>Hybrid</option>
-                       </select>
-                    </div>
+                 {/* Tab selectors */}
+                 <div className="flex space-x-6 border-b border-gray-100 dark:border-slate-800 pb-2">
+                    {[
+                      { id: 'basic', label: 'Basic Details' },
+                      { id: 'academic', label: 'Academic Details' },
+                      { id: 'meta', label: 'Pricing & Modality' }
+                    ].map((tab) => (
+                      <button
+                        type="button"
+                        key={tab.id}
+                        onClick={() => setFormTab(tab.id as any)}
+                        className={`text-xs font-bold uppercase tracking-wider pb-2 border-b-2 transition-all ${
+                          formTab === tab.id 
+                            ? 'border-primary text-primary dark:text-white' 
+                            : 'border-transparent text-gray-400 hover:text-gray-600'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
                  </div>
 
-                 <div className="pt-4">
-                    <Button type="submit" className="w-full py-5 bg-primary text-white rounded-2xl shadow-xl shadow-primary/20 font-bold uppercase tracking-widest text-xs">
-                       {currentCourse ? 'Save Changes' : 'Create Program'}
-                    </Button>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[50vh] overflow-y-auto px-1 py-2">
+                    {formTab === 'basic' && (
+                      <>
+                        <div className="md:col-span-2">
+                           <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Program Title (EN)</label>
+                           <input 
+                             required
+                             type="text" 
+                             className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10" 
+                             placeholder="Enter program title..."
+                             value={formData.title_en}
+                             onChange={(e) => setFormData({...formData, title_en: e.target.value})}
+                           />
+                        </div>
+                        
+                        <div className="md:col-span-2">
+                           <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Description (Short)</label>
+                           <textarea 
+                              required
+                              className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[80px]" 
+                              placeholder="Brief summary..."
+                              value={formData.description_en}
+                              onChange={(e) => setFormData({...formData, description_en: e.target.value})}
+                           />
+                        </div>
+
+                        <div className="md:col-span-2">
+                           <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Full Program Content (Syllabus/Details)</label>
+                           <textarea 
+                              className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[120px]" 
+                              placeholder="Enter full course details, syllabus, or academic content..."
+                              value={formData.content_en}
+                              onChange={(e) => setFormData({...formData, content_en: e.target.value})}
+                           />
+                        </div>
+
+                        <div className="md:col-span-2">
+                           <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Program Image URL</label>
+                           <input 
+                             type="text" 
+                             className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10" 
+                             placeholder="Image URL or drop location..."
+                             value={formData.image_url}
+                             onChange={(e) => setFormData({...formData, image_url: e.target.value})}
+                           />
+                        </div>
+                      </>
+                    )}
+
+                    {formTab === 'academic' && (
+                      <>
+                        <div className="md:col-span-2">
+                           <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Program Overview</label>
+                           <textarea 
+                              className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[100px]" 
+                              placeholder="High level overview..."
+                              value={formData.program_overview}
+                              onChange={(e) => setFormData({...formData, program_overview: e.target.value})}
+                           />
+                        </div>
+
+                        <div className="md:col-span-2">
+                           <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Learning Outcomes</label>
+                           <textarea 
+                              className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[100px]" 
+                              placeholder="Enter learning outcomes, separated by lines..."
+                              value={formData.learning_outcomes}
+                              onChange={(e) => setFormData({...formData, learning_outcomes: e.target.value})}
+                           />
+                        </div>
+
+                        <div className="md:col-span-2">
+                           <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Curriculum Structure</label>
+                           <textarea 
+                              className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[100px]" 
+                              placeholder="Enter curriculum modules or semesters..."
+                              value={formData.curriculum_structure}
+                              onChange={(e) => setFormData({...formData, curriculum_structure: e.target.value})}
+                           />
+                        </div>
+                      </>
+                    )}
+
+                    {formTab === 'meta' && (
+                      <>
+                        <div>
+                           <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Department</label>
+                           <input 
+                             required
+                             type="text" 
+                             className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10" 
+                             placeholder="e.g. Infrastructure"
+                             value={formData.department}
+                             onChange={(e) => setFormData({...formData, department: e.target.value})}
+                           />
+                        </div>
+
+                        <div>
+                           <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Duration</label>
+                           <input 
+                             required
+                             type="text" 
+                             className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10" 
+                             placeholder="e.g. 18 Months"
+                             value={formData.duration}
+                             onChange={(e) => setFormData({...formData, duration: e.target.value})}
+                           />
+                        </div>
+
+                        <div>
+                           <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Tuition Status</label>
+                           <div className="w-full px-5 py-4 bg-gray-100 dark:bg-slate-800 rounded-2xl text-xs font-bold text-gray-400">
+                              Tuition Pending / Starting Soon
+                           </div>
+                        </div>
+
+                        <div>
+                           <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Format / Modality</label>
+                           <select 
+                             className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10"
+                             value={formData.modality}
+                             onChange={(e) => setFormData({...formData, modality: e.target.value})}
+                           >
+                              <option>Online</option>
+                              <option>In-House</option>
+                              <option>Hybrid</option>
+                           </select>
+                        </div>
+                      </>
+                    )}
+                 </div>
+
+                 <div className="pt-4 flex space-x-3">
+                    {formTab !== 'basic' && (
+                      <Button type="button" onClick={() => setFormTab(formTab === 'meta' ? 'academic' : 'basic')} className="w-1/2 py-5 bg-gray-100 text-gray-600 dark:bg-slate-800 dark:text-gray-300 rounded-2xl font-bold uppercase tracking-widest text-xs">
+                         Back
+                      </Button>
+                    )}
+                    
+                    {formTab !== 'meta' ? (
+                      <Button type="button" onClick={() => setFormTab(formTab === 'basic' ? 'academic' : 'meta')} className="w-full py-5 bg-accent text-white rounded-2xl font-bold uppercase tracking-widest text-xs">
+                         Next Step
+                      </Button>
+                    ) : (
+                      <Button type="submit" className="w-full py-5 bg-primary text-white rounded-2xl shadow-xl shadow-primary/20 font-bold uppercase tracking-widest text-xs">
+                         {currentCourse ? 'Save Changes' : 'Create Program'}
+                      </Button>
+                    )}
                  </div>
               </form>
             </motion.div>
