@@ -88,6 +88,7 @@ router.delete('/contacts/:id', authenticateJWT, authorizeRole(['admin']), contac
 
 // ===== FINANCE =====
 router.get('/finance/my-invoices', authenticateJWT, financeController.getMyInvoices);
+router.get('/finance/all-invoices', authenticateJWT, authorizeRole(['admin']), financeController.getAllInvoices);
 router.get('/finance/invoices/:id', authenticateJWT, financeController.getInvoiceById);
 router.put('/finance/mock-pay/:id', authenticateJWT, financeController.mockPayInvoice);
 

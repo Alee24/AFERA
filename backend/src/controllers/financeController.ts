@@ -64,3 +64,31 @@ export const mockPayInvoice = async (req: any, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// GET /api/finance/all-invoices
+export const getAllInvoices = async (req: any, res: Response) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const { User } = require('../models');
+
+    const invoices = await Invoice.findAll({
+      include: [
+        {
+          model: Student,
+          include: [{ model: User, attributes: ['first_name', 'last_name', 'email'] }]
+        },
+        {
+          model: Enrollment,
+          include: [{ model: Course, as: 'Course' }, { model: Program }]
+        }
+      ],
+      order: [['created_at', 'DESC']]
+    });
+    res.json(invoices);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};

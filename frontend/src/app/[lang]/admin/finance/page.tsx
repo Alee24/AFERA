@@ -17,14 +17,32 @@ import {
   Plus
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { motion } from 'framer-motion';
+import api from '@/lib/api';
 
 export default function AdminFinancePage() {
-  const [invoices, setInvoices] = useState([
-    { id: 'INV-8294', student: 'Sarah Johnson', amount: 800.00, status: 'paid', date: '2026-04-12' },
-    { id: 'INV-8295', student: 'Michael K.', amount: 450.00, status: 'pending', date: '2026-04-14' },
-    { id: 'INV-8296', student: 'Elena Rodriguez', amount: 800.00, status: 'overdue', date: '2026-04-01' },
-  ]);
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    const fetchInvoices = async () => {
+      try {
+        const res = await api.get('/finance/all-invoices');
+        const data = res.data.map((inv: any) => ({
+          id: inv.id?.slice(0, 8).toUpperCase() || 'N/A',
+          student: inv.Student?.User ? `${inv.Student.User.first_name} ${inv.Student.User.last_name}` : 'External Student',
+          amount: parseFloat(inv.total_amount) || 0,
+          status: inv.status || 'pending',
+          date: inv.created_at ? new Date(inv.created_at).toISOString().split('T')[0] : 'N/A'
+        }));
+        setInvoices(data);
+      } catch (err) {
+        console.error('Failed to load transaction ledger', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchInvoices();
+  });
 
   return (
     <div className="space-y-10 pb-20">

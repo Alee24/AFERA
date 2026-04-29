@@ -447,7 +447,9 @@ export default function CourseDetailsPage() {
                   {[
                     { id: 'mpesa', name: 'M-Pesa STK Push', icon: Smartphone, color: 'emerald' },
                     { id: 'paypal', name: 'PayPal Global', icon: Globe, color: 'blue' },
-                    { id: 'pesapal', name: 'PesaPal v3', icon: CreditCard, color: 'orange' }
+                    { id: 'pesapal', name: 'PesaPal v3', icon: CreditCard, color: 'orange' },
+                    { id: 'bank_transfer', name: 'Bank Transfer', icon: DollarSign, color: 'indigo' },
+                    { id: 'scholarship', name: 'Scholarship Grant', icon: Award, color: 'violet' }
                   ].map((g) => (
                     <button 
                       key={g.id}
