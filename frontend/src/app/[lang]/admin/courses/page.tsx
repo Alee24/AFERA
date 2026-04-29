@@ -12,14 +12,18 @@ import {
   MapPin, 
   DollarSign,
   ChevronRight,
-  Filter
+  Filter,
+  Layers
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useNotification } from '@/lib/NotificationContext';
+import { useRouter, useParams } from 'next/navigation';
 import api from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AdminCoursesPage() {
+  const { lang } = useParams();
+  const router = useRouter();
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -220,7 +224,10 @@ export default function AdminCoursesPage() {
                       <td className="px-8 py-6 font-bold text-emerald-600">
                          <span className="bg-emerald-50 px-3 py-1 rounded-lg text-[10px] uppercase">Starting Soon</span>
                       </td>
-                      <td className="px-8 py-6 text-right space-x-2">
+                      <td className="px-8 py-6 text-right flex items-center justify-end gap-2">
+                         <button onClick={() => router.push(`/${lang}/admin/courses/builder/${course.id}`)} className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg shadow-sm text-gray-400 hover:text-accent transition-all" title="Course Builder Studio">
+                            <Layers size={18} />
+                         </button>
                          <button onClick={() => openEdit(course)} className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg shadow-sm text-gray-400 hover:text-primary transition-all">
                             <Edit size={18} />
                          </button>
