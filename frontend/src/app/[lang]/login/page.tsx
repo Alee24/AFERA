@@ -36,6 +36,8 @@ export default function LoginPage() {
       let target = 'dashboard'; // student default
       if (user.role === 'admin') target = 'admin';
       if (user.role === 'lecturer') target = 'lecturer';
+      if (user.role === 'finance') target = 'admin/finance';
+      if (user.role === 'admissions') target = 'admin/students';
       
       const currentLang = i18n.language || 'en';
       console.log(`Redirecting to: /${currentLang}/${target}`);
