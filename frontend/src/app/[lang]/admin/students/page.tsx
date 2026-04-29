@@ -335,7 +335,10 @@ export default function AdminStudentsPage() {
                        <p className="text-sm text-gray-500 font-medium"><strong>Email:</strong> {selectedStudent.email}</p>
                        <p className="text-sm text-gray-500 font-medium"><strong>Phone:</strong> {selectedStudent.phone || 'Not Provided'}</p>
                        <p className="text-sm text-gray-500 font-medium"><strong>Nationality:</strong> {selectedStudent.StudentProfile?.nationality || 'Not Specified'}</p>
+                       <p className="text-sm text-gray-500 font-medium"><strong>Religion:</strong> {selectedStudent.StudentProfile?.religion || 'Not Specified'}</p>
+                       <p className="text-sm text-gray-500 font-medium"><strong>Gender:</strong> {selectedStudent.StudentProfile?.gender || 'Not Specified'}</p>
                        <p className="text-sm text-gray-500 font-medium"><strong>Date of Birth:</strong> {selectedStudent.StudentProfile?.date_of_birth || 'Not Specified'}</p>
+                       <p className="text-sm text-gray-500 font-medium"><strong>Address:</strong> {selectedStudent.StudentProfile?.address || 'Not Specified'}</p>
                      </div>
                      <div className="p-8 bg-gray-50 dark:bg-slate-800/50 rounded-3xl space-y-4">
                        <h4 className="font-bold text-lg text-primary dark:text-white border-b pb-2">Professional Credentials</h4>

@@ -780,6 +780,14 @@ export default function StudentDashboard() {
                                </select>
                             </div>
                             <div className="space-y-2">
+                               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Religion</label>
+                               <input 
+                                 name="religion"
+                                 defaultValue={user?.StudentProfile?.religion}
+                                 className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-6 py-4 text-sm font-bold text-primary dark:text-white focus:ring-2 focus:ring-accent transition-all" 
+                               />
+                            </div>
+                            <div className="space-y-2">
                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Date of Birth</label>
                                <input 
                                  name="date_of_birth"

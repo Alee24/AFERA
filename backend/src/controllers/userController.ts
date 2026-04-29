@@ -87,7 +87,7 @@ export const updateProfile = async (req: any, res: Response) => {
     const { 
       first_name, last_name, phone, nationality, gender, date_of_birth,
       institution, job_title, qualification, address, 
-      emergency_contact_name, emergency_contact_phone, avatar_url
+      emergency_contact_name, emergency_contact_phone, avatar_url, religion
     } = req.body;
 
     const user = await User.findByPk(userId);
@@ -103,7 +103,7 @@ export const updateProfile = async (req: any, res: Response) => {
       await student.update({ 
         nationality, gender, date_of_birth: dob,
         institution, job_title, qualification, address,
-        emergency_contact_name, emergency_contact_phone
+        emergency_contact_name, emergency_contact_phone, religion
       });
     } else {
       const admission_number = 'AFR' + Math.floor(100000 + Math.random() * 900000);
@@ -113,6 +113,7 @@ export const updateProfile = async (req: any, res: Response) => {
         nationality, gender, date_of_birth: dob,
         institution, job_title, qualification, address,
         emergency_contact_name, emergency_contact_phone,
+        religion,
         status: 'pending'
       });
     }
