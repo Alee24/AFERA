@@ -16,9 +16,11 @@ import {
 import { Button } from '@/components/ui/Button';
 import api from '@/lib/api';
 import { useNotification } from '@/lib/NotificationContext';
+import { useAuth } from '@/lib/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function LecturerClasses() {
+  const { user } = useAuth();
   const [classes, setClasses] = useState<any[]>([]);
   const [selectedClass, setSelectedClass] = useState<any>(null);
   const [students, setStudents] = useState<any[]>([]);
@@ -181,7 +183,7 @@ export default function LecturerClasses() {
                  </div>
                  <div className="w-full h-[60vh] rounded-3xl overflow-hidden border border-gray-100 dark:border-slate-800 shadow-inner">
                     <iframe 
-                      src={`https://meet.jit.si/${jitsiRoom}`} 
+                      src={`https://meet.ffmuc.net/${jitsiRoom}#userInfo.displayName="${encodeURIComponent(user?.first_name || 'Lecturer')}"`} 
                       className="w-full h-full"
                       allow="camera; microphone; fullscreen; display-capture; autoplay"
                     />

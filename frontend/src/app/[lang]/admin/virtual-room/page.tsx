@@ -4,8 +4,10 @@ import React, { useState } from 'react';
 import { Video, Loader2, ArrowLeft, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useNotification } from '@/lib/NotificationContext';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function AdminVirtualRoom() {
+  const { user } = useAuth();
   const [roomName, setRoomName] = useState('');
   const [activeRoom, setActiveRoom] = useState<string | null>(null);
   const { showNotification } = useNotification();
@@ -85,7 +87,7 @@ export default function AdminVirtualRoom() {
 
             <div className="w-full h-[70vh] rounded-[40px] overflow-hidden shadow-2xl border border-primary/20 bg-black">
                <iframe 
-                 src={`https://meet.jit.si/${activeRoom}`} 
+                 src={`https://meet.ffmuc.net/${activeRoom}#userInfo.displayName="${encodeURIComponent(user?.first_name || 'Administrator')}"`} 
                  className="w-full h-full"
                  allow="camera; microphone; fullscreen; display-capture; autoplay"
                />
