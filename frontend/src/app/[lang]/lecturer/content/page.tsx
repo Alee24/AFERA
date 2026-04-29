@@ -20,6 +20,9 @@ export default function LecturerContent() {
   const [selectedCourse, setSelectedCourse] = useState<any>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [documentUrl, setDocumentUrl] = useState('');
+  const [h5pContent, setH5pContent] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { showNotification } = useNotification();
@@ -48,13 +51,19 @@ export default function LecturerContent() {
     setSaving(true);
     try {
       await api.post(`/courses/${selectedCourse.id}/modules`, {
-        title,
-        content,
+        title_en: title,
+        description_en: content,
+        document_url: documentUrl,
+        h5p_content: h5pContent,
+        video_url: videoUrl,
         order: 1
       });
-      showNotification('Syllabus module created successfully!', 'success');
+      showNotification('Module published successfully!', 'success');
       setTitle('');
       setContent('');
+      setDocumentUrl('');
+      setH5pContent('');
+      setVideoUrl('');
       // Refresh course list
       fetchCourses();
       setSelectedCourse(null);
@@ -125,6 +134,41 @@ export default function LecturerContent() {
                     className="w-full p-6 bg-gray-50 dark:bg-slate-800 border-none rounded-3xl font-medium focus:ring-4 focus:ring-primary/5 transition-all outline-none resize-none"
                     required
                   />
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                 <div className="space-y-2">
+                    <label className="text-xs font-black uppercase tracking-widest text-gray-400">Document URL</label>
+                    <input 
+                      type="text"
+                      value={documentUrl}
+                      onChange={(e) => setDocumentUrl(e.target.value)}
+                      placeholder="Upload file URL..."
+                      className="w-full px-6 h-14 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl font-medium focus:ring-4 focus:ring-primary/5 transition-all outline-none"
+                    />
+                 </div>
+
+                 <div className="space-y-2">
+                    <label className="text-xs font-black uppercase tracking-widest text-gray-400">Embed Video</label>
+                    <input 
+                      type="text"
+                      value={videoUrl}
+                      onChange={(e) => setVideoUrl(e.target.value)}
+                      placeholder="YouTube/Vimeo link..."
+                      className="w-full px-6 h-14 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl font-medium focus:ring-4 focus:ring-primary/5 transition-all outline-none"
+                    />
+                 </div>
+
+                 <div className="space-y-2">
+                    <label className="text-xs font-black uppercase tracking-widest text-gray-400">H5P Content</label>
+                    <input 
+                      type="text"
+                      value={h5pContent}
+                      onChange={(e) => setH5pContent(e.target.value)}
+                      placeholder="H5P code or embed URL..."
+                      className="w-full px-6 h-14 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl font-medium focus:ring-4 focus:ring-primary/5 transition-all outline-none"
+                    />
+                 </div>
                </div>
 
                <Button 
