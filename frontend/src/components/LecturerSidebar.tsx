@@ -14,7 +14,8 @@ import {
   GraduationCap,
   Bell,
   MessageSquare,
-  CheckSquare
+  CheckSquare,
+  Video
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -22,6 +23,7 @@ import Image from 'next/image';
 const menuItems = [
   { icon: LayoutDashboard, label: 'Overview', href: '/lecturer' },
   { icon: BookOpen, label: 'My Classes', href: '/lecturer/classes' },
+  { icon: Video, label: 'Virtual Room', href: '/lecturer/virtual-room' },
   { icon: CheckSquare, label: 'Attendance', href: '/lecturer/attendance' },
   { icon: GraduationCap, label: 'Grades & Results', href: '/lecturer/grades' },
   { icon: FileText, label: 'Course Content', href: '/lecturer/content' },

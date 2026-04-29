@@ -16,13 +16,15 @@ import {
   Bell,
   DollarSign,
   Presentation,
-  CreditCard
+  CreditCard,
+  Video
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Overview', href: '/admin' },
+  { icon: Video, label: 'Virtual Room', href: '/admin/virtual-room' },
   { icon: FileText, label: 'University Analytics', href: '/admin/analytics' },
   { icon: UserCheck, label: 'Users', href: '/admin/applications' },
   { icon: Users, label: 'Students', href: '/admin/students' },
