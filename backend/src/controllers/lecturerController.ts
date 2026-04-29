@@ -166,7 +166,7 @@ export const updateVirtualLink = async (req: Request, res: Response) => {
     const { classId } = req.params;
     const { virtual_link } = req.body;
     
-    const cls = await Class.findByPk(classId);
+    const cls = await Class.findByPk(classId as string);
     if (!cls) return res.status(404).json({ message: 'Class not found' });
     
     await cls.update({ virtual_link });
