@@ -12,7 +12,7 @@ const fixDatabase = async () => {
     const coursesCols = await queryInterface.describeTable('courses');
     const contentCols = [
       'content_en', 'content_fr', 'content_pt', 'content_sw',
-      'image_url', 'program_overview', 'learning_outcomes', 'curriculum_structure'
+      'image_url', 'program_overview', 'learning_outcomes', 'curriculum_structure', 'slug'
     ];
     for (const col of contentCols) {
       if (!coursesCols[col]) {
@@ -30,7 +30,8 @@ const fixDatabase = async () => {
       status: { type: 'VARCHAR(255)', defaultValue: 'pending' },
       enrollment_date: { type: 'DATETIME' },
       professional_profile: { type: 'VARCHAR(255)' },
-      religion: { type: 'VARCHAR(255)' }
+      religion: { type: 'VARCHAR(255)' },
+      user_id: { type: 'VARCHAR(255)', allowNull: false }
     };
     for (const [col, def] of Object.entries(studentFields)) {
       if (!studentsCols[col]) {
@@ -46,7 +47,12 @@ const fixDatabase = async () => {
       await queryInterface.addColumn('users', 'phone', { type: 'VARCHAR(255)' });
     }
 
-    // 4. Fix enrollments table (Add course_id)
+    // 3.5. Fix staff table
+    const staffCols = await queryInterface.describeTable('staff');
+    if (!staffCols['user_id']) {
+      console.log('➕ Adding column user_id to staff...');
+      await queryInterface.addColumn('staff', 'user_id', { type: 'VARCHAR(255)', allowNull: false });
+    }
     const enrollmentCols = await queryInterface.describeTable('enrollments');
     if (!enrollmentCols['course_id']) {
       console.log('➕ Adding column course_id to enrollments...');
