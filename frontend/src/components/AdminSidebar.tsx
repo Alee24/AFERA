@@ -24,7 +24,7 @@ import Image from 'next/image';
 const menuItems = [
   { icon: LayoutDashboard, label: 'Overview', href: '/admin' },
   { icon: FileText, label: 'University Analytics', href: '/admin/analytics' },
-  { icon: UserCheck, label: 'Applications', href: '/admin/applications' },
+  { icon: UserCheck, label: 'Users', href: '/admin/applications' },
   { icon: Users, label: 'Students', href: '/admin/students' },
   { icon: BookOpen, label: 'Programs & Courses', href: '/admin/courses' },
   { icon: ShieldCheck, label: 'Academic Structure', href: '/admin/academic' },

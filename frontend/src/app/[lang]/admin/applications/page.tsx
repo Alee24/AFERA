@@ -31,12 +31,14 @@ export default function AdminApplicationsPage() {
   const [selectedApp, setSelectedApp] = useState<any>(null);
   const { showNotification } = useNotification();
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState<'bio' | 'finance'>('bio');
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [selectedUserForReset, setSelectedUserForReset] = useState<any>(null);
   
   const [newUser, setNewUser] = useState({ first_name: '', last_name: '', email: '', password: '', role: 'student' });
+  const [invoices, setInvoices] = useState<any[]>([]);
   const [newPassword, setNewPassword] = useState('');
   const { login: impersonateLogin } = useAuth();
 
@@ -89,6 +91,8 @@ export default function AdminApplicationsPage() {
     try {
       const res = await api.get('/admin/admissions');
       setApplications(res.data);
+      const finRes = await api.get('/finance/all-invoices');
+      setInvoices(finRes.data);
     } catch (err) {
       showNotification('Failed to load applications', 'error');
     } finally {
@@ -153,21 +157,64 @@ export default function AdminApplicationsPage() {
                    </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-12 gap-y-8 mb-12">
-                   {[
-                     { label: 'Email Address', value: selectedApp.Student?.User?.email },
-                     { label: 'Phone Number', value: selectedApp.Student?.User?.phone || 'Not Provided' },
-                     { label: 'Nationality', value: selectedApp.Student?.nationality || 'N/A' },
-                     { label: 'Gender', value: selectedApp.Student?.gender || 'N/A' },
-                     { label: 'Date of Birth', value: formatDate(selectedApp.Student?.date_of_birth) },
-                     { label: 'Scholar ID', value: selectedApp.Student?.admission_number, highlight: true }
-                   ].map((item, i) => (
-                     <div key={i} className="space-y-1.5">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{item.label}</p>
-                        <p className={`font-bold ${item.highlight ? 'text-accent' : 'text-primary dark:text-white'}`}>{item.value}</p>
-                     </div>
-                   ))}
+                {/* Tabs selection */}
+                <div className="flex border-b border-gray-100 dark:border-slate-800 mb-8 space-x-6">
+                   <button 
+                     onClick={() => setActiveTab('bio')}
+                     className={`pb-4 text-xs font-black uppercase tracking-widest border-b-2 transition-all ${activeTab === 'bio' ? 'border-primary text-primary' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+                   >
+                      Bio Data
+                   </button>
+                   <button 
+                     onClick={() => setActiveTab('finance')}
+                     className={`pb-4 text-xs font-black uppercase tracking-widest border-b-2 transition-all ${activeTab === 'finance' ? 'border-primary text-primary' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+                   >
+                      Financial History
+                   </button>
                 </div>
+
+                {activeTab === 'bio' ? (
+                   <div className="grid grid-cols-2 gap-x-12 gap-y-6 mb-12">
+                      {[
+                        { label: 'Email Address', value: selectedApp.Student?.User?.email },
+                        { label: 'Phone Number', value: selectedApp.Student?.User?.phone || 'Not Provided' },
+                        { label: 'Nationality', value: selectedApp.Student?.nationality || 'N/A' },
+                        { label: 'Religion', value: selectedApp.Student?.religion || 'N/A' },
+                        { label: 'Gender', value: selectedApp.Student?.gender || 'N/A' },
+                        { label: 'Date of Birth', value: formatDate(selectedApp.Student?.date_of_birth) },
+                        { label: 'Institution', value: selectedApp.Student?.institution || 'N/A' },
+                        { label: 'Job Title', value: selectedApp.Student?.job_title || 'N/A' },
+                        { label: 'Address', value: selectedApp.Student?.address || 'N/A' },
+                        { label: 'Emergency Contact', value: selectedApp.Student?.emergency_contact_name || 'N/A' },
+                        { label: 'Emergency Phone', value: selectedApp.Student?.emergency_contact_phone || 'N/A' },
+                        { label: 'Scholar ID', value: selectedApp.Student?.admission_number, highlight: true }
+                      ].map((item, i) => (
+                        <div key={i} className="space-y-1.5">
+                           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{item.label}</p>
+                           <p className={`font-bold ${item.highlight ? 'text-accent' : 'text-primary dark:text-white'}`}>{item.value}</p>
+                        </div>
+                      ))}
+                   </div>
+                ) : (
+                   <div className="space-y-4 mb-12 max-h-[300px] overflow-y-auto">
+                      {invoices.filter(inv => inv.student_id === selectedApp.student_id || inv.student_id === selectedApp.Student?.id).length === 0 ? (
+                        <p className="text-center py-10 text-gray-400 font-medium italic">No receipts or invoice trails found for this user.</p>
+                      ) : invoices.filter(inv => inv.student_id === selectedApp.student_id || inv.student_id === selectedApp.Student?.id).map((inv, index) => (
+                        <div key={index} className="flex justify-between items-center p-6 bg-gray-50 dark:bg-slate-800/50 rounded-2xl">
+                           <div>
+                              <p className="font-bold text-primary dark:text-white">{inv.Enrollment?.Program?.name || 'Academic Fees'}</p>
+                              <p className="text-xs text-gray-400 font-medium mt-1">Invoice ID: {inv.id?.substring(0,8)} • {new Date(inv.created_at).toLocaleDateString()}</p>
+                           </div>
+                           <div className="text-right">
+                              <p className="font-black text-primary dark:text-white">${inv.amount}</p>
+                              <span className={`text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${inv.status === 'paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                                 {inv.status}
+                              </span>
+                           </div>
+                        </div>
+                      ))}
+                   </div>
+                )}
 
                 <div className="flex space-x-4">
                    <Button 
