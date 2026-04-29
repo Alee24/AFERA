@@ -53,6 +53,20 @@ const fixDatabase = async () => {
       console.log('➕ Adding column user_id to staff...');
       await queryInterface.addColumn('staff', 'user_id', { type: 'VARCHAR(255)', allowNull: false });
     }
+    // 4. Fix course_modules table
+    const moduleCols = await queryInterface.describeTable('course_modules');
+    const moduleFields = {
+      video_url: { type: 'VARCHAR(255)' },
+      document_url: { type: 'VARCHAR(255)' },
+      h5p_content: { type: 'TEXT' }
+    };
+    for (const [col, def] of Object.entries(moduleFields)) {
+      if (!moduleCols[col]) {
+        console.log(`➕ Adding column ${col} to course_modules...`);
+        await queryInterface.addColumn('course_modules', col, def);
+      }
+    }
+
     const enrollmentCols = await queryInterface.describeTable('enrollments');
     if (!enrollmentCols['course_id']) {
       console.log('➕ Adding column course_id to enrollments...');
