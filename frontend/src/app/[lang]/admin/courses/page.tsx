@@ -35,7 +35,11 @@ export default function AdminCoursesPage() {
     duration: '',
     price: 800,
     course_type: 'Certificate',
-    modality: 'Online'
+    modality: 'Online',
+    image_url: '',
+    program_overview: '',
+    learning_outcomes: '',
+    curriculum_structure: ''
   });
 
   useEffect(() => {
@@ -108,7 +112,11 @@ export default function AdminCoursesPage() {
       duration: course.duration || '',
       price: course.price || 800,
       course_type: course.course_type || 'Certificate',
-      modality: course.modality || 'Online'
+      modality: course.modality || 'Online',
+      image_url: course.image_url || '',
+      program_overview: course.program_overview || '',
+      learning_outcomes: course.learning_outcomes || '',
+      curriculum_structure: course.curriculum_structure || ''
     });
     setIsModalOpen(true);
   };
@@ -123,7 +131,11 @@ export default function AdminCoursesPage() {
       duration: '',
       price: 800,
       course_type: 'Certificate',
-      modality: 'Online'
+      modality: 'Online',
+      image_url: '',
+      program_overview: '',
+      learning_outcomes: '',
+      curriculum_structure: ''
     });
     setIsModalOpen(true);
   };
@@ -280,6 +292,47 @@ export default function AdminCoursesPage() {
                           placeholder="Enter full course details, syllabus, or academic content..."
                           value={formData.content_en}
                           onChange={(e) => setFormData({...formData, content_en: e.target.value})}
+                       />
+                    </div>
+
+                    <div className="md:col-span-2">
+                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Program Image URL</label>
+                       <input 
+                         type="text" 
+                         className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10" 
+                         placeholder="Image URL or drop location..."
+                         value={formData.image_url}
+                         onChange={(e) => setFormData({...formData, image_url: e.target.value})}
+                       />
+                    </div>
+
+                    <div className="md:col-span-2">
+                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Program Overview</label>
+                       <textarea 
+                          className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[100px]" 
+                          placeholder="High level overview..."
+                          value={formData.program_overview}
+                          onChange={(e) => setFormData({...formData, program_overview: e.target.value})}
+                       />
+                    </div>
+
+                    <div className="md:col-span-2">
+                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Learning Outcomes</label>
+                       <textarea 
+                          className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[100px]" 
+                          placeholder="Enter learning outcomes, separated by lines..."
+                          value={formData.learning_outcomes}
+                          onChange={(e) => setFormData({...formData, learning_outcomes: e.target.value})}
+                       />
+                    </div>
+
+                    <div className="md:col-span-2">
+                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Curriculum Structure</label>
+                       <textarea 
+                          className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[100px]" 
+                          placeholder="Enter curriculum modules or semesters..."
+                          value={formData.curriculum_structure}
+                          onChange={(e) => setFormData({...formData, curriculum_structure: e.target.value})}
                        />
                     </div>
 

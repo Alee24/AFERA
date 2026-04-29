@@ -25,16 +25,19 @@ class Course extends Model {
   public modality!: string;
   public department!: string;
   public course_type!: string;
+  public image_url!: string;
+  public program_overview!: string;
+  public learning_outcomes!: string;
+  public curriculum_structure!: string;
 }
 
 Course.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  program_id: { type: DataTypes.UUID, allowNull: true }, // Optional for now
+  program_id: { type: DataTypes.UUID, allowNull: true }, 
   course_code: { type: DataTypes.STRING, unique: true, allowNull: true },
   course_name: { type: DataTypes.STRING, allowNull: true },
   credits: { type: DataTypes.INTEGER, defaultValue: 3 },
   
-  // Localized Fields (Existing)
   title_en: { type: DataTypes.STRING, allowNull: false },
   title_fr: { type: DataTypes.STRING },
   title_pt: { type: DataTypes.STRING },
@@ -48,12 +51,15 @@ Course.init({
   content_pt: { type: DataTypes.TEXT },
   content_sw: { type: DataTypes.TEXT },
   
-  // Metadata (Existing)
   price: { type: DataTypes.DECIMAL(10, 2), defaultValue: 800.00 },
   duration: { type: DataTypes.STRING },
   modality: { type: DataTypes.STRING },
   department: { type: DataTypes.STRING },
   course_type: { type: DataTypes.STRING },
+  image_url: { type: DataTypes.TEXT, allowNull: true },
+  program_overview: { type: DataTypes.TEXT, allowNull: true },
+  learning_outcomes: { type: DataTypes.TEXT, allowNull: true },
+  curriculum_structure: { type: DataTypes.TEXT, allowNull: true },
 }, {
   sequelize,
   modelName: 'Course',
