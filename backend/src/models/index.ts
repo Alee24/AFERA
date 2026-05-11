@@ -3,7 +3,7 @@ import sequelize from '../config/database';
 import User from './User';
 import Course, { CourseUnit, Class, CourseResource } from './Course';
 import { Faculty, Department, Program } from './Academic';
-import { FeeStructure, Invoice, Payment } from './Finance';
+import { FeeStructure, Invoice, Payment, Receipt } from './Finance';
 import Post from './Post';
 import File from './File';
 import CourseModule from './CourseModule';
