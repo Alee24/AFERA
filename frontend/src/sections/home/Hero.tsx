@@ -7,9 +7,31 @@ import { ArrowRight, GraduationCap, Users, Globe, Play, ChevronRight, ChevronLef
 import { useTranslation } from 'react-i18next';
 
 const heroImages = [
-  { src: "/hero1.png", title: "Future Leaders", desc: "Empowering the next generation." },
-  { src: "/hero2.jpg", title: "Innovative Learning", desc: "Experience education like never before." },
-  { src: "/hero3.jpg", title: "Global Community", desc: "Connect with students worldwide." }
+  { 
+    src: "/workshops/media__1777354078760.jpg", 
+    title: "Empowering Infrastructure Leaders", 
+    desc: "Shaping the future of African road maintenance." 
+  },
+  { 
+    src: "/workshops/media__1777354078788.jpg", 
+    title: "Certified Excellence", 
+    desc: "Recognizing achievement and professional growth." 
+  },
+  { 
+    src: "/workshops/media__1777354078663.jpg", 
+    title: "Practical Expertise", 
+    desc: "Hands-on training for real-world infrastructure challenges." 
+  },
+  { 
+    src: "/workshops/media__1777354078606.jpg", 
+    title: "Innovative Learning", 
+    desc: "Collaborative workshops with industry experts." 
+  },
+  { 
+    src: "/workshops/media__1777354078456.jpg", 
+    title: "Strategic Vision", 
+    desc: "Planning the next generation of road systems." 
+  }
 ];
 
 export default function Hero() {
