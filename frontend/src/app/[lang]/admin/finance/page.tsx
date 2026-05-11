@@ -19,7 +19,8 @@ import {
   Users,
   GraduationCap,
   X,
-  UserCheck
+  UserCheck,
+  Printer
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -162,6 +163,106 @@ export default function FinanceDashboard() {
     link.click();
   };
 
+  const handlePrintInvoice = (invoice: any) => {
+    const isCredit = invoice.billing_type === 'credit_note';
+    const docTitle = invoice.status === 'paid' ? 'Official Receipt' : (isCredit ? 'Credit Note' : 'Tuition Invoice');
+    
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    
+    const htmlContent = `
+      <html>
+      <head>
+        <title>${docTitle} - ${invoice.id}</title>
+        <style>
+          body { font-family: 'Arial', sans-serif; color: #0f172a; margin: 0; padding: 50px; background: #fff; }
+          .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #e2e8f0; padding-bottom: 30px; margin-bottom: 40px; }
+          .title { font-size: 36px; font-weight: 900; color: #051A31; text-transform: uppercase; letter-spacing: 2px; margin: 0; }
+          .subtitle { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+          .info-block { display: flex; justify-content: space-between; margin-bottom: 50px; }
+          .info-col { width: 45%; }
+          .info-label { font-size: 11px; font-weight: 900; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+          .info-value { font-size: 18px; font-weight: 700; margin: 0; }
+          table { width: 100%; border-collapse: collapse; margin-bottom: 50px; }
+          th { padding: 16px; text-align: left; background: #f8fafc; font-size: 11px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 2px; border-bottom: 2px solid #e2e8f0; }
+          td { padding: 16px; font-size: 16px; font-weight: 600; border-bottom: 1px solid #f1f5f9; }
+          .total-row { text-align: right; }
+          .total-label { font-size: 14px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 2px; padding-right: 20px; }
+          .total-value { font-size: 32px; font-weight: 900; color: #051A31; }
+          .footer { text-align: center; margin-top: 80px; padding-top: 30px; border-top: 1px solid #e2e8f0; font-size: 12px; font-weight: 600; color: #94a3b8; }
+          .status { display: inline-block; padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+          .status-paid { background: #f0fdf4; color: #10b981; border: 1px solid #a7f3d0; }
+          .status-pending { background: #fffbeb; color: #f59e0b; border: 1px solid #fde68a; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div>
+            <h1 class="title">Afera Academy</h1>
+            <p class="subtitle">Excellence in Infrastructure Training</p>
+          </div>
+          <div style="text-align: right;">
+            <h2 style="margin:0; font-size: 28px; color: ${isCredit ? '#10b981' : '#051A31'};">${docTitle}</h2>
+            <p style="margin:8px 0 0 0; font-weight: bold; color: #64748b;">REF #${invoice.id}</p>
+            <div style="margin-top: 15px;">
+              <span class="status ${invoice.status === 'paid' ? 'status-paid' : 'status-pending'}">${invoice.status}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-block">
+          <div class="info-col">
+            <p class="info-label">Issued To</p>
+            <p class="info-value">${invoice.student}</p>
+          </div>
+          <div class="info-col" style="text-align: right;">
+            <p class="info-label">Date of Issue</p>
+            <p class="info-value">${invoice.date}</p>
+            ${invoice.Receipts?.[0] ? `
+              <p class="info-label" style="margin-top: 25px;">Payment Reference</p>
+              <p class="info-value" style="font-family: monospace;">${invoice.Receipts[0].transaction_ref}</p>
+            ` : ''}
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th style="text-align: right;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div style="font-weight: 800; color: #051A31; font-size: 18px;">${isCredit ? 'Credit Note' : 'Tuition & Academic Fees'}</div>
+                <div style="font-size: 14px; color: #64748b; margin-top: 6px;">${invoice.notes || 'Standard program enrollment and registration.'}</div>
+              </td>
+              <td style="text-align: right; font-weight: 800; font-size: 18px;">$${Math.abs(invoice.amount).toLocaleString()}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="total-row">
+          <span class="total-label">Total Amount</span>
+          <span class="total-value" style="color: ${isCredit ? '#10b981' : '#051A31'};">${isCredit ? '-' : ''}$${Math.abs(invoice.amount).toLocaleString()}</span>
+        </div>
+
+        <div class="footer">
+          <p>This is a system-generated document. No signature is required.</p>
+          <p style="margin-top: 8px;">Afera Innov Academy • Finance Dept • www.afera-academy.com</p>
+        </div>
+      </body>
+      </html>
+    `;
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
+  };
+
   return (
     <div className="space-y-12">
       {/* Header Section */}
@@ -266,7 +367,10 @@ export default function FinanceDashboard() {
                          ) : 'Pending Settlement'}
                       </td>
                       <td className="px-12 py-8 text-right">
-                         <div className="flex items-center justify-end space-x-2">
+                          <div className="flex items-center justify-end space-x-2">
+                            <Button onClick={() => handlePrintInvoice(invoice)} variant="ghost" className="p-2 hover:bg-blue-50 text-blue-500 rounded-lg group/btn" title="View / Print Document">
+                               <Printer size={18} className="group-hover/btn:scale-110 transition-transform" />
+                            </Button>
                             {invoice.status !== 'paid' && (
                               <Button onClick={() => handleMarkPaid(invoice.realId)} variant="ghost" className="p-2 hover:bg-emerald-50 text-emerald-600 rounded-lg">
                                  <CheckCircle2 size={18} />
