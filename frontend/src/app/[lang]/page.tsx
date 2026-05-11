@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import Hero from '@/sections/home/Hero';
 import AboutPreview from '@/sections/home/AboutPreview';
 import Programs from '@/sections/home/Programs';
-import Tuition from '@/sections/home/Tuition';
 import News from '@/sections/home/News';
 import Partners from '@/sections/home/Partners';
 import { Button } from '@/components/ui/Button';
@@ -33,9 +32,6 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
 
       {/* Programs Preview */}
       <Programs />
-
-      {/* Tuition & Financial Aid */}
-      <Tuition />
 
       {/* Latest News */}
       <News />
