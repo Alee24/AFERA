@@ -70,6 +70,21 @@ const fixDatabase = async () => {
       console.log('➕ Adding column user_id to staff...');
       await queryInterface.addColumn('staff', 'user_id', { type: 'VARCHAR(255)', allowNull: false });
     }
+    if (!staffCols['department_id']) {
+      console.log('➕ Adding column department_id to staff...');
+      await queryInterface.addColumn('staff', 'department_id', { type: 'VARCHAR(255)' });
+    }
+
+    // 3.6. Fix departments table
+    const deptCols = await queryInterface.describeTable('departments');
+    if (!deptCols['description']) {
+      console.log('➕ Adding column description to departments...');
+      await queryInterface.addColumn('departments', 'description', { type: 'TEXT' });
+    }
+    if (!deptCols['head_of_department']) {
+      console.log('➕ Adding column head_of_department to departments...');
+      await queryInterface.addColumn('departments', 'head_of_department', { type: 'VARCHAR(255)' });
+    }
     // 4. Fix course_modules table
     console.log('🛠️ Hardening translation fields in course_modules table...');
     const modTranslationCols = ['title_fr', 'title_pt', 'title_sw', 'description_fr', 'description_pt', 'description_sw'];

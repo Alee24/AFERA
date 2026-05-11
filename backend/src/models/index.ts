@@ -84,6 +84,7 @@ class Staff extends Model {
   public id!: string;
   public user_id!: string;
   public staff_number!: string;
+  public department_id!: string;
 }
 Staff.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
@@ -91,6 +92,7 @@ Staff.init({
   position: { type: DataTypes.STRING },
   hire_date: { type: DataTypes.DATEONLY },
   user_id: { type: DataTypes.UUID, allowNull: false },
+  department_id: { type: DataTypes.UUID, allowNull: true },
 }, { sequelize, modelName: 'Staff', tableName: 'staff', underscored: true });
 
 // ===== 4. ENROLLMENT & REGISTRATION =====
@@ -231,6 +233,8 @@ Faculty.hasMany(Department, { foreignKey: 'faculty_id' });
 Department.belongsTo(Faculty, { foreignKey: 'faculty_id' });
 Department.hasMany(Program, { foreignKey: 'department_id' });
 Program.belongsTo(Department, { foreignKey: 'department_id' });
+Department.hasMany(Staff, { foreignKey: 'department_id' });
+Staff.belongsTo(Department, { foreignKey: 'department_id' });
 Program.hasMany(Course, { foreignKey: 'program_id' });
 Course.belongsTo(Program, { foreignKey: 'program_id' });
 Course.hasMany(CourseUnit, { foreignKey: 'course_id' });

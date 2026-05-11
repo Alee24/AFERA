@@ -133,6 +133,7 @@ router.put('/academic/faculties/:id', authenticateJWT, authorizeRole(['admin']),
 router.delete('/academic/faculties/:id', authenticateJWT, authorizeRole(['admin']), academicController.deleteFaculty);
 
 router.post('/academic/departments', authenticateJWT, authorizeRole(['admin']), academicController.createDepartment);
+router.put('/academic/departments/:id', authenticateJWT, authorizeRole(['admin']), academicController.updateDepartment);
 router.delete('/academic/departments/:id', authenticateJWT, authorizeRole(['admin']), academicController.deleteDepartment);
 
 router.post('/academic/programs', authenticateJWT, authorizeRole(['admin']), academicController.createProgram);

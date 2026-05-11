@@ -16,11 +16,15 @@ export class Department extends Model {
   public id!: string;
   public faculty_id!: string;
   public name!: string;
+  public description!: string;
+  public head_of_department!: string;
 }
 Department.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   faculty_id: { type: DataTypes.UUID, allowNull: false },
   name: { type: DataTypes.STRING, allowNull: false },
+  description: { type: DataTypes.TEXT, allowNull: true },
+  head_of_department: { type: DataTypes.STRING, allowNull: true },
 }, { sequelize, modelName: 'Department', tableName: 'departments', underscored: true });
 
 export class Program extends Model {

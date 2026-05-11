@@ -4,11 +4,19 @@ import { Faculty, Department, Program, Grade, Assessment, Student, Course, Cours
 // ===== FACULTIES =====
 export const getFaculties = async (req: Request, res: Response) => {
   try {
+    const { Staff, User } = require('../models');
     const faculties = await Faculty.findAll({
       include: [{ 
         model: Department,
-        include: [Program]
-      }]
+        include: [
+          Program,
+          {
+            model: Staff,
+            include: [{ model: User, attributes: ['first_name', 'last_name', 'email'] }]
+          }
+        ]
+      }],
+      order: [['name', 'ASC']]
     });
     res.json(faculties);
   } catch (error: any) {
@@ -52,6 +60,17 @@ export const createDepartment = async (req: Request, res: Response) => {
   try {
     const department = await Department.create(req.body);
     res.status(201).json(department);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const updateDepartment = async (req: Request, res: Response) => {
+  try {
+    const department = await Department.findByPk(req.params.id as string);
+    if (!department) return res.status(404).json({ message: 'Department not found' });
+    await department.update(req.body);
+    res.json(department);
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }

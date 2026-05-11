@@ -24,8 +24,17 @@ export default function AdminAcademicPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingFaculty, setEditingFaculty] = useState<any>(null);
+  const [editingDept, setEditingDept] = useState<any>(null);
+  const [isDeptModalOpen, setIsDeptModalOpen] = useState(false);
+  
   const [facultyName, setFacultyName] = useState('');
   const [facultyDesc, setFacultyDesc] = useState('');
+  
+  const [deptName, setDeptName] = useState('');
+  const [deptDesc, setDeptDesc] = useState('');
+  const [deptHod, setDeptHod] = useState('');
+  const [targetFacultyId, setTargetFacultyId] = useState('');
+
   const { showNotification } = useNotification();
 
   useEffect(() => {
@@ -73,15 +82,44 @@ export default function AdminAcademicPage() {
     }
   };
 
-  const handleAddDepartment = async (facultyId: string) => {
-    const name = prompt('Enter Department Name:');
-    if (!name) return;
+  const handleAddDepartment = (facultyId: string) => {
+    setTargetFacultyId(facultyId);
+    setEditingDept(null);
+    setDeptName('');
+    setDeptDesc('');
+    setDeptHod('');
+    setIsDeptModalOpen(true);
+  };
+
+  const handleEditDepartment = (dept: any) => {
+    setEditingDept(dept);
+    setDeptName(dept.name);
+    setDeptDesc(dept.description || '');
+    setDeptHod(dept.head_of_department || '');
+    setTargetFacultyId(dept.faculty_id);
+    setIsDeptModalOpen(true);
+  };
+
+  const handleSaveDepartment = async () => {
     try {
-      await api.post('/academic/departments', { faculty_id: facultyId, name });
-      showNotification('Department added', 'success');
+      const payload = { 
+        name: deptName, 
+        description: deptDesc, 
+        head_of_department: deptHod,
+        faculty_id: targetFacultyId 
+      };
+
+      if (editingDept) {
+        await api.put(`/academic/departments/${editingDept.id}`, payload);
+        showNotification('Department updated', 'success');
+      } else {
+        await api.post('/academic/departments', payload);
+        showNotification('Department created', 'success');
+      }
+      setIsDeptModalOpen(false);
       fetchFaculties();
     } catch (err) {
-      showNotification('Failed to add department', 'error');
+      showNotification('Failed to save department', 'error');
     }
   };
 
@@ -106,6 +144,7 @@ export default function AdminAcademicPage() {
   return (
     <div className="space-y-10 pb-20">
       {/* Faculty Modal */}
+      {/* Faculty Modal */}
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-primary/40 backdrop-blur-md">
@@ -125,6 +164,37 @@ export default function AdminAcademicPage() {
                         <textarea value={facultyDesc} onChange={e => setFacultyDesc(e.target.value)} className="w-full h-32 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl p-6 font-bold" placeholder="Brief faculty overview..." />
                      </div>
                      <Button onClick={handleSaveFaculty} className="w-full h-16 bg-primary text-white rounded-2xl font-bold uppercase tracking-widest shadow-xl shadow-primary/20">Save Institutional Unit</Button>
+                  </div>
+               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Department Modal */}
+      <AnimatePresence>
+        {isDeptModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-primary/40 backdrop-blur-md">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[40px] shadow-2xl overflow-hidden border border-white/20">
+               <div className="p-10">
+                  <div className="flex justify-between items-center mb-8">
+                     <h3 className="text-2xl font-black text-primary dark:text-white">{editingDept ? 'Edit' : 'Create'} Department</h3>
+                     <button onClick={() => setIsDeptModalOpen(false)} className="text-gray-400 hover:text-primary"><X size={24} /></button>
+                  </div>
+                  <div className="space-y-6">
+                     <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Department Name</label>
+                        <input value={deptName} onChange={e => setDeptName(e.target.value)} type="text" className="w-full h-14 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-6 font-bold" placeholder="e.g. Infrastructure Management" />
+                     </div>
+                     <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Head of Department (HOD)</label>
+                        <input value={deptHod} onChange={e => setDeptHod(e.target.value)} type="text" className="w-full h-14 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-6 font-bold" placeholder="e.g. Dr. John Smith" />
+                     </div>
+                     <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Dept Overview / Modules</label>
+                        <textarea value={deptDesc} onChange={e => setDeptDesc(e.target.value)} className="w-full h-24 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl p-6 font-bold text-sm" placeholder="Define departmental modules or overview..." />
+                     </div>
+                     <Button onClick={handleSaveDepartment} className="w-full h-16 bg-accent text-white rounded-2xl font-bold uppercase tracking-widest shadow-xl shadow-accent/20">Sync Academic Unit</Button>
                   </div>
                </div>
             </motion.div>
@@ -206,15 +276,24 @@ export default function AdminAcademicPage() {
                       faculty.Departments.map((dept: any) => (
                         <div key={dept.id} className="flex items-center space-x-4">
                            <div className="w-8 h-8 border-l-2 border-b-2 border-gray-100 dark:border-slate-700 rounded-bl-xl"></div>
-                           <div className="flex-1 bg-white dark:bg-slate-900 p-5 rounded-[24px] border border-gray-50 dark:border-slate-800 flex items-center justify-between group/dept hover:shadow-lg transition-all">
-                              <div>
-                                 <span className="text-sm font-bold text-primary dark:text-white">{dept.name}</span>
-                                 <span className="ml-3 text-[9px] font-black text-emerald-500 uppercase tracking-widest">Active unit</span>
-                              </div>
-                              <button onClick={() => handleDeleteDepartment(dept.id)} className="p-2 text-gray-300 hover:text-red-500 opacity-0 group-hover/dept:opacity-100 transition-all">
-                                 <Trash2 size={14} />
-                              </button>
-                           </div>
+                            <div className="flex-1 bg-white dark:bg-slate-900 p-6 rounded-[24px] border border-gray-50 dark:border-slate-800 flex items-center justify-between group/dept hover:shadow-lg transition-all">
+                               <div>
+                                  <div className="flex items-center space-x-3">
+                                     <span className="text-sm font-black text-primary dark:text-white uppercase tracking-tight">{dept.name}</span>
+                                     <span className="text-[9px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest">Active unit</span>
+                                  </div>
+                                  <p className="text-[10px] text-gray-400 font-medium mt-1">HOD: <span className="text-gray-600 dark:text-gray-300 font-bold">{dept.head_of_department || 'Unassigned'}</span> • {dept.Staff?.length || 0} Faculty Staff</p>
+                                  {dept.description && <p className="text-[10px] text-gray-500 mt-2 line-clamp-1 italic">{dept.description}</p>}
+                               </div>
+                               <div className="flex items-center space-x-2 opacity-0 group-hover/dept:opacity-100 transition-all">
+                                  <button onClick={() => handleEditDepartment(dept)} className="p-2 text-gray-400 hover:text-primary">
+                                     <Edit size={16} />
+                                  </button>
+                                  <button onClick={() => handleDeleteDepartment(dept.id)} className="p-2 text-gray-300 hover:text-red-500">
+                                     <Trash2 size={16} />
+                                  </button>
+                               </div>
+                            </div>
                         </div>
                       ))
                     ) : (
