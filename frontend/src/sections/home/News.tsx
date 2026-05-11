@@ -86,6 +86,18 @@ export default function News() {
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-110"
                     />
+                    
+                    {/* Centered Document Icon */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-xl border border-white/20 transform group-hover:scale-110 transition-transform">
+                        {item.type === 'PDF' ? (
+                          <FileText size={40} className="text-red-500" />
+                        ) : (
+                          <Presentation size={40} className="text-orange-500" />
+                        )}
+                      </div>
+                    </div>
+
                     <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-3">
                        <button 
                          onClick={() => setSelectedDoc(item)}
@@ -101,7 +113,13 @@ export default function News() {
                           <Download size={20} />
                        </a>
                     </div>
-                    <div className="absolute top-4 left-4 bg-accent text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg shadow-lg">
+                    
+                    {/* Top Left Circular Icon */}
+                    <div className="absolute top-4 left-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center border border-white/20">
+                      {item.type === 'PDF' ? <FileText size={16} className="text-gray-500" /> : <Presentation size={16} className="text-gray-500" />}
+                    </div>
+
+                    <div className="absolute top-4 right-4 bg-accent text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg shadow-lg">
                       {item.type} Resource
                     </div>
                   </div>
