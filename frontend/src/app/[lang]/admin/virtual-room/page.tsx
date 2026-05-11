@@ -86,11 +86,11 @@ export default function AdminVirtualRoom() {
             </div>
 
             <div className="w-full h-[70vh] rounded-[40px] overflow-hidden shadow-2xl border border-primary/20 bg-black">
-               <iframe 
-                 src={`https://meet.ffmuc.net/${activeRoom}#userInfo.displayName="${encodeURIComponent(user?.first_name || 'Administrator')}"`} 
-                 className="w-full h-full"
-                 allow="camera; microphone; fullscreen; display-capture; autoplay"
-               />
+                <iframe 
+                  src={`https://meet.jit.si/${activeRoom}#config.prejoinPageEnabled=false&interfaceConfigOverwrite.SHOW_JITSI_WATERMARK=false&userInfo.displayName="${encodeURIComponent(user?.first_name || 'Administrator')}"`} 
+                  className="w-full h-full border-none"
+                  allow="camera; microphone; fullscreen; display-capture; autoplay"
+                />
             </div>
          </div>
       )}
