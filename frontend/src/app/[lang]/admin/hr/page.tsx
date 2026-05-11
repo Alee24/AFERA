@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import type { Staff } from '../../../../backend/src/models';
+
 
 interface StaffInfo {
   id: string;
