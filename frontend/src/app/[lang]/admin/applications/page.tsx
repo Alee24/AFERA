@@ -241,6 +241,7 @@ export default function AdminApplicationsPage() {
                       {[
                         { label: 'Email Address', value: selectedApp.Student?.User?.email },
                         { label: 'Phone Number', value: selectedApp.Student?.User?.phone || 'Not Provided' },
+                        { label: 'Preferred Language', value: selectedApp.Student?.preferred_language || 'N/A' },
                         { label: 'Nationality', value: selectedApp.Student?.nationality || 'N/A' },
                         { label: 'Religion', value: selectedApp.Student?.religion || 'N/A' },
                         { label: 'Gender', value: selectedApp.Student?.gender || 'N/A' },

@@ -42,7 +42,8 @@ export default function OnboardingPage() {
     qualification: '',
     address: '',
     emergency_contact_name: '',
-    emergency_contact_phone: ''
+    emergency_contact_phone: '',
+    preferred_language: ''
   });
   
   const [loading, setLoading] = useState(false);
@@ -211,6 +212,21 @@ export default function OnboardingPage() {
                   />
                 </div>
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Preferred Language</label>
+              <select 
+                value={formData.preferred_language}
+                onChange={(e) => setFormData({...formData, preferred_language: e.target.value})}
+                className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-accent/20 transition-all text-sm appearance-none"
+                required
+              >
+                <option value="">Select Language</option>
+                <option value="ENG">English (ENG)</option>
+                <option value="FR">French (FR)</option>
+                <option value="PT">Portuguese (PT)</option>
+              </select>
             </div>
           </section>
 

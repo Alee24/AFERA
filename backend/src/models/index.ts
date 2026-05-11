@@ -53,6 +53,7 @@ class Student extends Model {
   public address!: string;
   public emergency_contact_name!: string;
   public emergency_contact_phone!: string;
+  public preferred_language!: string;
 }
 Student.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
@@ -70,6 +71,7 @@ Student.init({
   emergency_contact_name: { type: DataTypes.STRING, allowNull: true },
   emergency_contact_phone: { type: DataTypes.STRING, allowNull: true },
   religion: { type: DataTypes.STRING, allowNull: true },
+  preferred_language: { type: DataTypes.STRING, allowNull: true },
   user_id: { type: DataTypes.UUID, allowNull: false },
 }, { sequelize, modelName: 'Student', tableName: 'students', underscored: true });
 

@@ -64,6 +64,7 @@ const fixDatabase = async () => {
     for (const [col, def] of Object.entries(studentFields)) {
       await ensureColumn('students', col, def, studentsCols);
     }
+    await ensureColumn('students', 'preferred_language', { type: 'VARCHAR(255)' }, studentsCols);
 
     // 3. Fix users table
     const usersCols = await queryInterface.describeTable('users');
