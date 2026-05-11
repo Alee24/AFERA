@@ -163,7 +163,7 @@
 
 .prose p {
   @apply mb-6 last:mb-0;
-  text-align: justify;
+  text-align: left;
 }
 
 .prose h1, .prose h2, .prose h3, .prose h4 {

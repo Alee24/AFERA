@@ -214,21 +214,25 @@ export default function CourseDetailsPage() {
 
   const isHTML = (str: string) => /<[a-z][\s\S]*>/i.test(str);
 
-  const outcomesArray = course.learning_outcomes 
-    ? (isHTML(course.learning_outcomes) ? [] : course.learning_outcomes.split('\n').map((s: any) => s.trim()).filter(Boolean))
-    : Array.isArray(course.outcomes) && course.outcomes.length > 0
-    ? course.outcomes
-    : [
-        "Advanced financial modeling for road projects",
-        "Deep understanding of PPP legal frameworks",
-        "Strategic asset management principles",
-        "Resource mobilization in developing economies",
-        "Results-based management applications",
-        "Performance monitoring and evaluation"
-      ];
+  const outcomesArray = useMemo(() => {
+    if (!course.learning_outcomes) {
+      return Array.isArray(course.outcomes) ? course.outcomes : [];
+    }
+    if (isHTML(course.learning_outcomes)) return [];
+    
+    // Try splitting by newline first
+    let parts = course.learning_outcomes.split('\n').map((s: any) => s.trim()).filter(Boolean);
+    
+    // If only one part, try common separators like semicolon or bullet points
+    if (parts.length <= 1) {
+      parts = course.learning_outcomes.split(/[;•]/).map((s: any) => s.trim()).filter(Boolean);
+    }
+    
+    return parts;
+  }, [course.learning_outcomes, course.outcomes]);
 
   return (
-    <main className="pt-24 min-h-screen bg-gray-50/50 dark:bg-slate-950 pb-20 overflow-hidden">
+    <main className="pt-24 min-h-screen bg-gray-50/50 dark:bg-slate-950 pb-20 overflow-hidden text-left">
       
       {/* Hero Header */}
       <section className="bg-primary pt-20 pb-40 text-white relative">
@@ -304,9 +308,9 @@ export default function CourseDetailsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           
           {/* Main Info */}
-          <div className="lg:col-span-2 space-y-12 overflow-hidden">
-            <div className="bg-white dark:bg-slate-900 rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100 dark:border-slate-800 break-words">
-              <h2 className="text-3xl font-bold text-primary dark:text-white mb-8">Program Overview</h2>
+          <div className="lg:col-span-2 space-y-12 overflow-hidden text-left">
+            <div className="bg-white dark:bg-slate-900 rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100 dark:border-slate-800 break-words text-left">
+              <h2 className="text-3xl font-bold text-primary dark:text-white mb-8 text-left">Program Overview</h2>
               
               {/* Program Overview Field */}
               {course.program_overview && (
