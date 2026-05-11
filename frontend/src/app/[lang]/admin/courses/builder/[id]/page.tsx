@@ -97,7 +97,13 @@ export default function CourseBuilderPage() {
     try {
       const res = await api.post(`/courses/${id}/modules`, {
         title_en: moduleTitle,
+        title_fr: '',
+        title_pt: '',
+        title_sw: '',
         description_en: moduleDesc,
+        description_fr: '',
+        description_pt: '',
+        description_sw: '',
         order: modules.length + 1,
         duration_weeks: 4
       });

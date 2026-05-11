@@ -10,14 +10,27 @@ const fixDatabase = async () => {
 
     // 1. Fix courses table
     const coursesCols = await queryInterface.describeTable('courses');
-    const contentCols = [
-      'content_en', 'content_fr', 'content_pt', 'content_sw',
-      'image_url', 'program_overview', 'learning_outcomes', 'curriculum_structure', 'slug'
-    ];
-    for (const col of contentCols) {
+    const contentCols: any = {
+      title_fr: { type: 'VARCHAR(255)', defaultValue: '' },
+      title_pt: { type: 'VARCHAR(255)', defaultValue: '' },
+      title_sw: { type: 'VARCHAR(255)', defaultValue: '' },
+      description_fr: { type: 'TEXT' },
+      description_pt: { type: 'TEXT' },
+      description_sw: { type: 'TEXT' },
+      content_en: { type: 'TEXT' },
+      content_fr: { type: 'TEXT' },
+      content_pt: { type: 'TEXT' },
+      content_sw: { type: 'TEXT' },
+      image_url: { type: 'TEXT' },
+      program_overview: { type: 'TEXT' },
+      learning_outcomes: { type: 'TEXT' },
+      curriculum_structure: { type: 'TEXT' },
+      slug: { type: 'VARCHAR(255)' }
+    };
+    for (const [col, def] of Object.entries(contentCols)) {
       if (!coursesCols[col]) {
         console.log(`➕ Adding column ${col} to courses...`);
-        await queryInterface.addColumn('courses', col, { type: 'TEXT' });
+        await queryInterface.addColumn('courses', col, def as any);
       }
     }
 
@@ -56,6 +69,12 @@ const fixDatabase = async () => {
     // 4. Fix course_modules table
     const moduleCols = await queryInterface.describeTable('course_modules');
     const moduleFields = {
+      title_fr: { type: 'VARCHAR(255)', defaultValue: '' },
+      title_pt: { type: 'VARCHAR(255)', defaultValue: '' },
+      title_sw: { type: 'VARCHAR(255)', defaultValue: '' },
+      description_fr: { type: 'TEXT' },
+      description_pt: { type: 'TEXT' },
+      description_sw: { type: 'TEXT' },
       video_url: { type: 'VARCHAR(255)' },
       document_url: { type: 'VARCHAR(255)' },
       h5p_content: { type: 'TEXT' }
