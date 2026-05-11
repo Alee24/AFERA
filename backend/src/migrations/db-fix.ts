@@ -6,11 +6,22 @@ const fixDatabase = async () => {
     console.log('🚀 Starting Database Schema Fix...');
 
     const queryInterface = sequelize.getQueryInterface();
-    const tableDefinitions = await queryInterface.showAllTables();
+
+    // Helper to check and add column
+    const ensureColumn = async (table: string, col: string, def: any, colsObj: any) => {
+      if (!colsObj[col]) {
+        console.log(`➕ Adding column ${col} to ${table}...`);
+        await queryInterface.addColumn(table, col, def);
+        return true;
+      }
+      return false;
+    };
 
     // 1. Fix courses table
-    console.log('🛠️ Hardening translation fields in courses table...');
+    console.log('🛠️ Hardening courses table...');
     const coursesCols = await queryInterface.describeTable('courses');
+    
+    // Translation fields
     const translationCols = ['title_fr', 'title_pt', 'title_sw', 'description_fr', 'description_pt', 'description_sw', 'content_fr', 'content_pt', 'content_sw'];
     for (const col of translationCols) {
       const type = col.includes('title') ? 'VARCHAR(255)' : 'TEXT';
@@ -22,9 +33,8 @@ const fixDatabase = async () => {
         await queryInterface.addColumn('courses', col, { type, defaultValue: '' });
       }
     }
-    
-    // Add other missing columns
-    const coursesCols = await queryInterface.describeTable('courses');
+
+    // Other content fields
     const contentCols: any = {
       image_url: { type: 'TEXT' },
       program_overview: { type: 'TEXT' },
@@ -33,15 +43,13 @@ const fixDatabase = async () => {
       slug: { type: 'VARCHAR(255)' }
     };
     for (const [col, def] of Object.entries(contentCols)) {
-      if (!coursesCols[col]) {
-        console.log(`➕ Adding column ${col} to courses...`);
-        await queryInterface.addColumn('courses', col, def as any);
-      }
+      await ensureColumn('courses', col, def, coursesCols);
     }
 
     // 2. Fix students table
+    console.log('🛠️ Hardening students table...');
     const studentsCols = await queryInterface.describeTable('students');
-    const studentFields = {
+    const studentFields: any = {
       nationality: { type: 'VARCHAR(255)' },
       gender: { type: 'VARCHAR(255)' },
       date_of_birth: { type: 'DATE' },
@@ -52,42 +60,25 @@ const fixDatabase = async () => {
       user_id: { type: 'VARCHAR(255)', allowNull: false }
     };
     for (const [col, def] of Object.entries(studentFields)) {
-      if (!studentsCols[col]) {
-        console.log(`➕ Adding column ${col} to students...`);
-        await queryInterface.addColumn('students', col, def);
-      }
+      await ensureColumn('students', col, def, studentsCols);
     }
 
     // 3. Fix users table
     const usersCols = await queryInterface.describeTable('users');
-    if (!usersCols['phone']) {
-      console.log('➕ Adding column phone to users...');
-      await queryInterface.addColumn('users', 'phone', { type: 'VARCHAR(255)' });
-    }
+    await ensureColumn('users', 'phone', { type: 'VARCHAR(255)' }, usersCols);
 
-    // 3.5. Fix staff table
+    // 4. Fix staff table
     const staffCols = await queryInterface.describeTable('staff');
-    if (!staffCols['user_id']) {
-      console.log('➕ Adding column user_id to staff...');
-      await queryInterface.addColumn('staff', 'user_id', { type: 'VARCHAR(255)', allowNull: false });
-    }
-    if (!staffCols['department_id']) {
-      console.log('➕ Adding column department_id to staff...');
-      await queryInterface.addColumn('staff', 'department_id', { type: 'VARCHAR(255)' });
-    }
+    await ensureColumn('staff', 'user_id', { type: 'VARCHAR(255)', allowNull: false }, staffCols);
+    await ensureColumn('staff', 'department_id', { type: 'VARCHAR(255)' }, staffCols);
 
-    // 3.6. Fix departments table
+    // 5. Fix departments table
     const deptCols = await queryInterface.describeTable('departments');
-    if (!deptCols['description']) {
-      console.log('➕ Adding column description to departments...');
-      await queryInterface.addColumn('departments', 'description', { type: 'TEXT' });
-    }
-    if (!deptCols['head_of_department']) {
-      console.log('➕ Adding column head_of_department to departments...');
-      await queryInterface.addColumn('departments', 'head_of_department', { type: 'VARCHAR(255)' });
-    }
-    // 4. Fix course_modules table
-    console.log('🛠️ Hardening translation fields in course_modules table...');
+    await ensureColumn('departments', 'description', { type: 'TEXT' }, deptCols);
+    await ensureColumn('departments', 'head_of_department', { type: 'VARCHAR(255)' }, deptCols);
+
+    // 6. Fix course_modules table
+    console.log('🛠️ Hardening course_modules table...');
     const moduleCols = await queryInterface.describeTable('course_modules');
     const modTranslationCols = ['title_fr', 'title_pt', 'title_sw', 'description_fr', 'description_pt', 'description_sw'];
     for (const col of modTranslationCols) {
@@ -101,75 +92,40 @@ const fixDatabase = async () => {
       }
     }
 
-    const moduleCols = await queryInterface.describeTable('course_modules');
-    const moduleFields = {
+    const moduleFields: any = {
       video_url: { type: 'VARCHAR(255)' },
       document_url: { type: 'VARCHAR(255)' },
       h5p_content: { type: 'TEXT' }
     };
     for (const [col, def] of Object.entries(moduleFields)) {
-      if (!moduleCols[col]) {
-        console.log(`➕ Adding column ${col} to course_modules...`);
-        await queryInterface.addColumn('course_modules', col, def);
+      await ensureColumn('course_modules', col, def, moduleCols);
+    }
+
+    // 7. Fix enrollments
+    const enrollmentCols = await queryInterface.describeTable('enrollments');
+    await ensureColumn('enrollments', 'course_id', { type: 'VARCHAR(255)' }, enrollmentCols);
+
+    // 8. Fix invoices
+    const invoiceCols = await queryInterface.describeTable('invoices');
+    await ensureColumn('invoices', 'billing_type', { type: 'VARCHAR(255)', defaultValue: 'invoice' }, invoiceCols);
+    await ensureColumn('invoices', 'notes', { type: 'TEXT' }, invoiceCols);
+
+    // 9. Sync remaining models
+    const models = require('../models');
+    const syncModels = [
+      'Workshop', 'GatewaySetting', 'SystemSetting', 'Staff', 'CourseUnit', 
+      'Class', 'Assessment', 'Grade', 'Attendance', 'CourseRegistration', 
+      'Receipt', 'NewsPost', 'ModuleContent', 'LearningPath', 'LearningPathItem', 
+      'Page', 'Quiz', 'Assignment', 'Wiki'
+    ];
+    
+    for (const modelName of syncModels) {
+      if (models[modelName]) {
+        await models[modelName].sync();
       }
     }
-
-    const enrollmentCols = await queryInterface.describeTable('enrollments');
-    if (!enrollmentCols['course_id']) {
-      console.log('➕ Adding column course_id to enrollments...');
-      await queryInterface.addColumn('enrollments', 'course_id', { type: 'VARCHAR(255)' });
-    }
-
-    // 5. Ensure all Portal tables exist
-    const { 
-      Workshop, 
-      GatewaySetting, 
-      Staff, 
-      CourseUnit, 
-      Class, 
-      Assessment, 
-      Grade, 
-      Attendance,
-      CourseRegistration,
-      SystemSetting,
-      Receipt
-    } = require('../models');
-    
-    // Add missing invoice columns
-    const invoiceCols = await queryInterface.describeTable('invoices');
-    if (!invoiceCols['billing_type']) {
-      console.log('➕ Adding column billing_type to invoices...');
-      await queryInterface.addColumn('invoices', 'billing_type', { type: 'VARCHAR(255)', defaultValue: 'invoice' });
-    }
-    if (!invoiceCols['notes']) {
-      console.log('➕ Adding column notes to invoices...');
-      await queryInterface.addColumn('invoices', 'notes', { type: 'TEXT' });
-    }
-
-    await Workshop.sync();
-    await GatewaySetting.sync();
-    await SystemSetting.sync();
-    await Staff.sync();
-    await CourseUnit.sync();
-    await Class.sync();
-    await Assessment.sync();
-    await Grade.sync();
-    await Attendance.sync();
-    await CourseRegistration.sync();
-    await Receipt.sync();
-    
-    const { NewsPost, ModuleContent, LearningPath, LearningPathItem, Page, Quiz, Assignment, Wiki } = require('../models');
-    await NewsPost.sync();
-    await ModuleContent.sync();
-    await LearningPath.sync();
-    await LearningPathItem.sync();
-    await Page.sync();
-    await Quiz.sync();
-    await Assignment.sync();
-    await Wiki.sync();
     
     console.log('✅ All Portal and Payment tables synchronized.');
-
     console.log('✅ Database Schema Fix COMPLETED!');
     process.exit(0);
   } catch (error) {
