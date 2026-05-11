@@ -19,17 +19,38 @@ export class Invoice extends Model {
   public student_id!: string;
   public enrollment_id!: string;
   public total_amount!: number;
-  public status!: 'pending' | 'paid' | 'overdue';
+  public billing_type!: 'invoice' | 'credit_note';
+  public status!: 'pending' | 'paid' | 'overdue' | 'cancelled';
   public due_date!: Date;
+  public notes!: string;
 }
 Invoice.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   student_id: { type: DataTypes.UUID, allowNull: false },
   enrollment_id: { type: DataTypes.UUID, allowNull: true },
   total_amount: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-  status: { type: DataTypes.ENUM('pending', 'paid', 'overdue'), defaultValue: 'pending' },
-  due_date: { type: DataTypes.DATE, allowNull: false },
+  billing_type: { type: DataTypes.ENUM('invoice', 'credit_note'), defaultValue: 'invoice' },
+  status: { type: DataTypes.ENUM('pending', 'paid', 'overdue', 'cancelled'), defaultValue: 'pending' },
+  due_date: { type: DataTypes.DATE, allowNull: true },
+  notes: { type: DataTypes.TEXT, allowNull: true },
 }, { sequelize, modelName: 'Invoice', tableName: 'invoices', underscored: true });
+
+export class Receipt extends Model {
+  public id!: string;
+  public invoice_id!: string;
+  public student_id!: string;
+  public amount_paid!: number;
+  public payment_method!: string;
+  public transaction_ref!: string;
+}
+Receipt.init({
+  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+  invoice_id: { type: DataTypes.UUID, allowNull: false },
+  student_id: { type: DataTypes.UUID, allowNull: false },
+  amount_paid: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+  payment_method: { type: DataTypes.STRING, defaultValue: 'Manual' },
+  transaction_ref: { type: DataTypes.STRING, allowNull: true },
+}, { sequelize, modelName: 'Receipt', tableName: 'receipts', underscored: true });
 
 export class Payment extends Model {
   public id!: string;
@@ -49,3 +70,4 @@ Payment.init({
   transaction_ref: { type: DataTypes.STRING, unique: true },
   payment_date: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
 }, { sequelize, modelName: 'Payment', tableName: 'payments', underscored: true });
+

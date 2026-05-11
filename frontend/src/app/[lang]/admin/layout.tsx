@@ -5,6 +5,8 @@ import AdminSidebar from '@/components/AdminSidebar';
 import { Search, Bell, Settings, Mail } from 'lucide-react';
 import Image from 'next/image';
 
+import DepartmentalTopBar from '@/components/DepartmentalTopBar';
+
 export default function AdminLayout({ 
   children, 
   params 
@@ -56,6 +58,9 @@ export default function AdminLayout({
             </div>
           </div>
         </header>
+
+        {/* Departmental Quick Nav */}
+        <DepartmentalTopBar />
 
         {/* Content Area */}
         <main className="p-8 flex-1">

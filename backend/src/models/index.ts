@@ -290,6 +290,8 @@ Invoice.belongsTo(Enrollment, { foreignKey: 'enrollment_id' });
 Enrollment.hasMany(Invoice, { foreignKey: 'enrollment_id' });
 Invoice.hasMany(Payment, { foreignKey: 'invoice_id' });
 Payment.belongsTo(Invoice, { foreignKey: 'invoice_id' });
+Invoice.hasMany(Receipt, { foreignKey: 'invoice_id' });
+Receipt.belongsTo(Invoice, { foreignKey: 'invoice_id' });
 Student.hasMany(Payment, { foreignKey: 'student_id' });
 Payment.belongsTo(Student, { foreignKey: 'student_id' });
 
@@ -320,6 +322,6 @@ export {
   Message, Notification, ActivityLog, OnlineCourse, Lesson, LessonProgress,
   Enrollment, Student, Staff, Grade, Assessment, Attendance, CourseRegistration,
   Role, Permission, RolePermission, StudentDocument, Workshop, GatewaySetting, SystemSetting,
-  NewsPost, ModuleContent, LearningPath, LearningPathItem, Page, Quiz, Assignment, Wiki
+  NewsPost, ModuleContent, LearningPath, LearningPathItem, Page, Quiz, Assignment, Wiki, Receipt
 };
 export default sequelize;

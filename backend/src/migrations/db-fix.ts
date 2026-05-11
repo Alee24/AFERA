@@ -128,9 +128,21 @@ const fixDatabase = async () => {
       Grade, 
       Attendance,
       CourseRegistration,
-      SystemSetting
+      SystemSetting,
+      Receipt
     } = require('../models');
     
+    // Add missing invoice columns
+    const invoiceCols = await queryInterface.describeTable('invoices');
+    if (!invoiceCols['billing_type']) {
+      console.log('➕ Adding column billing_type to invoices...');
+      await queryInterface.addColumn('invoices', 'billing_type', { type: 'VARCHAR(255)', defaultValue: 'invoice' });
+    }
+    if (!invoiceCols['notes']) {
+      console.log('➕ Adding column notes to invoices...');
+      await queryInterface.addColumn('invoices', 'notes', { type: 'TEXT' });
+    }
+
     await Workshop.sync();
     await GatewaySetting.sync();
     await SystemSetting.sync();
@@ -141,6 +153,7 @@ const fixDatabase = async () => {
     await Grade.sync();
     await Attendance.sync();
     await CourseRegistration.sync();
+    await Receipt.sync();
     
     const { NewsPost, ModuleContent, LearningPath, LearningPathItem, Page, Quiz, Assignment, Wiki } = require('../models');
     await NewsPost.sync();

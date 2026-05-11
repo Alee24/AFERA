@@ -119,6 +119,7 @@ router.get('/finance/my-invoices', authenticateJWT, financeController.getMyInvoi
 router.get('/finance/all-invoices', authenticateJWT, authorizeRole(['admin']), financeController.getAllInvoices);
 router.get('/finance/stats', authenticateJWT, authorizeRole(['admin']), financeController.getFinanceStats);
 router.post('/finance/invoices', authenticateJWT, authorizeRole(['admin']), financeController.createInvoice);
+router.post('/finance/credit-notes', authenticateJWT, authorizeRole(['admin']), financeController.issueCreditNote);
 router.delete('/finance/invoices/:id', authenticateJWT, authorizeRole(['admin']), financeController.deleteInvoice);
 router.get('/finance/invoices/:id', authenticateJWT, financeController.getInvoiceById);
 router.put('/finance/mock-pay/:id', authenticateJWT, financeController.mockPayInvoice);

@@ -72,7 +72,7 @@ export const getAllInvoices = async (req: any, res: Response) => {
       return res.status(403).json({ message: 'Access denied' });
     }
 
-    const { User } = require('../models');
+    const { User, Receipt } = require('../models');
 
     const invoices = await Invoice.findAll({
       include: [
@@ -83,7 +83,8 @@ export const getAllInvoices = async (req: any, res: Response) => {
         {
           model: Enrollment,
           include: [{ model: Course, as: 'Course' }, { model: Program }]
-        }
+        },
+        { model: Receipt }
       ],
       order: [['created_at', 'DESC']]
     });
@@ -121,19 +122,39 @@ export const getFinanceStats = async (req: any, res: Response) => {
 // POST /api/finance/invoices
 export const createInvoice = async (req: any, res: Response) => {
   try {
-    const { student_id, amount, description } = req.body;
+    const { student_id, amount, description, billing_type, due_date } = req.body;
     const invoice = await Invoice.create({
       student_id,
       total_amount: amount,
       status: 'pending',
-      enrollment_id: null, // Manual invoice
-      metadata: { description }
+      billing_type: billing_type || 'invoice',
+      notes: description,
+      due_date: due_date || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // Default 7 days
     });
     res.status(201).json(invoice);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
 };
+
+// POST /api/finance/credit-notes
+export const issueCreditNote = async (req: any, res: Response) => {
+  try {
+    const { student_id, amount, reason } = req.body;
+    const creditNote = await Invoice.create({
+      student_id,
+      total_amount: -Math.abs(amount), // Negative for credit
+      status: 'paid',
+      billing_type: 'credit_note',
+      notes: reason,
+      due_date: new Date()
+    });
+    res.status(201).json(creditNote);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 // DELETE /api/finance/invoices/:id
 export const deleteInvoice = async (req: any, res: Response) => {

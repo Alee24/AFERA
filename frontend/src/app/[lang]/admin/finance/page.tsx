@@ -28,10 +28,16 @@ export default function AdminFinancePage() {
     refundRequests: '0'
   });
   const [loading, setLoading] = useState(true);
-  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
-  const [students, setStudents] = useState<any[]>([]);
-  const [newInvoice, setNewInvoice] = useState({ student_id: '', amount: '', description: '' });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
+  
+  const [selectedStudent, setSelectedStudent] = useState('');
+  const [billingAmount, setBillingAmount] = useState('');
+  const [billingType, setBillingType] = useState<'invoice' | 'credit_note'>('invoice');
+  const [billingDesc, setBillingDesc] = useState('');
+  const [billingDueDate, setBillingDueDate] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [students, setStudents] = useState<any[]>([]);
 
   React.useEffect(() => {
     fetchData();
@@ -47,6 +53,7 @@ export default function AdminFinancePage() {
       ]);
 
       const invData = invRes.data.map((inv: any) => ({
+        ...inv,
         realId: inv.id,
         id: inv.id?.slice(0, 8).toUpperCase() || 'N/A',
         student: inv.Student?.User ? `${inv.Student.User.first_name} ${inv.Student.User.last_name}` : 'External Student',
@@ -69,8 +76,9 @@ export default function AdminFinancePage() {
     try {
       await api.put(`/finance/mock-pay/${id}`);
       fetchData();
+      showNotification('Invoice paid and receipt issued', 'success');
     } catch (err) {
-      console.error('Failed to update invoice', err);
+      showNotification('Failed to process payment', 'error');
     }
   };
 
@@ -84,16 +92,22 @@ export default function AdminFinancePage() {
     }
   };
 
-  const handleGenerateInvoice = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleGenerateInvoice = async () => {
+    if (!selectedStudent || !billingAmount) return;
     setSubmitting(true);
     try {
-      await api.post('/finance/invoices', newInvoice);
-      setIsInvoiceModalOpen(false);
-      setNewInvoice({ student_id: '', amount: '', description: '' });
+      await api.post('/finance/invoices', {
+        student_id: selectedStudent,
+        amount: parseFloat(billingAmount),
+        description: billingDesc,
+        billing_type: billingType,
+        due_date: billingDueDate
+      });
+      setIsModalOpen(false);
+      setIsCreditModalOpen(false);
       fetchData();
     } catch (err) {
-      console.error('Failed to create invoice', err);
+      console.error('Operation failed', err);
     } finally {
       setSubmitting(false);
     }
@@ -132,12 +146,15 @@ export default function AdminFinancePage() {
           <p className="text-gray-500 mt-2 font-medium">Monitoring revenue streams, student billing, and tuition processing.</p>
         </div>
          <div className="flex items-center space-x-3">
-            <Button variant="outline" onClick={handleExportCSV} className="rounded-2xl border-gray-100 px-6">
-               <Download size={18} className="mr-2" /> Financial Statement
-            </Button>
-            <Button onClick={() => setIsInvoiceModalOpen(true)} className="bg-primary text-white rounded-2xl px-8 shadow-lg shadow-primary/20">
-               <Plus size={18} className="mr-2" /> Generate Invoice
-            </Button>
+             <Button onClick={() => { setBillingType('invoice'); setIsModalOpen(true); }} className="bg-primary text-white rounded-2xl px-6 h-12 font-bold text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all">
+                <Plus size={16} className="mr-2" /> New Invoice
+             </Button>
+             <Button onClick={() => { setBillingType('credit_note'); setIsModalOpen(true); }} className="bg-emerald-500 text-white rounded-2xl px-6 h-12 font-bold text-xs uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:scale-105 transition-all">
+                <FileText size={16} className="mr-2" /> Issue Credit
+             </Button>
+             <Button onClick={handleExportCSV} variant="outline" className="border-gray-200 dark:border-slate-800 rounded-2xl px-6 h-12 font-bold text-xs uppercase tracking-widest hover:bg-gray-50 transition-all">
+                <Download size={16} className="mr-2" /> Financial Statement
+             </Button>
          </div>
       </div>
 
@@ -171,15 +188,6 @@ export default function AdminFinancePage() {
               <h3 className="text-xl font-bold text-primary dark:text-white">Transaction Ledger</h3>
               <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Real-time tuition tracking</p>
            </div>
-           <div className="flex items-center space-x-3">
-              <div className="relative w-64">
-                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                 <input type="text" placeholder="Search invoices..." className="w-full pl-11 pr-4 py-3 bg-gray-50 rounded-2xl text-sm border-none" />
-              </div>
-              <Button variant="outline" className="rounded-2xl border-gray-50 px-6">
-                 <Filter size={18} className="mr-2" /> Filter
-              </Button>
-           </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -188,43 +196,57 @@ export default function AdminFinancePage() {
                  <tr className="bg-gray-50/50 dark:bg-slate-800/50 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                     <th className="px-12 py-8">Invoice ID</th>
                     <th className="px-12 py-8">Recipient</th>
+                    <th className="px-12 py-8">Type/Desc</th>
                     <th className="px-12 py-8">Amount</th>
                     <th className="px-12 py-8">Status</th>
-                    <th className="px-12 py-8">Due Date</th>
+                    <th className="px-12 py-8">Payment Details</th>
                     <th className="px-12 py-8 text-right">Action</th>
                  </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
-                 {invoices.map((inv) => (
-                   <tr key={inv.id} className="group hover:bg-gray-50/30 transition-colors">
+                 {invoices.map((invoice) => (
+                   <tr key={invoice.id} className="group hover:bg-gray-50/30 transition-colors">
                       <td className="px-12 py-8">
-                         <span className="text-sm font-black text-primary dark:text-white font-mono tracking-tighter">{inv.id}</span>
+                         <span className="text-sm font-black text-primary dark:text-white font-mono tracking-tighter">{invoice.id}</span>
                       </td>
                       <td className="px-12 py-8">
                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-[10px] font-bold">{inv.student[0]}</div>
-                            <span className="text-sm font-bold text-primary dark:text-white">{inv.student}</span>
+                            <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-[10px] font-bold">{invoice.student[0]}</div>
+                            <span className="text-sm font-bold text-primary dark:text-white">{invoice.student}</span>
                          </div>
                       </td>
-                      <td className="px-12 py-8">
-                         <span className="text-sm font-bold text-primary dark:text-white">${inv.amount.toFixed(2)}</span>
+                      <td className="py-6 px-4">
+                         <div className="flex items-center space-x-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${invoice.billing_type === 'credit_note' ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
+                               {invoice.billing_type === 'credit_note' ? <ArrowDownCircle size={14} /> : <ArrowUpCircle size={14} />}
+                            </div>
+                            <div>
+                               <p className="text-sm font-bold text-primary dark:text-white uppercase tracking-tight">{invoice.billing_type === 'credit_note' ? 'Credit Note' : 'Tuition Fee'}</p>
+                               <p className="text-[10px] text-gray-400 font-medium">{invoice.notes || 'No description'}</p>
+                            </div>
+                         </div>
                       </td>
-                      <td className="px-12 py-8">
-                         <span className={`text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest ${
-                            inv.status === 'paid' ? 'bg-emerald-100 text-emerald-600' : 
-                            inv.status === 'pending' ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-600'
+                      <td className={`py-6 px-4 text-sm font-black ${invoice.billing_type === 'credit_note' ? 'text-emerald-500' : 'text-primary dark:text-white'}`}>
+                         {invoice.billing_type === 'credit_note' ? '-' : ''}${Math.abs(invoice.amount).toLocaleString()}
+                      </td>
+                      <td className="py-6 px-4">
+                         <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                            invoice.status === 'paid' ? 'bg-emerald-50 text-emerald-500' : 
+                            invoice.status === 'overdue' ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-500'
                          }`}>
-                            {inv.status}
+                            {invoice.status}
                          </span>
                       </td>
-                      <td className="px-12 py-8">
-                         <div className="flex items-center text-gray-400 text-xs font-medium">
-                            <Calendar size={14} className="mr-2" /> {inv.date}
-                         </div>
+                      <td className="py-6 px-4 text-[10px] font-bold text-gray-500">
+                         {invoice.Receipts?.[0] ? (
+                           <div className="flex flex-col">
+                              <span className="text-emerald-500">Paid via {invoice.Receipts[0].payment_method}</span>
+                              <span className="text-[8px] opacity-60">Ref: {invoice.Receipts[0].transaction_ref}</span>
+                           </div>
+                         ) : 'Pending Settlement'}
                       </td>
                       <td className="px-12 py-8 text-right">
                          <div className="flex items-center justify-end space-x-2">
-                           {inv.status === 'pending' && (
                              <Button onClick={() => handleMarkPaid(inv.realId)} variant="ghost" className="p-2 hover:bg-emerald-50 text-emerald-600 rounded-lg">
                                 <CheckCircle2 size={18} />
                              </Button>
@@ -319,14 +341,45 @@ export default function AdminFinancePage() {
                       type="text"
                       placeholder="e.g. Tuition Balance, Exam Fees..."
                       className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm"
-                      value={newInvoice.description}
-                      onChange={(e) => setNewInvoice({...newInvoice, description: e.target.value})}
-                    />
-                 </div>
+                  <div className="space-y-6">
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                           <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Transaction Type</label>
+                           <select value={billingType} onChange={(e: any) => setBillingType(e.target.value)} className="w-full h-14 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-6 font-bold text-sm">
+                              <option value="invoice">Invoice / Tuition</option>
+                              <option value="credit_note">Credit Note / Refund</option>
+                           </select>
+                        </div>
+                        <div className="space-y-2">
+                           <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Amount ($)</label>
+                           <input value={billingAmount} onChange={e => setBillingAmount(e.target.value)} type="number" className="w-full h-14 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-6 font-bold" placeholder="0.00" />
+                        </div>
+                     </div>
+                     
+                     <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Student / Recipient</label>
+                        <select value={selectedStudent} onChange={e => setSelectedStudent(e.target.value)} className="w-full h-14 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-6 font-bold text-sm">
+                           <option value="">Select a student...</option>
+                           {students.map(s => (
+                             <option key={s.id} value={s.StudentProfile?.id}>{s.first_name} {s.last_name} ({s.StudentProfile?.admission_number})</option>
+                           ))}
+                        </select>
+                     </div>
 
-                 <Button type="submit" disabled={submitting} className="w-full py-5 bg-primary text-white rounded-2xl font-bold uppercase tracking-widest text-xs mt-4">
-                    {submitting ? 'Generating...' : 'Confirm & Send Invoice'}
-                 </Button>
+                     <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Due Date (Optional)</label>
+                        <input value={billingDueDate} onChange={e => setBillingDueDate(e.target.value)} type="date" className="w-full h-14 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-6 font-bold" />
+                     </div>
+
+                     <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Internal Notes</label>
+                        <textarea value={billingDesc} onChange={e => setBillingDesc(e.target.value)} className="w-full h-24 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl p-6 font-bold text-sm" placeholder="Purpose of this transaction..." />
+                     </div>
+
+                     <Button onClick={handleGenerateInvoice} disabled={submitting} className={`w-full h-16 text-white rounded-2xl font-bold uppercase tracking-widest shadow-xl transition-all ${billingType === 'credit_note' ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-primary shadow-primary/20'}`}>
+                        {submitting ? 'Processing...' : `Issue ${billingType === 'credit_note' ? 'Credit Note' : 'Invoice'}`}
+                     </Button>
+                  </div>
               </form>
            </div>
         </div>
