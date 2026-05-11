@@ -20,6 +20,14 @@ export const submitContact = async (req: Request, res: Response) => {
       console.error('Non-blocking mail error:', mailErr);
     }
 
+    await CRMInteraction.create({
+      contact_id: contact.id,
+      type: 'email',
+      title: 'Inquiry Submitted',
+      details: `Subject: ${subject}\n\n${message}`,
+      author: 'Website Form'
+    });
+
     res.status(201).json(contact);
   } catch (error: any) {
     console.error('Contact Submission Error:', error);
@@ -63,7 +71,7 @@ export const deleteContact = async (req: Request, res: Response) => {
 
 export const getContactById = async (req: Request, res: Response) => {
   try {
-    const contact = await Contact.findByPk(req.params.id, {
+    const contact = await Contact.findByPk(req.params.id as string, {
       include: [{ model: CRMInteraction, as: 'Interactions' }],
       order: [[{ model: CRMInteraction, as: 'Interactions' }, 'created_at', 'DESC']]
     });

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { Course, CourseModule, Enrollment, Student, User, Program, CourseResource, ModuleContent } from '../models';
+import { Course, CourseModule, Enrollment, Student, User, Program, CourseResource, ModuleContent, Invoice } from '../models';
+import { logToCRM } from '../services/crmService';
 import * as mailService from '../services/mailService';
 
 // GET /api/courses
@@ -250,6 +251,11 @@ export const enrollInCourse = async (req: any, res: Response) => {
         status: 'pending',
         due_date: dueDate
       });
+    }
+
+    const user = await User.findByPk(userId);
+    if (user) {
+      await logToCRM(user.email, `${user.first_name} ${user.last_name}`, 'event', 'Course Enrollment', `Enrolled in course: ${course.title} (${course.slug || courseId})`, 'System');
     }
 
     res.status(201).json({ message: 'Ready for checkout', enrollment, invoice });

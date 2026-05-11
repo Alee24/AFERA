@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User, Student, Staff, Program, Enrollment } from '../models';
 import { sendApplicationNotification } from '../services/mailService';
+import { logToCRM } from '../services/crmService';
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -56,6 +57,9 @@ export const register = async (req: Request, res: Response) => {
 
     // Send notification email to CEO
     sendApplicationNotification({ name, email, program: programName });
+
+    // Log to CRM
+    await logToCRM(email, name || `${first_name} ${last_name}`, 'event', 'Account Registration', `Registered as ${role || 'student'} for program ${programName || 'N/A'}`, 'System');
 
     // Refresh user to include Profile
     const include = [];
