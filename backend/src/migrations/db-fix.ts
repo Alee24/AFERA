@@ -73,6 +73,9 @@ const fixDatabase = async () => {
     const staffCols = await queryInterface.describeTable('staff');
     await ensureColumn('staff', 'user_id', { type: 'VARCHAR(255)', allowNull: false }, staffCols);
     await ensureColumn('staff', 'department_id', { type: 'VARCHAR(255)' }, staffCols);
+    await ensureColumn('staff', 'phone', { type: 'VARCHAR(255)' }, staffCols);
+    await ensureColumn('staff', 'address', { type: 'TEXT' }, staffCols);
+    await ensureColumn('staff', 'salary', { type: 'DECIMAL(10,2)' }, staffCols);
 
     // 5. Fix departments table
     const deptCols = await queryInterface.describeTable('departments');
