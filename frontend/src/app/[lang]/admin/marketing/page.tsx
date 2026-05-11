@@ -15,7 +15,8 @@ import {
   CheckCircle2,
   Share2,
   Phone,
-  MessageSquare
+  MessageSquare,
+  User
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -262,115 +263,147 @@ export default function MarketingDashboard() {
       </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Marketing Campaign">
-        <form onSubmit={handleCreateCampaign} className="space-y-6">
-          <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Campaign Name</label>
-            <input 
-              required
-              type="text" 
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 font-bold text-sm" 
-              placeholder="e.g. Winter Scholarship Promo"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Status</label>
-              <select 
-                value={formData.status}
-                onChange={(e) => setFormData({...formData, status: e.target.value})}
-                className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 font-bold text-sm text-gray-600 dark:text-gray-300"
-              >
-                <option value="Planned">Planned</option>
-                <option value="Active">Active</option>
-                <option value="Completed">Completed</option>
-              </select>
+        <form onSubmit={handleCreateCampaign} className="space-y-8 p-2">
+          <div className="space-y-6">
+            <div className="relative group">
+              <label className="text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] mb-2 block ml-1">Campaign Name</label>
+              <div className="relative">
+                <Megaphone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary transition-colors" size={18} />
+                <input 
+                  required
+                  type="text" 
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className="w-full bg-gray-50/50 dark:bg-slate-800/50 border-2 border-transparent focus:border-primary/10 focus:bg-white dark:focus:bg-slate-900 rounded-[24px] pl-12 pr-6 py-5 font-bold text-sm transition-all outline-none" 
+                  placeholder="e.g. Winter Scholarship Promo"
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Budget</label>
-              <input 
-                type="text" 
-                value={formData.budget}
-                onChange={(e) => setFormData({...formData, budget: e.target.value})}
-                className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 font-bold text-sm" 
-                placeholder="$5,000"
-              />
+
+            <div className="grid grid-cols-2 gap-6">
+              <div className="relative group">
+                <label className="text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] mb-2 block ml-1">Status</label>
+                <div className="relative">
+                  <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary transition-colors" size={18} />
+                  <select 
+                    value={formData.status}
+                    onChange={(e) => setFormData({...formData, status: e.target.value})}
+                    className="w-full bg-gray-50/50 dark:bg-slate-800/50 border-2 border-transparent focus:border-primary/10 focus:bg-white dark:focus:bg-slate-900 rounded-[24px] pl-12 pr-6 py-5 font-bold text-sm transition-all outline-none appearance-none"
+                  >
+                    <option value="Planned">Planned</option>
+                    <option value="Active">Active</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                </div>
+              </div>
+              <div className="relative group">
+                <label className="text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] mb-2 block ml-1">Budget</label>
+                <div className="relative">
+                  <BarChart2 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary transition-colors" size={18} />
+                  <input 
+                    type="text" 
+                    value={formData.budget}
+                    onChange={(e) => setFormData({...formData, budget: e.target.value})}
+                    className="w-full bg-gray-50/50 dark:bg-slate-800/50 border-2 border-transparent focus:border-primary/10 focus:bg-white dark:focus:bg-slate-900 rounded-[24px] pl-12 pr-6 py-5 font-bold text-sm transition-all outline-none" 
+                    placeholder="$5,000"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="relative group">
+              <label className="text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] mb-2 block ml-1">Timeline (Date Range)</label>
+              <div className="relative">
+                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary transition-colors" size={18} />
+                <input 
+                  required
+                  type="text" 
+                  value={formData.date}
+                  onChange={(e) => setFormData({...formData, date: e.target.value})}
+                  className="w-full bg-gray-50/50 dark:bg-slate-800/50 border-2 border-transparent focus:border-primary/10 focus:bg-white dark:focus:bg-slate-900 rounded-[24px] pl-12 pr-6 py-5 font-bold text-sm transition-all outline-none" 
+                  placeholder="e.g. Jan 15 - Feb 20"
+                />
+              </div>
             </div>
           </div>
-          <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Timeline (Date Range)</label>
-            <input 
-              required
-              type="text" 
-              value={formData.date}
-              onChange={(e) => setFormData({...formData, date: e.target.value})}
-              className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 font-bold text-sm" 
-              placeholder="e.g. Jan 15 - Feb 20"
-            />
-          </div>
-          <div className="pt-4 flex justify-end space-x-3 border-t border-gray-100 dark:border-slate-800">
-            <Button type="button" onClick={() => setIsModalOpen(false)} variant="ghost" className="rounded-xl font-bold">
-              Cancel
-            </Button>
-            <Button type="submit" className="bg-primary text-white rounded-xl px-8 font-bold shadow-lg shadow-primary/20">
+
+          <div className="pt-8 flex items-center justify-between">
+            <button type="button" onClick={() => setIsModalOpen(false)} className="text-xs font-black text-gray-400 uppercase tracking-widest hover:text-primary transition-colors">
+              Discard Changes
+            </button>
+            <Button type="submit" className="bg-primary text-white rounded-[24px] px-10 py-6 h-auto font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all">
               Launch Campaign
             </Button>
           </div>
         </form>
       </Modal>
 
-      <Modal isOpen={isLeadModalOpen} onClose={() => setIsLeadModalOpen(false)} title="Add New Lead / Customer">
-        <form onSubmit={handleCreateLead} className="space-y-6">
-          <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Full Name</label>
-            <input 
-              required
-              type="text" 
-              value={leadForm.name}
-              onChange={(e) => setLeadForm({...leadForm, name: e.target.value})}
-              className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 font-bold text-sm" 
-              placeholder="e.g. John Doe"
-            />
+      <Modal isOpen={isLeadModalOpen} onClose={() => setIsLeadModalOpen(false)} title="Register New Lead">
+        <form onSubmit={handleCreateLead} className="space-y-8 p-2">
+          <div className="space-y-6">
+            <div className="relative group">
+              <label className="text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] mb-2 block ml-1">Lead Identity (Full Name)</label>
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary transition-colors" size={18} />
+                <input 
+                  required
+                  type="text" 
+                  value={leadForm.name}
+                  onChange={(e) => setLeadForm({...leadForm, name: e.target.value})}
+                  className="w-full bg-gray-50/50 dark:bg-slate-800/50 border-2 border-transparent focus:border-primary/10 focus:bg-white dark:focus:bg-slate-900 rounded-[24px] pl-12 pr-6 py-5 font-bold text-sm transition-all outline-none" 
+                  placeholder="e.g. Dr. John Doe"
+                />
+              </div>
+            </div>
+
+            <div className="relative group">
+              <label className="text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] mb-2 block ml-1">Communication Channel (Email)</label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary transition-colors" size={18} />
+                <input 
+                  required
+                  type="email" 
+                  value={leadForm.email}
+                  onChange={(e) => setLeadForm({...leadForm, email: e.target.value})}
+                  className="w-full bg-gray-50/50 dark:bg-slate-800/50 border-2 border-transparent focus:border-primary/10 focus:bg-white dark:focus:bg-slate-900 rounded-[24px] pl-12 pr-6 py-5 font-bold text-sm transition-all outline-none" 
+                  placeholder="john.doe@institution.com"
+                />
+              </div>
+            </div>
+
+            <div className="relative group">
+              <label className="text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] mb-2 block ml-1">Inquiry Context</label>
+              <div className="relative">
+                <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary transition-colors" size={18} />
+                <input 
+                  required
+                  type="text" 
+                  value={leadForm.subject}
+                  onChange={(e) => setLeadForm({...leadForm, subject: e.target.value})}
+                  className="w-full bg-gray-50/50 dark:bg-slate-800/50 border-2 border-transparent focus:border-primary/10 focus:bg-white dark:focus:bg-slate-900 rounded-[24px] pl-12 pr-6 py-5 font-bold text-sm transition-all outline-none" 
+                  placeholder="e.g. PhD Program Inquiry"
+                />
+              </div>
+            </div>
+
+            <div className="relative group">
+              <label className="text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] mb-2 block ml-1">Detailed Interaction Notes</label>
+              <textarea 
+                rows={4}
+                value={leadForm.message}
+                onChange={(e) => setLeadForm({...leadForm, message: e.target.value})}
+                className="w-full bg-gray-50/50 dark:bg-slate-800/50 border-2 border-transparent focus:border-primary/10 focus:bg-white dark:focus:bg-slate-900 rounded-[32px] px-6 py-5 font-bold text-sm transition-all outline-none resize-none" 
+                placeholder="Capture specific details about the prospect's needs..."
+              />
+            </div>
           </div>
-          <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Email Address</label>
-            <input 
-              required
-              type="email" 
-              value={leadForm.email}
-              onChange={(e) => setLeadForm({...leadForm, email: e.target.value})}
-              className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 font-bold text-sm" 
-              placeholder="john@example.com"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Inquiry / Subject</label>
-            <input 
-              required
-              type="text" 
-              value={leadForm.subject}
-              onChange={(e) => setLeadForm({...leadForm, subject: e.target.value})}
-              className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 font-bold text-sm" 
-              placeholder="e.g. Course Inquiry"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Details / Message</label>
-            <textarea 
-              rows={4}
-              value={leadForm.message}
-              onChange={(e) => setLeadForm({...leadForm, message: e.target.value})}
-              className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 font-bold text-sm" 
-              placeholder="Add some context about the lead..."
-            />
-          </div>
-          <div className="pt-4 flex justify-end space-x-3 border-t border-gray-100 dark:border-slate-800">
-            <Button type="button" onClick={() => setIsLeadModalOpen(false)} variant="ghost" className="rounded-xl font-bold">
-              Cancel
-            </Button>
-            <Button type="submit" className="bg-emerald-500 text-white rounded-xl px-8 font-bold shadow-lg shadow-emerald-500/20">
-              Save Lead
+
+          <div className="pt-8 flex items-center justify-between">
+            <button type="button" onClick={() => setIsLeadModalOpen(false)} className="text-xs font-black text-gray-400 uppercase tracking-widest hover:text-primary transition-colors">
+              Cancel Registration
+            </button>
+            <Button type="submit" className="bg-emerald-500 text-white rounded-[24px] px-10 py-6 h-auto font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-emerald-500/30 hover:scale-105 active:scale-95 transition-all">
+              Save Lead Profile
             </Button>
           </div>
         </form>
