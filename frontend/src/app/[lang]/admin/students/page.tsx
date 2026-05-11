@@ -39,6 +39,9 @@ export default function AdminStudentsPage() {
   const [studentInvoices, setStudentInvoices] = useState<any[]>([]);
   const [studentEnrollments, setStudentEnrollments] = useState<any[]>([]);
   const [activeModalTab, setActiveModalTab] = useState<'profile' | 'applications' | 'payments' | 'grades'>('profile');
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+  const [newUser, setNewUser] = useState({ first_name: '', last_name: '', email: '', role: 'student', password: 'Password123!' });
+  const [isAddingUser, setIsAddingUser] = useState(false);
   const { showNotification } = useNotification();
 
   useEffect(() => {
@@ -129,6 +132,51 @@ export default function AdminStudentsPage() {
       setSubmittingGrade(false);
     }
   };
+  const handleExportCSV = () => {
+    if (students.length === 0) {
+      showNotification('No data to export', 'error');
+      return;
+    }
+    const headers = ['First Name', 'Last Name', 'Email', 'Role', 'Admission No', 'Nationality'];
+    const csvContent = [
+      headers.join(','),
+      ...students.map(s => [
+        `"${s.first_name}"`,
+        `"${s.last_name}"`,
+        `"${s.email}"`,
+        `"${s.role}"`,
+        `"${s.StudentProfile?.admission_number || ''}"`,
+        `"${s.StudentProfile?.nationality || ''}"`
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `afera_users_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showNotification('Export successful', 'success');
+  };
+
+  const handleAddUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsAddingUser(true);
+    try {
+      await api.post('/admin/users', newUser);
+      showNotification('User enrolled successfully!', 'success');
+      setIsAddUserModalOpen(false);
+      setNewUser({ first_name: '', last_name: '', email: '', role: 'student', password: 'Password123!' });
+      fetchStudents();
+    } catch (err: any) {
+      showNotification(err.response?.data?.message || 'Enrollment failed', 'error');
+    } finally {
+      setIsAddingUser(false);
+    }
+  };
 
   return (
     <div className="space-y-10">
@@ -139,9 +187,13 @@ export default function AdminStudentsPage() {
           <p className="text-gray-500 mt-2 font-medium">Cross-portal visibility across students, faculty, and administrators.</p>
         </div>
          <div className="flex items-center space-x-3">
-            <Button variant="outline" className="rounded-2xl border-gray-100 bg-white shadow-sm px-6">
-               <Download size={18} className="mr-2" /> Export CSV
-            </Button>
+             <Button 
+               variant="outline" 
+               onClick={handleExportCSV}
+               className="rounded-2xl border-gray-100 bg-white shadow-sm px-6"
+             >
+                <Download size={18} className="mr-2" /> Export CSV
+             </Button>
             <label className="flex items-center px-6 py-3 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-sm text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 cursor-pointer transition-all">
               <Upload size={18} className="mr-2 text-accent" />
               <span>Bulk Onboard</span>
@@ -174,7 +226,10 @@ export default function AdminStudentsPage() {
                 }}
               />
             </label>
-            <Button className="bg-primary text-white rounded-2xl px-8 shadow-lg shadow-primary/20">
+            <Button 
+               onClick={() => setIsAddUserModalOpen(true)}
+               className="bg-primary text-white rounded-2xl px-8 shadow-lg shadow-primary/20"
+            >
                <UserPlus size={18} className="mr-2" /> Enroll New Student
             </Button>
          </div>
@@ -465,6 +520,90 @@ export default function AdminStudentsPage() {
                     </div>
                   )))}
                </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      {/* Enroll New User Modal */}
+      <AnimatePresence>
+        {isAddUserModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-primary/40 backdrop-blur-md">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden border border-white/20 p-10"
+            >
+               <div className="flex items-center justify-between mb-8">
+                  <h3 className="text-2xl font-bold text-primary dark:text-white">Manual Enrollment</h3>
+                  <button onClick={() => setIsAddUserModalOpen(false)} className="text-gray-400 hover:text-red-500 transition-colors">
+                    <X size={24} />
+                  </button>
+               </div>
+
+               <form onSubmit={handleAddUser} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-400 uppercase">First Name</label>
+                      <input 
+                        type="text"
+                        required
+                        value={newUser.first_name}
+                        onChange={(e) => setNewUser({...newUser, first_name: e.target.value})}
+                        className="w-full px-4 h-12 bg-gray-50 dark:bg-slate-800 border-none rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-400 uppercase">Last Name</label>
+                      <input 
+                        type="text"
+                        required
+                        value={newUser.last_name}
+                        onChange={(e) => setNewUser({...newUser, last_name: e.target.value})}
+                        className="w-full px-4 h-12 bg-gray-50 dark:bg-slate-800 border-none rounded-xl"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase">Email Address</label>
+                    <input 
+                      type="email"
+                      required
+                      value={newUser.email}
+                      onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                      className="w-full px-4 h-12 bg-gray-50 dark:bg-slate-800 border-none rounded-xl"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase">Default Password</label>
+                    <input 
+                      type="text"
+                      value={newUser.password}
+                      onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                      className="w-full px-4 h-12 bg-gray-50 dark:bg-slate-800 border-none rounded-xl font-mono text-xs"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase">Assigned Role</label>
+                    <select 
+                      value={newUser.role}
+                      onChange={(e) => setNewUser({...newUser, role: e.target.value})}
+                      className="w-full px-4 h-12 bg-gray-50 dark:bg-slate-800 border-none rounded-xl"
+                    >
+                      <option value="student">Student</option>
+                      <option value="lecturer">Lecturer</option>
+                      <option value="admin">Administrator</option>
+                      <option value="finance">Finance Staff</option>
+                    </select>
+                  </div>
+
+                  <Button type="submit" disabled={isAddingUser} className="w-full h-14 bg-accent text-white rounded-xl font-bold uppercase tracking-widest mt-4">
+                    {isAddingUser ? <Loader2 className="animate-spin" /> : 'Enroll User'}
+                  </Button>
+               </form>
             </motion.div>
           </div>
         )}
