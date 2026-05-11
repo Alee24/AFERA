@@ -22,6 +22,7 @@ import {
   UserCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
 import { useNotification } from '@/lib/NotificationContext';
 import Modal from '@/components/Modal';
