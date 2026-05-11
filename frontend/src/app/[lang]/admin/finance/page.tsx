@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Plus, 
   Download, 
@@ -17,7 +17,9 @@ import {
   ShieldCheck,
   Building2,
   Users,
-  GraduationCap
+  GraduationCap,
+  X,
+  UserCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import api from '@/lib/api';
@@ -38,7 +40,10 @@ export default function FinanceDashboard() {
   // Modal & Form State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [students, setStudents] = useState<any[]>([]);
-  const [selectedStudent, setSelectedStudent] = useState('');
+  const [studentSearch, setStudentSearch] = useState('');
+  const [showStudentDropdown, setShowStudentDropdown] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  
   const [billingAmount, setBillingAmount] = useState('');
   const [billingType, setBillingType] = useState<'invoice' | 'credit_note'>('invoice');
   const [billingDesc, setBillingDesc] = useState('');
@@ -55,7 +60,7 @@ export default function FinanceDashboard() {
       const [invRes, statsRes, usersRes] = await Promise.all([
         api.get('/finance/all-invoices'),
         api.get('/finance/stats'),
-        api.get('/users/all?role=student')
+        api.get('/users')
       ]);
 
       setInvoices(invRes.data.map((inv: any) => ({
@@ -69,13 +74,25 @@ export default function FinanceDashboard() {
       })));
       
       setStats(statsRes.data);
-      setStudents(usersRes.data);
+      // Filter for students only
+      setStudents(usersRes.data.filter((u: any) => u.role === 'student'));
     } catch (err) {
       console.error('Failed to load financial data', err);
     } finally {
       setLoading(false);
     }
   };
+
+  const filteredStudents = useMemo(() => {
+    if (!studentSearch) return students;
+    const term = studentSearch.toLowerCase();
+    return students.filter(s => 
+      s.first_name.toLowerCase().includes(term) || 
+      s.last_name.toLowerCase().includes(term) || 
+      s.email.toLowerCase().includes(term) ||
+      s.StudentProfile?.admission_number?.toLowerCase().includes(term)
+    );
+  }, [students, studentSearch]);
 
   const handleMarkPaid = async (id: string) => {
     try {
@@ -100,13 +117,13 @@ export default function FinanceDashboard() {
 
   const handleGenerateInvoice = async () => {
     if (!selectedStudent || !billingAmount) {
-      showNotification('Please fill required fields', 'error');
+      showNotification('Please select a student and enter amount', 'error');
       return;
     }
     setSubmitting(true);
     try {
       await api.post('/finance/invoices', {
-        student_id: selectedStudent,
+        student_id: selectedStudent.StudentProfile?.id,
         amount: parseFloat(billingAmount),
         description: billingDesc,
         billing_type: billingType,
@@ -124,7 +141,8 @@ export default function FinanceDashboard() {
   };
 
   const resetForm = () => {
-    setSelectedStudent('');
+    setSelectedStudent(null);
+    setStudentSearch('');
     setBillingAmount('');
     setBillingType('invoice');
     setBillingDesc('');
@@ -266,17 +284,69 @@ export default function FinanceDashboard() {
       </div>
 
       {/* Issuance Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={billingType === 'credit_note' ? 'Issue Credit Note' : 'Issue New Invoice'}>
          <div className="p-10">
-            <div className="mb-10 text-center">
-               <div className={`w-16 h-16 rounded-[24px] mx-auto flex items-center justify-center mb-6 shadow-xl ${billingType === 'credit_note' ? 'bg-emerald-500/10 text-emerald-500 shadow-emerald-500/20' : 'bg-primary/10 text-primary shadow-primary/20'}`}>
-                  {billingType === 'credit_note' ? <ArrowDownCircle size={32} /> : <ArrowUpCircle size={32} />}
-               </div>
-               <h3 className="text-2xl font-black text-primary dark:text-white">Issue {billingType === 'credit_note' ? 'Credit Note' : 'New Invoice'}</h3>
-               <p className="text-gray-500 mt-2 font-medium">Record a financial transaction for a student account.</p>
-            </div>
-
             <div className="space-y-6">
+               {/* Searchable Student Select */}
+               <div className="space-y-2 relative">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Student / Recipient</label>
+                  {selectedStudent ? (
+                    <div className="flex items-center justify-between h-14 bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-500/20 rounded-2xl px-6 transition-all animate-in fade-in slide-in-from-top-1">
+                       <div className="flex items-center space-x-3">
+                          <UserCheck className="text-emerald-500" size={20} />
+                          <div>
+                             <p className="text-sm font-black text-emerald-700 dark:text-emerald-400">{selectedStudent.first_name} {selectedStudent.last_name}</p>
+                             <p className="text-[9px] font-bold text-emerald-600/60 uppercase tracking-widest">{selectedStudent.StudentProfile?.admission_number}</p>
+                          </div>
+                       </div>
+                       <button onClick={() => setSelectedStudent(null)} className="p-2 hover:bg-emerald-500/10 rounded-full text-emerald-500">
+                          <X size={16} />
+                       </button>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                       <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                       <input 
+                         type="text" 
+                         value={studentSearch}
+                         onChange={(e) => { setStudentSearch(e.target.value); setShowStudentDropdown(true); }}
+                         onFocus={() => setShowStudentDropdown(true)}
+                         className="w-full h-14 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-14 font-bold text-sm" 
+                         placeholder="Search student name or admission ID..." 
+                       />
+                       
+                       <AnimatePresence>
+                          {showStudentDropdown && (
+                             <motion.div 
+                               initial={{ opacity: 0, y: 10 }}
+                               animate={{ opacity: 1, y: 0 }}
+                               exit={{ opacity: 0, y: 10 }}
+                               className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-slate-800 z-50 max-h-64 overflow-y-auto overflow-x-hidden custom-scrollbar py-2"
+                             >
+                                {filteredStudents.length > 0 ? filteredStudents.map(s => (
+                                   <button 
+                                     key={s.id} 
+                                     onClick={() => { setSelectedStudent(s); setShowStudentDropdown(false); }}
+                                     className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors text-left"
+                                   >
+                                      <div>
+                                         <p className="text-sm font-bold text-primary dark:text-white">{s.first_name} {s.last_name}</p>
+                                         <p className="text-[10px] text-gray-400 font-medium">{s.email}</p>
+                                      </div>
+                                      <span className="text-[10px] font-black text-primary/40 dark:text-white/20 uppercase tracking-widest font-mono">
+                                         {s.StudentProfile?.admission_number}
+                                      </span>
+                                   </button>
+                                )) : (
+                                   <div className="px-6 py-8 text-center text-gray-400 font-medium italic text-xs">No students found...</div>
+                                )}
+                             </motion.div>
+                          )}
+                       </AnimatePresence>
+                    </div>
+                  )}
+               </div>
+
                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Transaction Type</label>
@@ -289,16 +359,6 @@ export default function FinanceDashboard() {
                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Amount ($)</label>
                      <input value={billingAmount} onChange={e => setBillingAmount(e.target.value)} type="number" className="w-full h-14 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-6 font-bold" placeholder="0.00" />
                   </div>
-               </div>
-               
-               <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Student / Recipient</label>
-                  <select value={selectedStudent} onChange={e => setSelectedStudent(e.target.value)} className="w-full h-14 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-6 font-bold text-sm">
-                     <option value="">Select a student...</option>
-                     {students.map(s => (
-                       <option key={s.id} value={s.StudentProfile?.id}>{s.first_name} {s.last_name} ({s.StudentProfile?.admission_number})</option>
-                     ))}
-                  </select>
                </div>
 
                <div className="space-y-2">
