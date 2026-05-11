@@ -9,41 +9,8 @@ import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 
-const STATIC_COURSES = [
-  {
-    id: 'masters-resource-mobilization',
-    title_en: 'Advanced Resource Mobilization',
-    title_fr: 'Mobilisation des ressources avancée',
-    title_pt: 'Mobilização de Recursos Avançada',
-    title_sw: 'Ukusanyaji wa Rasilimali wa Juu',
-    description_en: 'Master the strategies for international resource mobilization for infrastructure projects.',
-    description_fr: 'Maîtriser les stratégies de mobilisation de ressources internationales pour les projets d\'infrastructure.',
-    description_pt: 'Dominar as estratégias de mobilização de recursos internacionais para projetos de infraestrutura.',
-    description_sw: 'Bobea katika mikakati ya ukusanyaji wa rasilimali za kimataifa kwa miradi ya miundombinu.',
-    price: 1200,
-    duration: '12 Months',
-    modality: 'Hybrid',
-    course_type: 'Master Degree',
-  },
-  {
-    id: 'certificate-rbm',
-    title_en: 'Results-Based Management',
-    title_fr: 'Gestion axée sur les résultats',
-    title_pt: 'Gestão Baseada em Resultados',
-    title_sw: 'Usimamizi Unaozingatia Matokeo',
-    description_en: 'Implementing results-based frameworks in public sector infrastructure development.',
-    description_fr: 'Mise en œuvre de cadres axés sur les résultats dans le développement des infrastructures du secteur public.',
-    description_pt: 'Implementação de estruturas baseadas em resultados no desenvolvimento de infraestruturas do sector público.',
-    description_sw: 'Utekelezaji wa mifumo inayozingatia matokeo katika maendeleo ya miundombinu ya sekta ya umma.',
-    price: 850,
-    duration: '6 Months',
-    modality: 'Online',
-    course_type: 'Certificate',
-  }
-];
-
 export default function Programs() {
-  const [courses, setCourses] = useState<any[]>(STATIC_COURSES);
+  const [courses, setCourses] = useState<any[]>([]);
   const { i18n } = useTranslation('common');
   const lang = i18n.language || 'en';
 
@@ -52,13 +19,9 @@ export default function Programs() {
       try {
         const res = await axios.get('/api/courses');
         const dynamicCourses = Array.isArray(res.data) ? res.data : [];
-        const filteredDynamic = dynamicCourses.filter(dc => 
-          !STATIC_COURSES.some(sc => sc.title_en === dc.title_en)
-        );
-        setCourses([...STATIC_COURSES, ...filteredDynamic].slice(0, 4));
+        setCourses(dynamicCourses.slice(0, 4));
       } catch (err) {
         console.error('Failed to fetch programs', err);
-        setCourses(STATIC_COURSES);
       }
     };
     fetchCourses();
