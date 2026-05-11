@@ -19,22 +19,41 @@ interface RichTextEditorProps {
 const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder, className }) => {
   const modules = {
     toolbar: [
-      [{ header: [1, 2, 3, false] }],
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      [{ font: [] }],
       ['bold', 'italic', 'underline', 'strike'],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      ['link', 'clean'],
+      [{ color: [] }, { background: [] }],
+      [{ script: 'sub' }, { script: 'super' }],
+      [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
+      [{ align: [] }],
+      ['link', 'image', 'video'],
+      ['blockquote', 'code-block'],
+      ['clean'],
     ],
+    clipboard: {
+      matchVisual: false,
+    },
   };
 
   const formats = [
     'header',
+    'font',
     'bold',
     'italic',
     'underline',
     'strike',
+    'color',
+    'background',
+    'script',
     'list',
     'bullet',
+    'indent',
+    'align',
     'link',
+    'image',
+    'video',
+    'blockquote',
+    'code-block',
   ];
 
   return (
@@ -58,13 +77,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
         }
         .rich-text-editor .ql-container {
           border: none !important;
-          min-height: 150px;
+          min-height: 250px;
           font-family: inherit;
           font-size: 14px;
         }
         .rich-text-editor .ql-editor {
-          min-height: 150px;
-          padding: 16px 20px;
+          min-height: 250px;
+          padding: 20px 24px;
         }
         .dark .rich-text-editor .ql-toolbar {
           background: rgba(255,255,255,0.05);
