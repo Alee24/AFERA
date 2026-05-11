@@ -120,7 +120,7 @@ const fixDatabase = async () => {
       'Workshop', 'GatewaySetting', 'SystemSetting', 'Staff', 'CourseUnit', 
       'Class', 'Assessment', 'Grade', 'Attendance', 'CourseRegistration', 
       'Receipt', 'NewsPost', 'ModuleContent', 'LearningPath', 'LearningPathItem', 
-      'Page', 'Quiz', 'Assignment', 'Wiki'
+      'Page', 'Quiz', 'Assignment', 'Wiki', 'CRMInteraction'
     ];
     
     for (const modelName of syncModels) {

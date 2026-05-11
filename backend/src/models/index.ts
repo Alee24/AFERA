@@ -8,6 +8,7 @@ import Post from './Post';
 import File from './File';
 import CourseModule from './CourseModule';
 import Contact from './Contact';
+import CRMInteraction from './CRMInteraction';
 import Workshop from './Workshop';
 import GatewaySetting from './GatewaySetting';
 import SystemSetting from './SystemSetting';
@@ -314,7 +315,12 @@ User.hasMany(Message, { as: 'ReceivedMessages', foreignKey: 'receiver_id' });
 User.hasMany(Notification, { foreignKey: 'user_id' });
 Notification.belongsTo(User, { foreignKey: 'user_id' });
 User.hasMany(ActivityLog, { foreignKey: 'user_id' });
+User.hasMany(ActivityLog, { foreignKey: 'user_id' });
 ActivityLog.belongsTo(User, { foreignKey: 'user_id' });
+
+// CRM Interactions
+Contact.hasMany(CRMInteraction, { foreignKey: 'contact_id', as: 'Interactions' });
+CRMInteraction.belongsTo(Contact, { foreignKey: 'contact_id' });
 
 export { 
   User, Course, CourseModule, CourseResource, Contact, Faculty, Department, Program, 
@@ -322,6 +328,7 @@ export {
   Message, Notification, ActivityLog, OnlineCourse, Lesson, LessonProgress,
   Enrollment, Student, Staff, Grade, Assessment, Attendance, CourseRegistration,
   Role, Permission, RolePermission, StudentDocument, Workshop, GatewaySetting, SystemSetting,
-  NewsPost, ModuleContent, LearningPath, LearningPathItem, Page, Quiz, Assignment, Wiki, Receipt
+  NewsPost, ModuleContent, LearningPath, LearningPathItem, Page, Quiz, Assignment, Wiki, Receipt,
+  CRMInteraction
 };
 export default sequelize;

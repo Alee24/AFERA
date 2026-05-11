@@ -111,8 +111,10 @@ router.post('/messages', authenticateJWT, messageController.sendMessage);
 // ===== CONTACTS =====
 router.post('/contacts', contactController.submitContact);
 router.get('/contacts', authenticateJWT, authorizeRole(['admin']), contactController.getContacts);
+router.get('/contacts/:id', authenticateJWT, authorizeRole(['admin']), contactController.getContactById);
 router.put('/contacts/:id', authenticateJWT, authorizeRole(['admin']), contactController.updateContactStatus);
 router.delete('/contacts/:id', authenticateJWT, authorizeRole(['admin']), contactController.deleteContact);
+router.post('/contacts/:id/interactions', authenticateJWT, authorizeRole(['admin']), contactController.addInteraction);
 
 // ===== FINANCE =====
 router.get('/finance/my-invoices', authenticateJWT, financeController.getMyInvoices);
