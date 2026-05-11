@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { motion } from 'framer-motion';
+import Modal from '@/components/Modal';
 
 export default function MarketingDashboard() {
   const [activeTab, setActiveTab] = useState('campaigns');
@@ -28,12 +29,36 @@ export default function MarketingDashboard() {
     { label: 'Social Reach', value: '45.2K', change: '+22%', icon: Share2, color: 'text-blue-500' }
   ];
 
-  const campaigns = [
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [campaigns, setCampaigns] = useState([
     { id: 1, name: 'Fall Admissions Drive', status: 'Active', reach: '12,500', budget: '$4,500', leads: 450, date: 'Oct 1 - Nov 30' },
     { id: 2, name: 'Executive Masters Promo', status: 'Active', reach: '8,200', budget: '$2,000', leads: 125, date: 'Nov 5 - Dec 15' },
     { id: 3, name: 'Alumni Referral Campaign', status: 'Planned', reach: '---', budget: '$1,000', leads: 0, date: 'Jan 10 - Feb 28' },
     { id: 4, name: 'Summer Engineering Bootcamp', status: 'Completed', reach: '25,000', budget: '$5,000', leads: 850, date: 'Jul 1 - Aug 30' },
-  ];
+  ]);
+
+  const [formData, setFormData] = useState({
+    name: '',
+    status: 'Planned',
+    budget: '',
+    date: ''
+  });
+
+  const handleCreateCampaign = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newCamp = {
+      id: campaigns.length + 1,
+      name: formData.name,
+      status: formData.status,
+      reach: '---',
+      budget: formData.budget || '$0',
+      leads: 0,
+      date: formData.date || 'TBD'
+    };
+    setCampaigns([newCamp, ...campaigns]);
+    setIsModalOpen(false);
+    setFormData({ name: '', status: 'Planned', budget: '', date: '' });
+  };
 
   return (
     <div className="space-y-12 pb-20">
@@ -44,7 +69,7 @@ export default function MarketingDashboard() {
           <p className="text-gray-500 mt-2 font-medium">Manage enrollment campaigns, lead generation, and institutional branding.</p>
         </div>
         <div className="flex space-x-3">
-           <Button className="bg-primary text-white rounded-2xl px-6 h-12 font-bold text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all">
+           <Button onClick={() => setIsModalOpen(true)} className="bg-primary text-white rounded-2xl px-6 h-12 font-bold text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all">
               <Plus size={16} className="mr-2" /> New Campaign
            </Button>
         </div>
@@ -143,6 +168,65 @@ export default function MarketingDashboard() {
             </table>
          </div>
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Marketing Campaign">
+        <form onSubmit={handleCreateCampaign} className="space-y-6">
+          <div>
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Campaign Name</label>
+            <input 
+              required
+              type="text" 
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 font-bold text-sm" 
+              placeholder="e.g. Winter Scholarship Promo"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Status</label>
+              <select 
+                value={formData.status}
+                onChange={(e) => setFormData({...formData, status: e.target.value})}
+                className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 font-bold text-sm text-gray-600 dark:text-gray-300"
+              >
+                <option value="Planned">Planned</option>
+                <option value="Active">Active</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Budget</label>
+              <input 
+                type="text" 
+                value={formData.budget}
+                onChange={(e) => setFormData({...formData, budget: e.target.value})}
+                className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 font-bold text-sm" 
+                placeholder="$5,000"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Timeline (Date Range)</label>
+            <input 
+              required
+              type="text" 
+              value={formData.date}
+              onChange={(e) => setFormData({...formData, date: e.target.value})}
+              className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 font-bold text-sm" 
+              placeholder="e.g. Jan 15 - Feb 20"
+            />
+          </div>
+          <div className="pt-4 flex justify-end space-x-3 border-t border-gray-100 dark:border-slate-800">
+            <Button type="button" onClick={() => setIsModalOpen(false)} variant="ghost" className="rounded-xl font-bold">
+              Cancel
+            </Button>
+            <Button type="submit" className="bg-primary text-white rounded-xl px-8 font-bold shadow-lg shadow-primary/20">
+              Launch Campaign
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
