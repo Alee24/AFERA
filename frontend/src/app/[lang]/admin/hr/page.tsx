@@ -41,6 +41,8 @@ interface StaffInfo {
 export default function HRPage() {
   const [staff, setStaff] = useState<StaffInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedStaff, setSelectedStaff] = useState<StaffInfo | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { showNotification } = useNotification();
 
   useEffect(() => {
@@ -65,6 +67,11 @@ export default function HRPage() {
     { label: 'Monthly Payroll', value: '$42,500', icon: DollarSign, color: 'text-emerald-500' },
     { label: 'Retention Rate', value: '98%', icon: ShieldCheck, color: 'text-blue-500' }
   ];
+
+  const handleRowClick = (s: StaffInfo) => {
+    setSelectedStaff(s);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="space-y-10 pb-20">
@@ -111,7 +118,7 @@ export default function HRPage() {
          <div className="px-12 py-10 border-b border-gray-50 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gray-50/30">
             <div>
               <h3 className="text-xl font-bold text-primary dark:text-white">Active Personnel</h3>
-              <p className="text-xs text-gray-400 font-medium mt-1 uppercase tracking-wider">Real-time Directory Sync</p>
+              <p className="text-xs text-gray-400 font-medium mt-1 uppercase tracking-wider">Real-time Directory Sync • Click row for details</p>
             </div>
             <div className="relative w-full md:w-80">
                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -140,7 +147,11 @@ export default function HRPage() {
                   ) : staff.length === 0 ? (
                     <tr><td colSpan={5} className="py-32 text-center text-gray-400 italic">No personnel records found in the directory.</td></tr>
                   ) : staff.map((s) => (
-                    <tr key={s.id} className="group hover:bg-gray-50/50 dark:hover:bg-slate-800/30 transition-all">
+                    <tr 
+                      key={s.id} 
+                      onClick={() => handleRowClick(s)}
+                      className="group hover:bg-gray-50/50 dark:hover:bg-slate-800/30 transition-all cursor-pointer"
+                    >
                        <td className="px-12 py-8">
                           <div className="flex items-center space-x-5">
                              <div className="w-12 h-12 rounded-2xl bg-primary/5 text-primary flex items-center justify-center font-black text-sm border border-primary/10 group-hover:bg-primary group-hover:text-white transition-all duration-300">
@@ -185,6 +196,113 @@ export default function HRPage() {
             </table>
          </div>
       </div>
+
+      {/* Staff Member Card Modal */}
+      <AnimatePresence>
+        {isModalOpen && selectedStaff && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-primary/40 backdrop-blur-md">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[48px] shadow-2xl overflow-hidden border border-white/20 relative"
+            >
+               {/* Close Button */}
+               <button 
+                 onClick={() => setIsModalOpen(false)}
+                 className="absolute top-8 right-8 w-12 h-12 bg-gray-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-gray-400 hover:text-red-500 transition-all z-10"
+               >
+                 <MoreVertical size={20} />
+               </button>
+
+               <div className="p-12">
+                  <div className="flex items-center space-x-8 mb-10">
+                    <div className="w-24 h-24 bg-primary text-white rounded-[32px] flex items-center justify-center font-black text-3xl shadow-2xl shadow-primary/20">
+                      {selectedStaff.User?.first_name[0]}{selectedStaff.User?.last_name[0]}
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-black text-primary dark:text-white leading-tight">
+                        {selectedStaff.User?.first_name} {selectedStaff.User?.last_name}
+                      </h2>
+                      <div className="flex items-center space-x-4 mt-2">
+                        <span className="text-xs font-mono text-gray-400">ID: {selectedStaff.staff_number}</span>
+                        <span className="px-3 py-1 rounded-full bg-accent/10 text-accent text-[9px] font-black uppercase tracking-widest">
+                          {selectedStaff.position}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-8">
+                    {/* Bio & Identification */}
+                    <div className="space-y-6">
+                       <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100 dark:border-slate-800 pb-3">Personal Dossier</h4>
+                       <div className="space-y-4">
+                          <div className="flex items-center space-x-3">
+                             <Mail size={16} className="text-primary opacity-40" />
+                             <div>
+                                <p className="text-[9px] font-black text-gray-400 uppercase leading-none mb-1">Email Address</p>
+                                <p className="text-sm font-bold text-primary dark:text-white">{selectedStaff.User?.email}</p>
+                             </div>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                             <Phone size={16} className="text-primary opacity-40" />
+                             <div>
+                                <p className="text-[9px] font-black text-gray-400 uppercase leading-none mb-1">Mobile Contact</p>
+                                <p className="text-sm font-bold text-primary dark:text-white">{selectedStaff.phone || 'N/A'}</p>
+                             </div>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                             <Building size={16} className="text-primary opacity-40" />
+                             <div>
+                                <p className="text-[9px] font-black text-gray-400 uppercase leading-none mb-1">Residential Address</p>
+                                <p className="text-sm font-bold text-primary dark:text-white">{selectedStaff.address || 'Confidential'}</p>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+
+                    {/* Employment & Payroll */}
+                    <div className="space-y-6">
+                       <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100 dark:border-slate-800 pb-3">Employment Data</h4>
+                       <div className="space-y-4">
+                          <div className="flex items-center space-x-3">
+                             <Calendar size={16} className="text-accent opacity-40" />
+                             <div>
+                                <p className="text-[9px] font-black text-gray-400 uppercase leading-none mb-1">Hired Since</p>
+                                <p className="text-sm font-bold text-primary dark:text-white">{new Date(selectedStaff.hire_date).toLocaleDateString()}</p>
+                             </div>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                             <DollarSign size={16} className="text-emerald-500 opacity-40" />
+                             <div>
+                                <p className="text-[9px] font-black text-gray-400 uppercase leading-none mb-1">Salary Grade</p>
+                                <p className="text-sm font-black text-emerald-600">
+                                  {selectedStaff.salary ? `$${Number(selectedStaff.salary).toLocaleString()}` : '—'}
+                                  <span className="text-[10px] ml-1 font-medium text-gray-400">/mo</span>
+                                </p>
+                             </div>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                             <ShieldCheck size={16} className="text-blue-500 opacity-40" />
+                             <div>
+                                <p className="text-[9px] font-black text-gray-400 uppercase leading-none mb-1">Department</p>
+                                <p className="text-sm font-bold text-primary dark:text-white">{selectedStaff.Department?.name || 'Unassigned'}</p>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-12 pt-10 border-t border-gray-100 dark:border-slate-800 flex justify-end space-x-4">
+                     <Button variant="outline" className="rounded-2xl px-6 h-12" onClick={() => setIsModalOpen(false)}>Close Archive</Button>
+                     <Button className="bg-primary text-white rounded-2xl px-8 h-12 shadow-xl shadow-primary/20">Edit Profile</Button>
+                  </div>
+               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
