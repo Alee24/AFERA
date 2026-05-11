@@ -73,4 +73,57 @@ Course.init({
   underscored: true,
 });
 
+export class CourseUnit extends Model {
+  public id!: string;
+  public course_id!: string;
+  public name!: string;
+  public semester!: number;
+}
+CourseUnit.init({
+  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+  course_id: { type: DataTypes.UUID, allowNull: false },
+  name: { type: DataTypes.STRING, allowNull: false },
+  semester: { type: DataTypes.INTEGER, allowNull: false },
+}, { sequelize, modelName: 'CourseUnit', tableName: 'course_units', underscored: true });
+
+export class Class extends Model {
+  public id!: string;
+  public course_unit_id!: string;
+  public lecturer_id!: string;
+  public academic_year!: string;
+  public semester!: number;
+  public schedule!: string;
+  public virtual_link!: string;
+}
+Class.init({
+  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+  course_unit_id: { type: DataTypes.UUID, allowNull: false },
+  lecturer_id: { type: DataTypes.UUID, allowNull: false },
+  academic_year: { type: DataTypes.STRING, allowNull: false },
+  semester: { type: DataTypes.INTEGER, allowNull: false },
+  schedule: { type: DataTypes.STRING },
+  virtual_link: { type: DataTypes.STRING, allowNull: true },
+}, { sequelize, modelName: 'Class', tableName: 'classes', underscored: true });
+
+export class CourseResource extends Model {
+  public id!: string;
+  public course_id!: string;
+  public title_en!: string;
+  public title_fr!: string;
+  public title_pt!: string;
+  public title_sw!: string;
+  public resource_type!: 'syllabus' | 'notes' | 'template' | 'other';
+  public file_url!: string;
+}
+CourseResource.init({
+  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+  course_id: { type: DataTypes.UUID, allowNull: false },
+  title_en: { type: DataTypes.STRING, allowNull: false },
+  title_fr: { type: DataTypes.STRING },
+  title_pt: { type: DataTypes.STRING },
+  title_sw: { type: DataTypes.STRING },
+  resource_type: { type: DataTypes.ENUM('syllabus', 'notes', 'template', 'other'), defaultValue: 'notes' },
+  file_url: { type: DataTypes.STRING, allowNull: false },
+}, { sequelize, modelName: 'CourseResource', tableName: 'course_resources', underscored: true });
+
 export default Course;

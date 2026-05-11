@@ -50,7 +50,7 @@ export const getLecturerDashboard = async (req: any, res: Response) => {
     }
 
     // Stats
-    const classIds = classes.map(c => c.id);
+    const classIds = classes.map((c: any) => c.id);
     const studentsCount = classIds.length > 0 ? await CourseRegistration.count({ where: { class_id: classIds } }) : 0;
     const assessmentsCount = classIds.length > 0 ? await Assessment.count({ where: { class_id: classIds } }) : 0;
 
