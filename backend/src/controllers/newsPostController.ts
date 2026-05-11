@@ -10,7 +10,7 @@ const DEFAULT_NEWS = [
     author: "Sophia Tekie",
     type: "PPTX",
     filename: "ARMFA-22nd-AGM-Liberia-17-21-Nov-2025-Sophia-Tekie-Namibia.pptx",
-    image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=800",
+    image: "/thumb_armfa.png",
   },
   {
     title: "Cost Estimation for Roadworks in Kenya",
@@ -19,7 +19,7 @@ const DEFAULT_NEWS = [
     author: "Technical Committee",
     type: "PPTX",
     filename: "ARMFA-PPT-COST-ESTIMATION-FOR-ROADWORKS-IN-KENYA-19TH-NOV.pptx",
-    image: "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=800",
+    image: "/thumb_cost.png",
   },
   {
     title: "AFERA Innov Centre Academy Vision",
@@ -28,7 +28,7 @@ const DEFAULT_NEWS = [
     author: "Directorate",
     type: "PPTX",
     filename: "Centre-Academy-AFERA-Innov.pptx",
-    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=800",
+    image: "/thumb_vision.png",
   }
 ];
 
