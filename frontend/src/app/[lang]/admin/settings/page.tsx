@@ -56,6 +56,28 @@ export default function SystemSettings() {
     setSettings(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      showNotification('Uploading image...', 'info');
+      // The backend uses /upload (see routes/index.ts)
+      const res = await api.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      const fileUrl = res.data.url;
+      setSettings(prev => ({ ...prev, [field]: fileUrl }));
+      showNotification('Image uploaded successfully!', 'success');
+    } catch (err) {
+      showNotification('Failed to upload image', 'error');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -115,27 +137,59 @@ export default function SystemSettings() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Primary Logo URL</label>
-              <input 
-                type="text" 
-                name="logo_url"
-                value={settings.logo_url}
-                onChange={handleChange}
-                placeholder="/logo.png"
-                className="w-full h-12 bg-gray-50 dark:bg-slate-800 border-none rounded-xl px-4 font-bold text-sm text-primary dark:text-white focus:ring-2 focus:ring-primary"
-              />
+              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Primary Logo</label>
+              <div className="space-y-3">
+                <input 
+                  type="text" 
+                  name="logo_url"
+                  value={settings.logo_url}
+                  onChange={handleChange}
+                  placeholder="/logo.png"
+                  className="w-full h-12 bg-gray-50 dark:bg-slate-800 border-none rounded-xl px-4 font-bold text-sm text-primary dark:text-white focus:ring-2 focus:ring-primary"
+                />
+                <div className="relative">
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e, 'logo_url')}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <div className="w-full h-10 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl flex items-center justify-center text-xs font-bold text-gray-400 hover:border-primary hover:text-primary transition-colors cursor-pointer bg-gray-50 dark:bg-slate-800">
+                    Upload New Image
+                  </div>
+                </div>
+                {settings.logo_url && (
+                   <img src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000'}${settings.logo_url}`} alt="Preview" className="h-10 object-contain rounded-md" onError={(e) => { (e.target as any).src = settings.logo_url; }} />
+                )}
+              </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Footer Logo URL</label>
-              <input 
-                type="text" 
-                name="footer_logo_url"
-                value={settings.footer_logo_url}
-                onChange={handleChange}
-                placeholder="/logo-footer.png"
-                className="w-full h-12 bg-gray-50 dark:bg-slate-800 border-none rounded-xl px-4 font-bold text-sm text-primary dark:text-white focus:ring-2 focus:ring-primary"
-              />
+              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Footer Logo</label>
+              <div className="space-y-3">
+                <input 
+                  type="text" 
+                  name="footer_logo_url"
+                  value={settings.footer_logo_url}
+                  onChange={handleChange}
+                  placeholder="/logo-footer.png"
+                  className="w-full h-12 bg-gray-50 dark:bg-slate-800 border-none rounded-xl px-4 font-bold text-sm text-primary dark:text-white focus:ring-2 focus:ring-primary"
+                />
+                <div className="relative">
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e, 'footer_logo_url')}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <div className="w-full h-10 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl flex items-center justify-center text-xs font-bold text-gray-400 hover:border-primary hover:text-primary transition-colors cursor-pointer bg-gray-50 dark:bg-slate-800">
+                    Upload New Image
+                  </div>
+                </div>
+                {settings.footer_logo_url && (
+                   <img src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000'}${settings.footer_logo_url}`} alt="Preview" className="h-10 object-contain rounded-md" onError={(e) => { (e.target as any).src = settings.footer_logo_url; }} />
+                )}
+              </div>
             </div>
           </div>
         </div>

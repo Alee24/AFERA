@@ -37,6 +37,7 @@ export default function FinanceDashboard() {
     successfulPayments: '0',
     refundRequests: '0'
   });
+  const [systemSettings, setSystemSettings] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   
   // Modal & Form State
@@ -59,10 +60,11 @@ export default function FinanceDashboard() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [invRes, statsRes, usersRes] = await Promise.all([
+      const [invRes, statsRes, usersRes, settingsRes] = await Promise.all([
         api.get('/finance/all-invoices'),
         api.get('/finance/stats'),
-        api.get('/users')
+        api.get('/users'),
+        api.get('/system/settings')
       ]);
 
       setInvoices(invRes.data.map((inv: any) => ({
@@ -76,6 +78,7 @@ export default function FinanceDashboard() {
       })));
       
       setStats(statsRes.data);
+      setSystemSettings(settingsRes.data);
       // Filter for students only
       setStudents(usersRes.data.filter((u: any) => u.role === 'student'));
     } catch (err) {
@@ -166,6 +169,10 @@ export default function FinanceDashboard() {
   const handlePrintInvoice = (invoice: any) => {
     const isCredit = invoice.billing_type === 'credit_note';
     const docTitle = invoice.status === 'paid' ? 'Official Receipt' : (isCredit ? 'Credit Note' : 'Tuition Invoice');
+    const apiBase = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+    const logoHtml = systemSettings?.logo_url 
+      ? `<img src="${apiBase}${systemSettings.logo_url}" alt="Logo" style="max-height: 60px; object-fit: contain; margin-bottom: 10px;" />`
+      : `<h1 class="title">${systemSettings?.site_name || 'Afera Academy'}</h1>`;
     
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
@@ -198,8 +205,8 @@ export default function FinanceDashboard() {
       <body>
         <div class="header">
           <div>
-            <h1 class="title">Afera Academy</h1>
-            <p class="subtitle">Excellence in Infrastructure Training</p>
+            ${logoHtml}
+            <p class="subtitle">${systemSettings?.site_description || 'Excellence in Infrastructure Training'}</p>
           </div>
           <div style="text-align: right;">
             <h2 style="margin:0; font-size: 28px; color: ${isCredit ? '#10b981' : '#051A31'};">${docTitle}</h2>
