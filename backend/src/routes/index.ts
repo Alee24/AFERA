@@ -9,7 +9,7 @@ import * as financeController from '../controllers/financeController';
 import * as academicController from '../controllers/academicController';
 import * as workshopController from '../controllers/workshopController';
 import * as paymentController from '../controllers/paymentController';
-import * as lecturerController from '../controllers/lecturerController';
+import * as hrController from '../controllers/hrController';
 import * as systemController from '../controllers/systemController';
 import * as newsPostController from '../controllers/newsPostController';
 import * as contentController from '../controllers/contentController';
@@ -108,13 +108,13 @@ router.post('/upload', authenticateJWT, upload.single('file'), (req: any, res: a
 router.get('/messages', authenticateJWT, messageController.getMessages);
 router.post('/messages', authenticateJWT, messageController.sendMessage);
 
-// ===== CONTACTS =====
-router.post('/contacts', contactController.submitContact);
-router.get('/contacts', authenticateJWT, authorizeRole(['admin']), contactController.getContacts);
-router.get('/contacts/:id', authenticateJWT, authorizeRole(['admin']), contactController.getContactById);
-router.put('/contacts/:id', authenticateJWT, authorizeRole(['admin']), contactController.updateContactStatus);
-router.delete('/contacts/:id', authenticateJWT, authorizeRole(['admin']), contactController.deleteContact);
-router.post('/contacts/:id/interactions', authenticateJWT, authorizeRole(['admin']), contactController.addInteraction);
+import * as hrController from '../controllers/hrController';
+// HR routes
+router.get('/admin/hr', authenticateJWT, authorizeRole(['admin']), hrController.getAllStaff);
+router.get('/admin/hr/:id', authenticateJWT, authorizeRole(['admin']), hrController.getStaffById);
+router.post('/admin/hr', authenticateJWT, authorizeRole(['admin']), hrController.createStaff);
+router.put('/admin/hr/:id', authenticateJWT, authorizeRole(['admin']), hrController.updateStaff);
+router.delete('/admin/hr/:id', authenticateJWT, authorizeRole(['admin']), hrController.deleteStaff);
 
 // ===== FINANCE =====
 router.get('/finance/my-invoices', authenticateJWT, financeController.getMyInvoices);

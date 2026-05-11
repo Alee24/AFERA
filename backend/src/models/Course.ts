@@ -2,6 +2,37 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database';
 
 class Course extends Model {
+  // Existing fields
+  public id!: string;
+  public program_id!: string;
+  public course_code!: string;
+  public course_name!: string;
+  public credits!: number;
+  // New virtual fields for compatibility
+  public title!: string;
+  public slug!: string;
+  // Fallbacks for legacy/UI compatibility
+  public title_en!: string;
+  public title_fr!: string;
+  public title_pt!: string;
+  public title_sw!: string;
+  public description_en!: string;
+  public description_fr!: string;
+  public description_pt!: string;
+  public description_sw!: string;
+  public content_en!: string;
+  public content_fr!: string;
+  public content_pt!: string;
+  public content_sw!: string;
+  public price!: number;
+  public duration!: string;
+  public modality!: string;
+  public department!: string;
+  public course_type!: string;
+  public image_url!: string;
+  public program_overview!: string;
+  public learning_outcomes!: string;
+  public curriculum_structure!: string;
   public id!: string;
   public program_id!: string;
   public course_code!: string;
@@ -61,6 +92,7 @@ Course.init({
   learning_outcomes: { type: DataTypes.TEXT, allowNull: true },
   curriculum_structure: { type: DataTypes.TEXT, allowNull: true },
   slug: { type: DataTypes.STRING, unique: true, allowNull: true },
+      title: { type: DataTypes.VIRTUAL, get() { return (this as any).title_en; } },
 }, {
   sequelize,
   modelName: 'Course',

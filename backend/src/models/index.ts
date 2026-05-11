@@ -92,6 +92,9 @@ Staff.init({
   staff_number: { type: DataTypes.STRING, unique: true, allowNull: false },
   position: { type: DataTypes.STRING },
   hire_date: { type: DataTypes.DATEONLY },
+  phone: { type: DataTypes.STRING, allowNull: true },
+  address: { type: DataTypes.TEXT, allowNull: true },
+  salary: { type: DataTypes.DECIMAL(12,2), allowNull: true },
   user_id: { type: DataTypes.UUID, allowNull: false },
   department_id: { type: DataTypes.UUID, allowNull: true },
 }, { sequelize, modelName: 'Staff', tableName: 'staff', underscored: true });
