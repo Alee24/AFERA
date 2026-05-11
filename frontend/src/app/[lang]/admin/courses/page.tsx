@@ -20,6 +20,7 @@ import { useNotification } from '@/lib/NotificationContext';
 import { useRouter, useParams } from 'next/navigation';
 import api from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import RichTextEditor from '@/components/RichTextEditor';
 
 export default function AdminCoursesPage() {
   const { lang } = useParams();
@@ -308,22 +309,19 @@ export default function AdminCoursesPage() {
                         
                         <div className="md:col-span-2">
                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Description (Short)</label>
-                           <textarea 
-                              required
-                              className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[80px]" 
+                           <RichTextEditor 
                               placeholder="Brief summary..."
                               value={formData.description_en}
-                              onChange={(e) => setFormData({...formData, description_en: e.target.value})}
+                              onChange={(val) => setFormData({...formData, description_en: val})}
                            />
                         </div>
 
                         <div className="md:col-span-2">
                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Full Program Content (Syllabus/Details)</label>
-                           <textarea 
-                              className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[120px]" 
+                           <RichTextEditor 
                               placeholder="Enter full course details, syllabus, or academic content..."
                               value={formData.content_en}
-                              onChange={(e) => setFormData({...formData, content_en: e.target.value})}
+                              onChange={(val) => setFormData({...formData, content_en: val})}
                            />
                         </div>
 
@@ -344,31 +342,28 @@ export default function AdminCoursesPage() {
                       <>
                         <div className="md:col-span-2">
                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Program Overview</label>
-                           <textarea 
-                              className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[100px]" 
+                           <RichTextEditor 
                               placeholder="High level overview..."
                               value={formData.program_overview}
-                              onChange={(e) => setFormData({...formData, program_overview: e.target.value})}
+                              onChange={(val) => setFormData({...formData, program_overview: val})}
                            />
                         </div>
 
                         <div className="md:col-span-2">
                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Learning Outcomes</label>
-                           <textarea 
-                              className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[100px]" 
-                              placeholder="Enter learning outcomes, separated by lines..."
+                           <RichTextEditor 
+                              placeholder="Enter learning outcomes..."
                               value={formData.learning_outcomes}
-                              onChange={(e) => setFormData({...formData, learning_outcomes: e.target.value})}
+                              onChange={(val) => setFormData({...formData, learning_outcomes: val})}
                            />
                         </div>
 
                         <div className="md:col-span-2">
                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Curriculum Structure</label>
-                           <textarea 
-                              className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 min-h-[100px]" 
+                           <RichTextEditor 
                               placeholder="Enter curriculum modules or semesters..."
                               value={formData.curriculum_structure}
-                              onChange={(e) => setFormData({...formData, curriculum_structure: e.target.value})}
+                              onChange={(val) => setFormData({...formData, curriculum_structure: val})}
                            />
                         </div>
                       </>

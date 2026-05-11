@@ -208,8 +208,10 @@ export default function CourseDetailsPage() {
   const title = course[`title_${currentLang}`] || course.title_en || course.title || 'Specialized Program';
   const description = course[`description_${currentLang}`] || course.description_en || course.description || '';
 
+  const isHTML = (str: string) => /<[a-z][\s\S]*>/i.test(str);
+
   const outcomesArray = course.learning_outcomes 
-    ? course.learning_outcomes.split('\n').map((s: any) => s.trim()).filter(Boolean)
+    ? (isHTML(course.learning_outcomes) ? [] : course.learning_outcomes.split('\n').map((s: any) => s.trim()).filter(Boolean))
     : Array.isArray(course.outcomes) && course.outcomes.length > 0
     ? course.outcomes
     : [
@@ -301,48 +303,102 @@ export default function CourseDetailsPage() {
           <div className="lg:col-span-2 space-y-12">
             <div className="bg-white dark:bg-slate-900 rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100 dark:border-slate-800">
               <h2 className="text-3xl font-bold text-primary dark:text-white mb-8">Program Overview</h2>
-              <div className="prose prose-lg text-gray-600 dark:text-gray-400 max-w-none mb-10 leading-relaxed">
-                {description}
-              </div>
- 
+              
+              {/* Program Overview Field */}
+              {course.program_overview && (
+                <div className="prose prose-blue dark:prose-invert prose-lg max-w-none mb-10 leading-relaxed">
+                  {isHTML(course.program_overview) ? (
+                    <div dangerouslySetInnerHTML={{ __html: course.program_overview }} />
+                  ) : (
+                    <p>{course.program_overview}</p>
+                  )}
+                </div>
+              )}
+
+              {/* Short Description Field */}
+              {!course.program_overview && description && (
+                <div className="prose prose-blue dark:prose-invert prose-lg max-w-none mb-10 leading-relaxed">
+                   {isHTML(description) ? (
+                    <div dangerouslySetInnerHTML={{ __html: description }} />
+                  ) : (
+                    <p>{description}</p>
+                  )}
+                </div>
+              )}
+  
+              {/* Learning Outcomes */}
               <h3 className="text-xl font-bold text-primary dark:text-white mb-6">Learning Outcomes</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {outcomesArray.map((item: string, i: number) => (
-                  <div key={i} className="flex items-start space-x-3 bg-gray-50 dark:bg-slate-800 p-4 rounded-2xl">
-                    <CheckCircle className="text-accent w-5 h-5 flex-shrink-0 mt-1" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item}</span>
+              {course.learning_outcomes && isHTML(course.learning_outcomes) ? (
+                <div className="prose prose-blue dark:prose-invert max-w-none mb-10">
+                  <div dangerouslySetInnerHTML={{ __html: course.learning_outcomes }} />
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+                  {outcomesArray.map((item: string, i: number) => (
+                    <div key={i} className="flex items-start space-x-3 bg-gray-50 dark:bg-slate-800 p-4 rounded-2xl">
+                      <CheckCircle className="text-accent w-5 h-5 flex-shrink-0 mt-1" />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Full Content / Syllabus */}
+              {course.content_en && (
+                <>
+                  <h3 className="text-xl font-bold text-primary dark:text-white mb-6">Syllabus & Details</h3>
+                  <div className="prose prose-blue dark:prose-invert max-w-none">
+                    {isHTML(course.content_en) ? (
+                      <div dangerouslySetInnerHTML={{ __html: course.content_en }} />
+                    ) : (
+                      <p className="whitespace-pre-wrap">{course.content_en}</p>
+                    )}
                   </div>
-                ))}
+                </>
+              )}
+            </div>
+  
+            {/* Curriculum Structure / Modules Section */}
+            {(course.curriculum_structure || (course.Modules && course.Modules.length > 0)) && (
+              <div className="bg-white dark:bg-slate-900 rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100 dark:border-slate-800">
+                <div className="flex items-center justify-between mb-10">
+                    <h2 className="text-3xl font-bold text-primary dark:text-white">Curriculum Structure</h2>
+                    {course.Modules?.length > 0 && (
+                      <span className="text-xs font-bold bg-primary/5 text-primary dark:text-white px-4 py-2 rounded-full uppercase tracking-widest">
+                        {course.Modules.length} Modules
+                      </span>
+                    )}
+                </div>
+                
+                {course.curriculum_structure && (
+                  <div className="prose prose-blue dark:prose-invert max-w-none mb-10">
+                    {isHTML(course.curriculum_structure) ? (
+                      <div dangerouslySetInnerHTML={{ __html: course.curriculum_structure }} />
+                    ) : (
+                      <p className="whitespace-pre-wrap">{course.curriculum_structure}</p>
+                    )}
+                  </div>
+                )}
+
+                <div className="space-y-6">
+                  {course.Modules?.map((mod: any, i: number) => (
+                    <div key={mod.id} className="group relative pl-8 border-l-2 border-gray-100 dark:border-slate-800 hover:border-accent transition-colors pb-8 last:pb-0">
+                        <div className="absolute top-0 -left-[9px] w-4 h-4 rounded-full bg-white dark:bg-slate-900 border-2 border-gray-200 dark:border-slate-700 group-hover:border-accent group-hover:bg-accent transition-all"></div>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div>
+                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-2">Module {mod.order || i+1}</p>
+                              <h4 className="text-lg font-bold text-primary dark:text-white mb-2">{mod[`title_${currentLang}`] || mod.title}</h4>
+                              <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xl">{mod[`description_${currentLang}`] || mod.description}</p>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                              <span className="text-xs font-bold text-gray-400 bg-gray-50 dark:bg-slate-800 px-3 py-1 rounded-lg uppercase tracking-wider">{mod.duration_weeks} Weeks</span>
+                          </div>
+                        </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
- 
-            {/* Modules Section */}
-            <div className="bg-white dark:bg-slate-900 rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100 dark:border-slate-800">
-               <div className="flex items-center justify-between mb-10">
-                  <h2 className="text-3xl font-bold text-primary dark:text-white">Curriculum Structure</h2>
-                  <span className="text-xs font-bold bg-primary/5 text-primary dark:text-white px-4 py-2 rounded-full uppercase tracking-widest">
-                    {course.Modules?.length || 0} Modules
-                  </span>
-               </div>
-               
-               <div className="space-y-6">
-                 {course.Modules?.map((mod: any, i: number) => (
-                   <div key={mod.id} className="group relative pl-8 border-l-2 border-gray-100 dark:border-slate-800 hover:border-accent transition-colors pb-8 last:pb-0">
-                      <div className="absolute top-0 -left-[9px] w-4 h-4 rounded-full bg-white dark:bg-slate-900 border-2 border-gray-200 dark:border-slate-700 group-hover:border-accent group-hover:bg-accent transition-all"></div>
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                         <div>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-2">Module {mod.order || i+1}</p>
-                            <h4 className="text-lg font-bold text-primary dark:text-white mb-2">{mod[`title_${currentLang}`] || mod.title}</h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xl">{mod[`description_${currentLang}`] || mod.description}</p>
-                         </div>
-                         <div className="text-right flex-shrink-0">
-                            <span className="text-xs font-bold text-gray-400 bg-gray-50 dark:bg-slate-800 px-3 py-1 rounded-lg uppercase tracking-wider">{mod.duration_weeks} Weeks</span>
-                         </div>
-                      </div>
-                   </div>
-                 ))}
-               </div>
-            </div>
+            )}
           </div>
 
           {/* Enrollment Sidebar */}

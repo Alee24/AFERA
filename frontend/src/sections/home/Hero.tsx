@@ -184,15 +184,7 @@ export default function Hero() {
               className="absolute -top-10 -right-10 w-32 h-32 bg-accent/20 rounded-full blur-3xl -z-10"
             ></motion.div>
             
-            <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-3xl shadow-xl border border-gray-100 flex items-center space-x-4 z-20">
-              <div className="bg-accent p-3 rounded-2xl text-primary shadow-lg">
-                <Play size={20} fill="currentColor" />
-              </div>
-              <div className="text-left">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Virtual Tour</p>
-                <p className="text-sm font-bold text-primary">Explore Campus</p>
-              </div>
-            </div>
+
           </motion.div>
 
         </div>
