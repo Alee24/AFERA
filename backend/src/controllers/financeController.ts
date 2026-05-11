@@ -55,11 +55,22 @@ export const getInvoiceById = async (req: any, res: Response) => {
 // PUT /api/finance/mock-pay/:id
 export const mockPayInvoice = async (req: any, res: Response) => {
   try {
+    const { Receipt } = require('../models');
     const invoice = await Invoice.findByPk(req.params.id);
     if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
 
     await invoice.update({ status: 'paid' });
-    res.json({ message: 'Invoice paid successfully (Mock)' });
+
+    // Auto-generate Receipt
+    await Receipt.create({
+      invoice_id: invoice.id,
+      student_id: invoice.student_id,
+      amount_paid: invoice.total_amount,
+      payment_method: 'Manual/Admin',
+      transaction_ref: `RCPT-${Date.now()}`
+    });
+
+    res.json({ message: 'Invoice paid and receipt generated successfully' });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -100,11 +111,11 @@ export const getFinanceStats = async (req: any, res: Response) => {
     const allInvoices = await Invoice.findAll();
     const totalRevenue = allInvoices
       .filter(i => i.status === 'paid')
-      .reduce((sum, i) => sum + parseFloat(i.total_amount), 0);
+      .reduce((sum, i) => sum + Number(i.total_amount), 0);
     
     const outstanding = allInvoices
       .filter(i => i.status === 'pending')
-      .reduce((sum, i) => sum + parseFloat(i.total_amount), 0);
+      .reduce((sum, i) => sum + Number(i.total_amount), 0);
     
     const successfulPayments = allInvoices.filter(i => i.status === 'paid').length;
     
