@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { GraduationCap, BookOpen, Clock, ChevronRight } from 'lucide-react';
-import axios from 'axios';
+import api from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 
@@ -17,7 +17,7 @@ export default function Programs() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await axios.get('/api/courses');
+        const res = await api.get('/courses');
         const dynamicCourses = Array.isArray(res.data) ? res.data : [];
         setCourses(dynamicCourses.slice(0, 4));
       } catch (err) {
