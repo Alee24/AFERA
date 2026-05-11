@@ -9,18 +9,22 @@ const fixDatabase = async () => {
     const tableDefinitions = await queryInterface.showAllTables();
 
     // 1. Fix courses table
+    console.log('🛠️ Hardening translation fields in courses table...');
+    const translationCols = ['title_fr', 'title_pt', 'title_sw', 'description_fr', 'description_pt', 'description_sw', 'content_fr', 'content_pt', 'content_sw'];
+    for (const col of translationCols) {
+      try {
+        const type = col.includes('title') ? 'VARCHAR(255)' : 'TEXT';
+        await sequelize.query(`ALTER TABLE courses MODIFY COLUMN ${col} ${type} NULL DEFAULT '';`);
+      } catch (err) {
+        // If column doesn't exist, add it
+        const type = col.includes('title') ? 'VARCHAR(255)' : 'TEXT';
+        await queryInterface.addColumn('courses', col, { type, defaultValue: '' });
+      }
+    }
+    
+    // Add other missing columns
     const coursesCols = await queryInterface.describeTable('courses');
     const contentCols: any = {
-      title_fr: { type: 'VARCHAR(255)', defaultValue: '' },
-      title_pt: { type: 'VARCHAR(255)', defaultValue: '' },
-      title_sw: { type: 'VARCHAR(255)', defaultValue: '' },
-      description_fr: { type: 'TEXT' },
-      description_pt: { type: 'TEXT' },
-      description_sw: { type: 'TEXT' },
-      content_en: { type: 'TEXT' },
-      content_fr: { type: 'TEXT' },
-      content_pt: { type: 'TEXT' },
-      content_sw: { type: 'TEXT' },
       image_url: { type: 'TEXT' },
       program_overview: { type: 'TEXT' },
       learning_outcomes: { type: 'TEXT' },
@@ -67,14 +71,20 @@ const fixDatabase = async () => {
       await queryInterface.addColumn('staff', 'user_id', { type: 'VARCHAR(255)', allowNull: false });
     }
     // 4. Fix course_modules table
+    console.log('🛠️ Hardening translation fields in course_modules table...');
+    const modTranslationCols = ['title_fr', 'title_pt', 'title_sw', 'description_fr', 'description_pt', 'description_sw'];
+    for (const col of modTranslationCols) {
+      try {
+        const type = col.includes('title') ? 'VARCHAR(255)' : 'TEXT';
+        await sequelize.query(`ALTER TABLE course_modules MODIFY COLUMN ${col} ${type} NULL DEFAULT '';`);
+      } catch (err) {
+        const type = col.includes('title') ? 'VARCHAR(255)' : 'TEXT';
+        await queryInterface.addColumn('course_modules', col, { type, defaultValue: '' });
+      }
+    }
+
     const moduleCols = await queryInterface.describeTable('course_modules');
     const moduleFields = {
-      title_fr: { type: 'VARCHAR(255)', defaultValue: '' },
-      title_pt: { type: 'VARCHAR(255)', defaultValue: '' },
-      title_sw: { type: 'VARCHAR(255)', defaultValue: '' },
-      description_fr: { type: 'TEXT' },
-      description_pt: { type: 'TEXT' },
-      description_sw: { type: 'TEXT' },
       video_url: { type: 'VARCHAR(255)' },
       document_url: { type: 'VARCHAR(255)' },
       h5p_content: { type: 'TEXT' }
