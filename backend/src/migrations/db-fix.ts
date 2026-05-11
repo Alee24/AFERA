@@ -129,7 +129,13 @@ const fixDatabase = async () => {
     
     for (const modelName of syncModels) {
       if (models[modelName]) {
-        await models[modelName].sync();
+        try {
+          await models[modelName].sync({ alter: true });
+          console.log(`Synced ${modelName} with alter: true`);
+        } catch (e: any) {
+          console.log(`Failed to alter ${modelName}:`, e.message);
+          await models[modelName].sync();
+        }
       }
     }
     
