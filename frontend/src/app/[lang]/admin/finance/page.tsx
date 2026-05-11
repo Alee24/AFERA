@@ -202,7 +202,7 @@ export default function FinanceDashboard() {
           .status-pending { background: #fffbeb; color: #f59e0b; border: 1px solid #fde68a; }
         </style>
       </head>
-      <body>
+      <body onload="setTimeout(function(){ window.print(); }, 300)">
         <div class="header">
           <div>
             ${logoHtml}
@@ -265,9 +265,6 @@ export default function FinanceDashboard() {
     printWindow.document.write(htmlContent);
     printWindow.document.close();
     printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-    }, 250);
   };
 
   return (
