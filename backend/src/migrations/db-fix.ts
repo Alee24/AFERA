@@ -10,14 +10,15 @@ const fixDatabase = async () => {
 
     // 1. Fix courses table
     console.log('🛠️ Hardening translation fields in courses table...');
+    const coursesCols = await queryInterface.describeTable('courses');
     const translationCols = ['title_fr', 'title_pt', 'title_sw', 'description_fr', 'description_pt', 'description_sw', 'content_fr', 'content_pt', 'content_sw'];
     for (const col of translationCols) {
-      try {
-        const type = col.includes('title') ? 'VARCHAR(255)' : 'TEXT';
+      const type = col.includes('title') ? 'VARCHAR(255)' : 'TEXT';
+      if (coursesCols[col]) {
+        console.log(`🔧 Modifying column ${col} in courses...`);
         await sequelize.query(`ALTER TABLE courses MODIFY COLUMN ${col} ${type} NULL DEFAULT '';`);
-      } catch (err) {
-        // If column doesn't exist, add it
-        const type = col.includes('title') ? 'VARCHAR(255)' : 'TEXT';
+      } else {
+        console.log(`➕ Adding column ${col} to courses...`);
         await queryInterface.addColumn('courses', col, { type, defaultValue: '' });
       }
     }
@@ -87,13 +88,15 @@ const fixDatabase = async () => {
     }
     // 4. Fix course_modules table
     console.log('🛠️ Hardening translation fields in course_modules table...');
+    const moduleCols = await queryInterface.describeTable('course_modules');
     const modTranslationCols = ['title_fr', 'title_pt', 'title_sw', 'description_fr', 'description_pt', 'description_sw'];
     for (const col of modTranslationCols) {
-      try {
-        const type = col.includes('title') ? 'VARCHAR(255)' : 'TEXT';
+      const type = col.includes('title') ? 'VARCHAR(255)' : 'TEXT';
+      if (moduleCols[col]) {
+        console.log(`🔧 Modifying column ${col} in course_modules...`);
         await sequelize.query(`ALTER TABLE course_modules MODIFY COLUMN ${col} ${type} NULL DEFAULT '';`);
-      } catch (err) {
-        const type = col.includes('title') ? 'VARCHAR(255)' : 'TEXT';
+      } else {
+        console.log(`➕ Adding column ${col} to course_modules...`);
         await queryInterface.addColumn('course_modules', col, { type, defaultValue: '' });
       }
     }
