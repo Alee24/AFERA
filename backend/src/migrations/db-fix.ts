@@ -24,13 +24,15 @@ const fixDatabase = async () => {
     // Translation fields
     const translationCols = ['title_fr', 'title_pt', 'title_sw', 'description_fr', 'description_pt', 'description_sw', 'content_fr', 'content_pt', 'content_sw'];
     for (const col of translationCols) {
-      const type = col.includes('title') ? 'VARCHAR(255)' : 'TEXT';
+      const isText = !col.includes('title');
+      const type = isText ? 'TEXT' : 'VARCHAR(255)';
       if (coursesCols[col]) {
         console.log(`🔧 Modifying column ${col} in courses...`);
-        await sequelize.query(`ALTER TABLE courses MODIFY COLUMN ${col} ${type} NULL DEFAULT '';`);
+        const defaultClause = isText ? '' : "DEFAULT ''";
+        await sequelize.query(`ALTER TABLE courses MODIFY COLUMN ${col} ${type} NULL ${defaultClause};`);
       } else {
         console.log(`➕ Adding column ${col} to courses...`);
-        await queryInterface.addColumn('courses', col, { type, defaultValue: '' });
+        await queryInterface.addColumn('courses', col, { type, defaultValue: isText ? undefined : '' });
       }
     }
 
@@ -82,13 +84,15 @@ const fixDatabase = async () => {
     const moduleCols = await queryInterface.describeTable('course_modules');
     const modTranslationCols = ['title_fr', 'title_pt', 'title_sw', 'description_fr', 'description_pt', 'description_sw'];
     for (const col of modTranslationCols) {
-      const type = col.includes('title') ? 'VARCHAR(255)' : 'TEXT';
+      const isText = !col.includes('title');
+      const type = isText ? 'TEXT' : 'VARCHAR(255)';
       if (moduleCols[col]) {
         console.log(`🔧 Modifying column ${col} in course_modules...`);
-        await sequelize.query(`ALTER TABLE course_modules MODIFY COLUMN ${col} ${type} NULL DEFAULT '';`);
+        const defaultClause = isText ? '' : "DEFAULT ''";
+        await sequelize.query(`ALTER TABLE course_modules MODIFY COLUMN ${col} ${type} NULL ${defaultClause};`);
       } else {
         console.log(`➕ Adding column ${col} to course_modules...`);
-        await queryInterface.addColumn('course_modules', col, { type, defaultValue: '' });
+        await queryInterface.addColumn('course_modules', col, { type, defaultValue: isText ? undefined : '' });
       }
     }
 
