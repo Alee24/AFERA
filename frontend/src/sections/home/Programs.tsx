@@ -73,7 +73,7 @@ export default function Programs() {
                    </div>
                 </CardContent>
                 <CardFooter className="pt-0 pb-8 px-6">
-                  <Link href={`/${lang}/courses/${course.id}`} className="w-full">
+                  <Link href={`/${lang}/courses/${course.slug || course.id}`} className="w-full">
                     <Button variant="outline" className="w-full border-gray-100 dark:border-slate-800 text-primary hover:bg-primary hover:text-white transition-all font-bold uppercase tracking-widest text-xs py-5 rounded-2xl">
                       View Program Details <ChevronRight size={16} className="ml-1" />
                     </Button>

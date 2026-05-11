@@ -133,13 +133,17 @@ export default function CourseDetailsPage() {
         if (res.data) {
           setCourse(res.data);
           
-          // Check if user is already enrolled
+          // Check if user is already enrolled (Separate try-catch so it doesn't break the main load)
           if (isAuthenticated && res.data.Enrollments) {
-            const userRes = await api.get('/users/me');
-            const studentProfile = userRes.data.StudentProfile;
-            if (studentProfile) {
-              const enrolled = res.data.Enrollments.some((e: any) => e.student_id === studentProfile.id);
-              setIsEnrolled(enrolled);
+            try {
+              const userRes = await api.get('/users/me');
+              const studentProfile = userRes?.data?.StudentProfile;
+              if (studentProfile) {
+                const enrolled = res.data.Enrollments.some((e: any) => e.student_id === studentProfile.id);
+                setIsEnrolled(enrolled);
+              }
+            } catch (authErr) {
+              console.warn('Could not verify enrollment status', authErr);
             }
           }
         } else if (STATIC_COURSE_DETAILS[id as string]) {
