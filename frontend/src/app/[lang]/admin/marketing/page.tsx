@@ -29,6 +29,13 @@ export default function MarketingDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const { showNotification } = useNotification();
+
+  const stats = [
+    { label: 'Total Leads (This Month)', value: '1,248', change: '+12%', icon: Users, color: 'text-primary' },
+    { label: 'Conversion Rate', value: '8.4%', change: '+1.2%', icon: Target, color: 'text-accent' },
+    { label: 'Email Open Rate', value: '24.5%', change: '-0.5%', icon: Mail, color: 'text-emerald-500' },
+    { label: 'Social Reach', value: '45.2K', change: '+22%', icon: Share2, color: 'text-blue-500' }
+  ];
   const [campaigns, setCampaigns] = useState([
     { id: 1, name: 'Fall Admissions Drive', status: 'Active', reach: '12,500', budget: '$4,500', leads: 450, date: 'Oct 1 - Nov 30' },
     { id: 2, name: 'Executive Masters Promo', status: 'Active', reach: '8,200', budget: '$2,000', leads: 125, date: 'Nov 5 - Dec 15' },
