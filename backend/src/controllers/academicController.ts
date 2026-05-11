@@ -97,6 +97,28 @@ export const createProgram = async (req: Request, res: Response) => {
   }
 };
 
+export const updateProgram = async (req: Request, res: Response) => {
+  try {
+    const program = await Program.findByPk(req.params.id as string);
+    if (!program) return res.status(404).json({ message: 'Program not found' });
+    await program.update(req.body);
+    res.json(program);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const deleteProgram = async (req: Request, res: Response) => {
+  try {
+    const program = await Program.findByPk(req.params.id as string);
+    if (!program) return res.status(404).json({ message: 'Program not found' });
+    await program.destroy();
+    res.json({ message: 'Program deleted successfully' });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // ===== GRADES & TRANSCRIPTS =====
 export const getMyGrades = async (req: any, res: Response) => {
   try {

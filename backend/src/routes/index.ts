@@ -138,6 +138,8 @@ router.put('/academic/departments/:id', authenticateJWT, authorizeRole(['admin']
 router.delete('/academic/departments/:id', authenticateJWT, authorizeRole(['admin']), academicController.deleteDepartment);
 
 router.post('/academic/programs', authenticateJWT, authorizeRole(['admin']), academicController.createProgram);
+router.put('/academic/programs/:id', authenticateJWT, authorizeRole(['admin']), academicController.updateProgram);
+router.delete('/academic/programs/:id', authenticateJWT, authorizeRole(['admin']), academicController.deleteProgram);
 router.get('/academic/my-grades', authenticateJWT, academicController.getMyGrades);
 router.get('/academic/transcript', authenticateJWT, academicController.generateTranscript);
 router.get('/academic/students/:studentId/grades', authenticateJWT, authorizeRole(['admin']), academicController.getStudentGrades);
