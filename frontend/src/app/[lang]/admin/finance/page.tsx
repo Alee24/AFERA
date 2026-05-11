@@ -21,28 +21,107 @@ import api from '@/lib/api';
 
 export default function AdminFinancePage() {
   const [invoices, setInvoices] = useState<any[]>([]);
+  const [stats, setStats] = useState({
+    totalRevenue: '$0',
+    outstanding: '$0',
+    successfulPayments: '0',
+    refundRequests: '0'
+  });
   const [loading, setLoading] = useState(true);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+  const [students, setStudents] = useState<any[]>([]);
+  const [newInvoice, setNewInvoice] = useState({ student_id: '', amount: '', description: '' });
+  const [submitting, setSubmitting] = useState(false);
 
   React.useEffect(() => {
-    const fetchInvoices = async () => {
-      try {
-        const res = await api.get('/finance/all-invoices');
-        const data = res.data.map((inv: any) => ({
-          id: inv.id?.slice(0, 8).toUpperCase() || 'N/A',
-          student: inv.Student?.User ? `${inv.Student.User.first_name} ${inv.Student.User.last_name}` : 'External Student',
-          amount: parseFloat(inv.total_amount) || 0,
-          status: inv.status || 'pending',
-          date: inv.created_at ? new Date(inv.created_at).toISOString().split('T')[0] : 'N/A'
-        }));
-        setInvoices(data);
-      } catch (err) {
-        console.error('Failed to load transaction ledger', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchInvoices();
-  });
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [invRes, statsRes, usersRes] = await Promise.all([
+        api.get('/finance/all-invoices'),
+        api.get('/finance/stats'),
+        api.get('/users?role=student')
+      ]);
+
+      const invData = invRes.data.map((inv: any) => ({
+        realId: inv.id,
+        id: inv.id?.slice(0, 8).toUpperCase() || 'N/A',
+        student: inv.Student?.User ? `${inv.Student.User.first_name} ${inv.Student.User.last_name}` : 'External Student',
+        amount: parseFloat(inv.total_amount) || 0,
+        status: inv.status || 'pending',
+        date: inv.created_at ? new Date(inv.created_at).toLocaleDateString() : 'N/A'
+      }));
+
+      setInvoices(invData);
+      setStats(statsRes.data);
+      setStudents(usersRes.data);
+    } catch (err) {
+      console.error('Failed to load financial data', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMarkPaid = async (id: string) => {
+    try {
+      await api.put(`/finance/mock-pay/${id}`);
+      fetchData();
+    } catch (err) {
+      console.error('Failed to update invoice', err);
+    }
+  };
+
+  const handleDeleteInvoice = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this invoice?')) return;
+    try {
+      await api.delete(`/finance/invoices/${id}`);
+      fetchData();
+    } catch (err) {
+      console.error('Failed to delete invoice', err);
+    }
+  };
+
+  const handleGenerateInvoice = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await api.post('/finance/invoices', newInvoice);
+      setIsInvoiceModalOpen(false);
+      setNewInvoice({ student_id: '', amount: '', description: '' });
+      fetchData();
+    } catch (err) {
+      console.error('Failed to create invoice', err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['Invoice ID', 'Recipient', 'Amount', 'Status', 'Date'];
+    const csvContent = [
+      headers.join(','),
+      ...invoices.map(inv => [
+        inv.id,
+        `"${inv.student}"`,
+        inv.amount,
+        inv.status,
+        inv.date
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `financial_statement_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="space-y-10 pb-20">
@@ -52,24 +131,24 @@ export default function AdminFinancePage() {
           <h1 className="text-3xl font-bold text-primary dark:text-white">Financial Ecosystem</h1>
           <p className="text-gray-500 mt-2 font-medium">Monitoring revenue streams, student billing, and tuition processing.</p>
         </div>
-        <div className="flex items-center space-x-3">
-           <Button variant="outline" className="rounded-2xl border-gray-100 px-6">
-              <Download size={18} className="mr-2" /> Financial Statement
-           </Button>
-           <Button className="bg-primary text-white rounded-2xl px-8 shadow-lg shadow-primary/20">
-              <Plus size={18} className="mr-2" /> Generate Invoice
-           </Button>
-        </div>
+         <div className="flex items-center space-x-3">
+            <Button variant="outline" onClick={handleExportCSV} className="rounded-2xl border-gray-100 px-6">
+               <Download size={18} className="mr-2" /> Financial Statement
+            </Button>
+            <Button onClick={() => setIsInvoiceModalOpen(true)} className="bg-primary text-white rounded-2xl px-8 shadow-lg shadow-primary/20">
+               <Plus size={18} className="mr-2" /> Generate Invoice
+            </Button>
+         </div>
       </div>
 
       {/* Financial Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-         {[
-           { label: 'Total Revenue', value: '$284,500', trend: '+14%', icon: DollarSign, color: 'text-primary' },
-           { label: 'Outstanding', value: '$12,400', trend: '+2%', icon: Clock, color: 'text-amber-500' },
-           { label: 'Successful Payments', value: '412', trend: '+8%', icon: CheckCircle2, color: 'text-emerald-500' },
-           { label: 'Refund Requests', value: '03', trend: '-12%', icon: AlertCircle, color: 'text-red-500' }
-         ].map((stat, i) => (
+          {[
+            { label: 'Total Revenue', value: stats.totalRevenue, trend: '+14%', icon: DollarSign, color: 'text-primary' },
+            { label: 'Outstanding', value: stats.outstanding, trend: '+2%', icon: Clock, color: 'text-amber-500' },
+            { label: 'Successful Payments', value: stats.successfulPayments, trend: '+8%', icon: CheckCircle2, color: 'text-emerald-500' },
+            { label: 'Refund Requests', value: stats.refundRequests, trend: '-12%', icon: AlertCircle, color: 'text-red-500' }
+          ].map((stat, i) => (
            <div key={i} className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-sm border border-gray-100 dark:border-slate-800">
               <div className="flex items-center justify-between mb-6">
                  <div className="w-12 h-12 bg-gray-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-primary">
@@ -144,9 +223,16 @@ export default function AdminFinancePage() {
                          </div>
                       </td>
                       <td className="px-12 py-8 text-right">
-                         <Button variant="ghost" className="p-3 hover:bg-gray-50 rounded-2xl text-gray-400">
-                            <Receipt size={20} />
-                         </Button>
+                         <div className="flex items-center justify-end space-x-2">
+                           {inv.status === 'pending' && (
+                             <Button onClick={() => handleMarkPaid(inv.realId)} variant="ghost" className="p-2 hover:bg-emerald-50 text-emerald-600 rounded-lg">
+                                <CheckCircle2 size={18} />
+                             </Button>
+                           )}
+                           <Button onClick={() => handleDeleteInvoice(inv.realId)} variant="ghost" className="p-2 hover:bg-red-50 text-red-400 rounded-lg">
+                              <AlertCircle size={18} />
+                           </Button>
+                         </div>
                       </td>
                    </tr>
                  ))}
@@ -188,6 +274,64 @@ export default function AdminFinancePage() {
          </div>
       </div>
 
+
+      {/* Generate Invoice Modal */}
+      {isInvoiceModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-primary/20 backdrop-blur-sm">
+           <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[40px] shadow-2xl p-10 relative">
+              <button onClick={() => setIsInvoiceModalOpen(false)} className="absolute top-6 right-6 text-gray-400">
+                <Plus className="rotate-45" size={24} />
+              </button>
+              <h3 className="text-2xl font-bold text-primary mb-8">Generate Billing Invoice</h3>
+              
+              <form onSubmit={handleGenerateInvoice} className="space-y-4">
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Target Scholar</label>
+                    <select 
+                      required
+                      className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm"
+                      value={newInvoice.student_id}
+                      onChange={(e) => setNewInvoice({...newInvoice, student_id: e.target.value})}
+                    >
+                       <option value="">Select a student...</option>
+                       {students.map(s => (
+                         <option key={s.id} value={s.StudentProfile?.id}>{s.first_name} {s.last_name}</option>
+                       ))}
+                    </select>
+                 </div>
+
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Billing Amount (USD)</label>
+                    <input 
+                      required
+                      type="number"
+                      placeholder="0.00"
+                      className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm"
+                      value={newInvoice.amount}
+                      onChange={(e) => setNewInvoice({...newInvoice, amount: e.target.value})}
+                    />
+                 </div>
+
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Billing Reason</label>
+                    <input 
+                      required
+                      type="text"
+                      placeholder="e.g. Tuition Balance, Exam Fees..."
+                      className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-sm"
+                      value={newInvoice.description}
+                      onChange={(e) => setNewInvoice({...newInvoice, description: e.target.value})}
+                    />
+                 </div>
+
+                 <Button type="submit" disabled={submitting} className="w-full py-5 bg-primary text-white rounded-2xl font-bold uppercase tracking-widest text-xs mt-4">
+                    {submitting ? 'Generating...' : 'Confirm & Send Invoice'}
+                 </Button>
+              </form>
+           </div>
+        </div>
+      )}
     </div>
+
   );
 }
