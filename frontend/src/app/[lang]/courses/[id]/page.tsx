@@ -304,8 +304,8 @@ export default function CourseDetailsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           
           {/* Main Info */}
-          <div className="lg:col-span-2 space-y-12">
-            <div className="bg-white dark:bg-slate-900 rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100 dark:border-slate-800">
+          <div className="lg:col-span-2 space-y-12 overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100 dark:border-slate-800 break-words">
               <h2 className="text-3xl font-bold text-primary dark:text-white mb-8">Program Overview</h2>
               
               {/* Program Overview Field */}
@@ -332,20 +332,20 @@ export default function CourseDetailsPage() {
   
               {/* Learning Outcomes */}
               <h3 className="text-xl font-bold text-primary dark:text-white mb-6">Learning Outcomes</h3>
-              {course.learning_outcomes && isHTML(course.learning_outcomes) ? (
-                <div className="prose prose-blue dark:prose-invert max-w-none mb-10">
+              <div className="prose prose-blue dark:prose-invert max-w-none mb-10">
+                {course.learning_outcomes && isHTML(course.learning_outcomes) ? (
                   <div dangerouslySetInnerHTML={{ __html: course.learning_outcomes }} />
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
-                  {outcomesArray.map((item: string, i: number) => (
-                    <div key={i} className="flex items-start space-x-3 bg-gray-50 dark:bg-slate-800 p-4 rounded-2xl">
-                      <CheckCircle className="text-accent w-5 h-5 flex-shrink-0 mt-1" />
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {outcomesArray.map((item: string, i: number) => (
+                      <div key={i} className="flex items-start space-x-3 bg-gray-50 dark:bg-slate-800 p-4 rounded-2xl">
+                        <CheckCircle className="text-accent w-5 h-5 flex-shrink-0 mt-1" />
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {/* Full Content / Syllabus */}
               {course.content_en && (

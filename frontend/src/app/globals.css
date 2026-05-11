@@ -154,6 +154,47 @@
   color: #7f1d1d;
 }
 
+/* Rich Text / Prose Styles */
+.prose {
+  @apply text-gray-700 dark:text-gray-300 leading-relaxed;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.prose p {
+  @apply mb-6 last:mb-0;
+  text-align: justify;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  @apply text-primary dark:text-white mt-10 mb-4 first:mt-0;
+}
+
+.prose ul, .prose ol {
+  @apply mb-6 ml-6 space-y-2;
+}
+
+.prose ul {
+  @apply list-disc;
+}
+
+.prose ol {
+  @apply list-decimal;
+}
+
+.prose li {
+  @apply pl-2;
+}
+
+.prose strong, .prose b {
+  @apply font-black text-primary dark:text-white;
+}
+
+.prose * {
+  white-space: normal !important;
+  max-width: 100%;
+}
+
 @keyframes slideIn {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
