@@ -13,23 +13,46 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { motion } from 'framer-motion';
+import api from '@/lib/api';
 
 export default function AlumniDashboard() {
   const [activeTab, setActiveTab] = useState('directory');
+  const [alumni, setAlumni] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState([
+    { label: 'Total Alumni', value: '0', icon: GraduationCap, color: 'text-primary' },
+    { label: 'In Pipeline', value: '0', icon: Briefcase, color: 'text-accent' },
+    { label: 'Graduation Rate', value: '0%', icon: Star, color: 'text-emerald-500' },
+    { label: 'Active Cohorts', value: '0', icon: MapPin, color: 'text-blue-500' }
+  ]);
 
-  const stats = [
-    { label: 'Total Alumni', value: '3,450', icon: GraduationCap, color: 'text-primary' },
-    { label: 'Employed Globally', value: '94%', icon: Briefcase, color: 'text-accent' },
-    { label: 'Alumni Chapters', value: '18', icon: MapPin, color: 'text-emerald-500' },
-    { label: 'Annual Donations', value: '$125K', icon: Gift, color: 'text-blue-500' }
-  ];
+  React.useEffect(() => {
+    fetchAlumni();
+  }, []);
 
-  const alumni = [
-    { id: 'AL-001', name: 'David Mwangi', year: '2022', program: 'MSc. Infrastructure', company: 'World Bank', location: 'Washington DC' },
-    { id: 'AL-002', name: 'Fatoumata Diallo', year: '2023', program: 'Cert. RBM', company: 'AfDB', location: 'Abidjan' },
-    { id: 'AL-003', name: 'John Kamau', year: '2021', program: 'BSc. Civil Eng', company: 'KeNHA', location: 'Nairobi' },
-    { id: 'AL-004', name: 'Linda Osei', year: '2024', program: 'MSc. Infrastructure', company: 'Ministry of Roads', location: 'Accra' },
-  ];
+  const fetchAlumni = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/users');
+      const students = res.data.filter((u: any) => u.role === 'student');
+      setAlumni(students);
+
+      const graduated = students.filter((s: any) => s.StudentProfile?.status === 'graduated');
+      const total = students.length;
+      const rate = total > 0 ? Math.round((graduated.length / total) * 100) : 0;
+
+      setStats([
+        { label: 'Total Alumni', value: graduated.length.toString(), icon: GraduationCap, color: 'text-primary' },
+        { label: 'In Pipeline', value: (total - graduated.length).toString(), icon: Briefcase, color: 'text-accent' },
+        { label: 'Graduation Rate', value: `${rate}%`, icon: Star, color: 'text-emerald-500' },
+        { label: 'Total Students', value: total.toString(), icon: MapPin, color: 'text-blue-500' }
+      ]);
+    } catch (err) {
+      console.error('Failed to load alumni', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-12 pb-20">
@@ -82,44 +105,51 @@ export default function AlumniDashboard() {
                <thead>
                   <tr className="bg-gray-50/50 dark:bg-slate-800/50 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-slate-800">
                      <th className="px-12 py-6">Alumnus Name</th>
-                     <th className="px-12 py-6">Class Of</th>
-                     <th className="px-12 py-6">Current Employer</th>
+                     <th className="px-12 py-6">Status</th>
+                     <th className="px-12 py-6">Institution / Employer</th>
                      <th className="px-12 py-6">Location</th>
                      <th className="px-12 py-6 text-right">Actions</th>
                   </tr>
                </thead>
                <tbody>
-                  {alumni.map((alum) => (
-                    <tr key={alum.id} className="group hover:bg-gray-50/30 transition-colors border-b border-gray-50 dark:border-slate-800 last:border-0">
-                       <td className="px-12 py-6">
-                          <div className="flex items-center space-x-4">
-                             <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-primary font-bold">
-                                {alum.name.charAt(0)}
-                             </div>
-                             <div>
-                                <span className="text-sm font-bold text-primary dark:text-white block">{alum.name}</span>
-                                <span className="text-[10px] text-gray-400 font-medium">{alum.program}</span>
-                             </div>
-                          </div>
-                       </td>
-                       <td className="px-12 py-6">
-                          <span className="bg-primary/5 text-primary px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest">
-                             {alum.year}
-                          </span>
-                       </td>
-                       <td className="px-12 py-6 text-sm font-bold text-gray-600 dark:text-gray-300">
-                          {alum.company}
-                       </td>
-                       <td className="px-12 py-6 text-sm font-medium text-gray-500 flex items-center">
-                          <MapPin size={14} className="mr-2 text-gray-400" /> {alum.location}
-                       </td>
-                       <td className="px-12 py-6 text-right">
-                          <button className="p-2 text-gray-400 hover:text-accent transition-colors">
-                             <Star size={18} />
-                          </button>
-                       </td>
-                    </tr>
-                  ))}
+                  {loading ? (
+                    <tr><td colSpan={5} className="py-20 text-center text-gray-400 font-bold uppercase tracking-widest animate-pulse">Accessing Global Directory...</td></tr>
+                  ) : alumni.length === 0 ? (
+                    <tr><td colSpan={5} className="py-20 text-center text-gray-400 italic">No alumni records found.</td></tr>
+                  ) : alumni.map((alum) => {
+                    const isGraduated = alum.StudentProfile?.status === 'graduated';
+                    return (
+                      <tr key={alum.id} className={`group hover:bg-gray-50/30 transition-colors border-b border-gray-50 dark:border-slate-800 last:border-0 ${!isGraduated ? 'opacity-40 grayscale pointer-events-none' : ''}`}>
+                         <td className="px-12 py-6">
+                            <div className="flex items-center space-x-4">
+                               <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold ${isGraduated ? 'bg-primary/5 text-primary' : 'bg-gray-200 text-gray-400'}`}>
+                                  {alum.first_name?.[0]}
+                               </div>
+                               <div>
+                                  <span className="text-sm font-bold text-primary dark:text-white block">{alum.first_name} {alum.last_name}</span>
+                                  <span className="text-[10px] text-gray-400 font-medium">{alum.email}</span>
+                               </div>
+                            </div>
+                         </td>
+                         <td className="px-12 py-6">
+                            <span className={`px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${isGraduated ? 'bg-emerald-50 text-emerald-500' : 'bg-gray-100 text-gray-500'}`}>
+                               {alum.StudentProfile?.status || 'Unknown'}
+                            </span>
+                         </td>
+                         <td className="px-12 py-6 text-sm font-bold text-gray-600 dark:text-gray-300">
+                            {alum.StudentProfile?.institution || 'N/A'}
+                         </td>
+                         <td className="px-12 py-6 text-sm font-medium text-gray-500 flex items-center">
+                            <MapPin size={14} className="mr-2 text-gray-400" /> {alum.StudentProfile?.nationality || 'N/A'}
+                         </td>
+                         <td className="px-12 py-6 text-right">
+                            <button className="p-2 text-gray-400 hover:text-accent transition-colors">
+                               <Star size={18} />
+                            </button>
+                         </td>
+                      </tr>
+                    );
+                  })}
                </tbody>
             </table>
          </div>

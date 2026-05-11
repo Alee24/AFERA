@@ -109,6 +109,14 @@ router.post('/upload', authenticateJWT, upload.single('file'), (req: any, res: a
 router.get('/messages', authenticateJWT, messageController.getMessages);
 router.post('/messages', authenticateJWT, messageController.sendMessage);
 
+// ===== CONTACTS / LEADS =====
+router.get('/contacts', authenticateJWT, authorizeRole(['admin']), contactController.getContacts);
+router.post('/contacts', contactController.submitContact); // Public submission or Admin
+router.get('/contacts/:id', authenticateJWT, authorizeRole(['admin']), contactController.getContactById);
+router.put('/contacts/:id/status', authenticateJWT, authorizeRole(['admin']), contactController.updateContactStatus);
+router.delete('/contacts/:id', authenticateJWT, authorizeRole(['admin']), contactController.deleteContact);
+router.post('/contacts/:id/interactions', authenticateJWT, authorizeRole(['admin']), contactController.addInteraction);
+
 
 // HR routes
 router.get('/admin/hr', authenticateJWT, authorizeRole(['admin']), hrController.getAllStaff);

@@ -332,8 +332,9 @@ export default function AdminStudentsPage() {
                       <td className="px-10 py-6 text-right">
                          <button 
                            onClick={() => handleManageGrades(student)}
-                           className="p-3 bg-gray-50 text-gray-400 hover:bg-primary hover:text-white rounded-xl transition-all shadow-sm group/btn"
+                           className="flex items-center space-x-2 ml-auto px-4 py-2 bg-gray-50 text-gray-400 hover:bg-primary hover:text-white rounded-xl transition-all shadow-sm group/btn"
                          >
+                            <span className="text-[10px] font-black uppercase tracking-widest opacity-0 group-hover/btn:opacity-100 transition-opacity">View Details</span>
                             <ChevronRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
                          </button>
                       </td>

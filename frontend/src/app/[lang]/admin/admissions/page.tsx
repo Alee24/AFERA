@@ -13,23 +13,55 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { motion } from 'framer-motion';
+import api from '@/lib/api';
 
 export default function AdmissionsDashboard() {
-  const [activeTab, setActiveTab] = useState('pending');
+  const [activeTab, setActiveTab] = useState('all');
+  const [applications, setApplications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState([
+    { label: 'Total Applications', value: '0', icon: FileBadge, color: 'text-primary' },
+    { label: 'Pending Review', value: '0', icon: Clock, color: 'text-amber-500' },
+    { label: 'Accepted', value: '0', icon: CheckCircle2, color: 'text-emerald-500' },
+    { label: 'Rejected', value: '0', icon: XCircle, color: 'text-red-500' }
+  ]);
 
-  const stats = [
-    { label: 'Total Applications', value: '845', icon: FileBadge, color: 'text-primary' },
-    { label: 'Under Review', value: '124', icon: Clock, color: 'text-amber-500' },
-    { label: 'Accepted', value: '350', icon: CheckCircle2, color: 'text-emerald-500' },
-    { label: 'Rejected', value: '45', icon: XCircle, color: 'text-red-500' }
-  ];
+  React.useEffect(() => {
+    fetchApplications();
+  }, []);
 
-  const applications = [
-    { id: 'APP-1021', name: 'James Doe', program: 'MSc. Infrastructure Finance', status: 'Pending Review', date: 'Oct 15, 2026', profile: 'Civil Engineer' },
-    { id: 'APP-1022', name: 'Sarah Connor', program: 'Cert. Results Based Management', status: 'Interview', date: 'Oct 16, 2026', profile: 'Project Manager' },
-    { id: 'APP-1023', name: 'Michael Osei', program: 'MSc. Infrastructure Finance', status: 'Accepted', date: 'Oct 10, 2026', profile: 'Finance Analyst' },
-    { id: 'APP-1024', name: 'Aisha Bello', program: 'Cert. Results Based Management', status: 'Rejected', date: 'Oct 05, 2026', profile: 'Junior Architect' },
-  ];
+  const fetchApplications = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/admin/admissions');
+      const data = res.data;
+      setApplications(data);
+
+      // Calculate stats
+      const total = data.length;
+      const pending = data.filter((a: any) => a.status === 'pending_approval').length;
+      const accepted = data.filter((a: any) => a.status === 'enrolled').length;
+      const rejected = data.filter((a: any) => a.status === 'withdrawn').length;
+
+      setStats([
+        { label: 'Total Applications', value: total.toString(), icon: FileBadge, color: 'text-primary' },
+        { label: 'Pending Review', value: pending.toString(), icon: Clock, color: 'text-amber-500' },
+        { label: 'Accepted', value: accepted.toString(), icon: CheckCircle2, color: 'text-emerald-500' },
+        { label: 'Rejected', value: rejected.toString(), icon: XCircle, color: 'text-red-500' }
+      ]);
+    } catch (err) {
+      console.error('Failed to load admissions', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredApplications = applications.filter((app: any) => {
+    if (activeTab === 'all') return true;
+    if (activeTab === 'pending') return app.status === 'pending_approval';
+    if (activeTab === 'decided') return app.status === 'enrolled' || app.status === 'withdrawn';
+    return true;
+  });
 
   return (
     <div className="space-y-12 pb-20">
@@ -72,8 +104,8 @@ export default function AdmissionsDashboard() {
          <div className="px-12 py-8 border-b border-gray-50 dark:border-slate-800 flex items-center justify-between bg-gray-50/30 dark:bg-slate-800/30">
             <h3 className="text-xl font-bold text-primary dark:text-white">Application Queue</h3>
             <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-xl">
+               <button onClick={() => setActiveTab('all')} className={`px-6 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'all' ? 'bg-white dark:bg-slate-700 text-primary dark:text-white shadow-sm' : 'text-gray-400 hover:text-primary'}`}>All</button>
                <button onClick={() => setActiveTab('pending')} className={`px-6 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'pending' ? 'bg-white dark:bg-slate-700 text-primary dark:text-white shadow-sm' : 'text-gray-400 hover:text-primary'}`}>Pending</button>
-               <button onClick={() => setActiveTab('interview')} className={`px-6 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'interview' ? 'bg-white dark:bg-slate-700 text-primary dark:text-white shadow-sm' : 'text-gray-400 hover:text-primary'}`}>Interview</button>
                <button onClick={() => setActiveTab('decided')} className={`px-6 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'decided' ? 'bg-white dark:bg-slate-700 text-primary dark:text-white shadow-sm' : 'text-gray-400 hover:text-primary'}`}>Decided</button>
             </div>
          </div>
@@ -90,32 +122,35 @@ export default function AdmissionsDashboard() {
                   </tr>
                </thead>
                <tbody>
-                  {applications.map((app) => (
+                  {loading ? (
+                    <tr><td colSpan={5} className="py-20 text-center text-gray-400 font-bold uppercase tracking-widest animate-pulse">Synchronizing Admission Records...</td></tr>
+                  ) : filteredApplications.length === 0 ? (
+                    <tr><td colSpan={5} className="py-20 text-center text-gray-400 italic">No applications found for this filter.</td></tr>
+                  ) : filteredApplications.map((app) => (
                     <tr key={app.id} className="group hover:bg-gray-50/30 transition-colors border-b border-gray-50 dark:border-slate-800 last:border-0">
                        <td className="px-12 py-6">
                           <div className="flex items-center space-x-4">
                              <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary font-bold">
-                                {app.name.charAt(0)}
+                                {app.Student?.User?.first_name?.[0] || 'A'}
                              </div>
                              <div>
-                                <span className="text-sm font-bold text-primary dark:text-white block">{app.name}</span>
-                                <span className="text-[10px] text-gray-400 font-medium">{app.profile}</span>
+                                <span className="text-sm font-bold text-primary dark:text-white block">{app.Student?.User?.first_name} {app.Student?.User?.last_name}</span>
+                                <span className="text-[10px] text-gray-400 font-medium">{app.Student?.User?.email}</span>
                              </div>
                           </div>
                        </td>
                        <td className="px-12 py-6 text-sm font-bold text-gray-600 dark:text-gray-300">
-                          {app.program}
+                          {app.Program?.name || 'Academic Program'}
                        </td>
                        <td className="px-12 py-6 text-sm font-medium text-gray-500 font-mono">
-                          {app.date}
+                          {new Date(app.created_at).toLocaleDateString()}
                        </td>
                        <td className="px-12 py-6">
                           <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                             app.status === 'Accepted' ? 'bg-emerald-50 text-emerald-500' :
-                             app.status === 'Rejected' ? 'bg-red-50 text-red-500' : 
-                             app.status === 'Interview' ? 'bg-blue-50 text-blue-500' : 'bg-amber-50 text-amber-500'
+                             app.status === 'enrolled' ? 'bg-emerald-50 text-emerald-500' :
+                             app.status === 'withdrawn' ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-500'
                           }`}>
-                             {app.status}
+                             {app.status === 'pending_approval' ? 'Under Review' : app.status}
                           </span>
                        </td>
                        <td className="px-12 py-6 text-right">
