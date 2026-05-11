@@ -20,7 +20,7 @@ export const getAllStaff = async (req: Request, res: Response) => {
 // GET specific staff by ID
 export const getStaffById = async (req: Request, res: Response) => {
   try {
-    const staff = await Staff.findByPk(req.params.id, {
+    const staff = await Staff.findByPk(req.params.id as string, {
       include: [{ model: User, attributes: { exclude: ['password_hash'] } }, { model: Department }]
     });
     if (!staff) return res.status(404).json({ message: 'Staff not found' });
@@ -55,7 +55,7 @@ export const createStaff = async (req: Request, res: Response) => {
 // UPDATE existing staff
 export const updateStaff = async (req: Request, res: Response) => {
   try {
-    const staff = await Staff.findByPk(req.params.id);
+    const staff = await Staff.findByPk(req.params.id as string);
     if (!staff) return res.status(404).json({ message: 'Staff not found' });
     await staff.update(req.body);
     res.json(staff);
@@ -68,7 +68,7 @@ export const updateStaff = async (req: Request, res: Response) => {
 // DELETE staff (soft delete could be implemented, for now hard delete)
 export const deleteStaff = async (req: Request, res: Response) => {
   try {
-    const staff = await Staff.findByPk(req.params.id);
+    const staff = await Staff.findByPk(req.params.id as string);
     if (!staff) return res.status(404).json({ message: 'Staff not found' });
     await staff.destroy();
     res.json({ message: 'Staff deleted' });

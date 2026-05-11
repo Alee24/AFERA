@@ -1,52 +1,27 @@
+// backend/src/models/Course.ts
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database';
 
 class Course extends Model {
-  // Existing fields
   public id!: string;
   public program_id!: string;
   public course_code!: string;
   public course_name!: string;
   public credits!: number;
-  // New virtual fields for compatibility
-  public title!: string;
+  // Virtual/computed fields
+  public title!: string; // virtual, maps to title_en
   public slug!: string;
-  // Fallbacks for legacy/UI compatibility
+  // Localized titles
   public title_en!: string;
   public title_fr!: string;
   public title_pt!: string;
   public title_sw!: string;
+  // Descriptions
   public description_en!: string;
   public description_fr!: string;
   public description_pt!: string;
   public description_sw!: string;
-  public content_en!: string;
-  public content_fr!: string;
-  public content_pt!: string;
-  public content_sw!: string;
-  public price!: number;
-  public duration!: string;
-  public modality!: string;
-  public department!: string;
-  public course_type!: string;
-  public image_url!: string;
-  public program_overview!: string;
-  public learning_outcomes!: string;
-  public curriculum_structure!: string;
-  public id!: string;
-  public program_id!: string;
-  public course_code!: string;
-  public course_name!: string;
-  public credits!: number;
-  // Fallbacks for legacy/UI compatibility
-  public title_en!: string;
-  public title_fr!: string;
-  public title_pt!: string;
-  public title_sw!: string;
-  public description_en!: string;
-  public description_fr!: string;
-  public description_pt!: string;
-  public description_sw!: string;
+  // Content fields
   public content_en!: string;
   public content_fr!: string;
   public content_pt!: string;
@@ -64,11 +39,10 @@ class Course extends Model {
 
 Course.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  program_id: { type: DataTypes.UUID, allowNull: true }, 
+  program_id: { type: DataTypes.UUID, allowNull: true },
   course_code: { type: DataTypes.STRING, unique: true, allowNull: true },
   course_name: { type: DataTypes.STRING, allowNull: true },
   credits: { type: DataTypes.INTEGER, defaultValue: 3 },
-  
   title_en: { type: DataTypes.STRING, allowNull: false },
   title_fr: { type: DataTypes.STRING },
   title_pt: { type: DataTypes.STRING },
@@ -81,7 +55,6 @@ Course.init({
   content_fr: { type: DataTypes.TEXT },
   content_pt: { type: DataTypes.TEXT },
   content_sw: { type: DataTypes.TEXT },
-  
   price: { type: DataTypes.DECIMAL(10, 2), defaultValue: 800.00 },
   duration: { type: DataTypes.STRING },
   modality: { type: DataTypes.STRING },
@@ -92,65 +65,12 @@ Course.init({
   learning_outcomes: { type: DataTypes.TEXT, allowNull: true },
   curriculum_structure: { type: DataTypes.TEXT, allowNull: true },
   slug: { type: DataTypes.STRING, unique: true, allowNull: true },
-      title: { type: DataTypes.VIRTUAL, get() { return (this as any).title_en; } },
+  title: { type: DataTypes.VIRTUAL, get() { return (this as any).title_en; } },
 }, {
   sequelize,
   modelName: 'Course',
   tableName: 'courses',
   underscored: true,
 });
-
-export class CourseUnit extends Model {
-  public id!: string;
-  public course_id!: string;
-  public name!: string;
-  public semester!: number;
-}
-CourseUnit.init({
-  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  course_id: { type: DataTypes.UUID, allowNull: false },
-  name: { type: DataTypes.STRING, allowNull: false },
-  semester: { type: DataTypes.INTEGER, allowNull: false },
-}, { sequelize, modelName: 'CourseUnit', tableName: 'course_units', underscored: true });
-
-export class Class extends Model {
-  public id!: string;
-  public course_unit_id!: string;
-  public lecturer_id!: string;
-  public academic_year!: string;
-  public semester!: number;
-  public schedule!: string;
-  public virtual_link!: string;
-}
-Class.init({
-  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  course_unit_id: { type: DataTypes.UUID, allowNull: false },
-  lecturer_id: { type: DataTypes.UUID, allowNull: false },
-  academic_year: { type: DataTypes.STRING, allowNull: false },
-  semester: { type: DataTypes.INTEGER, allowNull: false },
-  schedule: { type: DataTypes.STRING },
-  virtual_link: { type: DataTypes.STRING, allowNull: true },
-}, { sequelize, modelName: 'Class', tableName: 'classes', underscored: true });
-
-export class CourseResource extends Model {
-  public id!: string;
-  public course_id!: string;
-  public title_en!: string;
-  public title_fr!: string;
-  public title_pt!: string;
-  public title_sw!: string;
-  public resource_type!: 'syllabus' | 'notes' | 'template' | 'other';
-  public file_url!: string;
-}
-CourseResource.init({
-  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  course_id: { type: DataTypes.UUID, allowNull: false },
-  title_en: { type: DataTypes.STRING, allowNull: false },
-  title_fr: { type: DataTypes.STRING },
-  title_pt: { type: DataTypes.STRING },
-  title_sw: { type: DataTypes.STRING },
-  resource_type: { type: DataTypes.ENUM('syllabus', 'notes', 'template', 'other'), defaultValue: 'notes' },
-  file_url: { type: DataTypes.STRING, allowNull: false },
-}, { sequelize, modelName: 'CourseResource', tableName: 'course_resources', underscored: true });
 
 export default Course;

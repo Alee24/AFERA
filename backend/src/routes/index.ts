@@ -9,6 +9,7 @@ import * as financeController from '../controllers/financeController';
 import * as academicController from '../controllers/academicController';
 import * as workshopController from '../controllers/workshopController';
 import * as paymentController from '../controllers/paymentController';
+import * as lecturerController from '../controllers/lecturerController';
 import * as hrController from '../controllers/hrController';
 import * as systemController from '../controllers/systemController';
 import * as newsPostController from '../controllers/newsPostController';
@@ -108,7 +109,7 @@ router.post('/upload', authenticateJWT, upload.single('file'), (req: any, res: a
 router.get('/messages', authenticateJWT, messageController.getMessages);
 router.post('/messages', authenticateJWT, messageController.sendMessage);
 
-import * as hrController from '../controllers/hrController';
+
 // HR routes
 router.get('/admin/hr', authenticateJWT, authorizeRole(['admin']), hrController.getAllStaff);
 router.get('/admin/hr/:id', authenticateJWT, authorizeRole(['admin']), hrController.getStaffById);
