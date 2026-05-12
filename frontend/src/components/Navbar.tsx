@@ -76,7 +76,7 @@ export default function Navbar() {
                   key={link.key}
                   href={fullHref}
                   className={cn(
-                    "text-xs font-bold tracking-wider uppercase transition-colors hover:text-primary relative py-2",
+                    "text-xs font-bold tracking-wider uppercase transition-colors hover:text-primary relative py-2 notranslate",
                     isActive ? "text-primary dark:text-white" : "text-gray-500 dark:text-gray-400"
                   )}
                 >
@@ -104,7 +104,7 @@ export default function Navbar() {
             {isAuthenticated ? (
               <div className="flex items-center space-x-3">
                 <Link href={`/${currentLang}/${user?.role === 'admin' ? 'admin' : 'dashboard'}`}>
-                  <button className="flex items-center justify-center space-x-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-primary dark:text-white rounded-full px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-all">
+                  <button className="flex items-center justify-center space-x-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-primary dark:text-white rounded-full px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-all notranslate">
                     <LayoutDashboard size={14} />
                     <span>{t('navbar.dashboard', 'Dashboard')}</span>
                   </button>
@@ -119,7 +119,7 @@ export default function Navbar() {
               </div>
             ) : (
               <Link href={`/${currentLang}/login`}>
-                <button className="flex items-center justify-center space-x-2 bg-primary hover:bg-primary/90 text-white rounded-full px-8 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-md">
+                <button className="flex items-center justify-center space-x-2 bg-primary hover:bg-primary/90 text-white rounded-full px-8 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-md notranslate">
                   <span>{t('navbar.login', 'Login')}</span>
                   <ArrowRight size={14} />
                 </button>
@@ -157,7 +157,7 @@ export default function Navbar() {
                     key={link.key}
                     href={fullHref}
                     onClick={() => setIsOpen(false)}
-                    className="block text-sm font-bold tracking-wider uppercase text-primary dark:text-white hover:text-accent border-b border-gray-50 dark:border-slate-800 pb-3"
+                    className="block text-sm font-bold tracking-wider uppercase text-primary dark:text-white hover:text-accent border-b border-gray-50 dark:border-slate-800 pb-3 notranslate"
                   >
                     {t(`navbar.${link.key}`)}
                   </Link>

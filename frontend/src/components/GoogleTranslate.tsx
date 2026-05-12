@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, Globe } from 'lucide-react';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 
 declare global {
   interface Window {
@@ -20,30 +21,35 @@ const languages = [
 const GoogleTranslate: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState('en');
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useParams();
 
   useEffect(() => {
     // Add Google Translate script
     const addScript = () => {
+      if (document.querySelector('#google-translate-script')) return;
       const script = document.createElement('script');
+      script.id = 'google-translate-script';
       script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
       script.async = true;
       document.body.appendChild(script);
     };
 
     window.googleTranslateElementInit = () => {
-      new window.google.translate.TranslateElement(
-        {
-          pageLanguage: 'en',
-          includedLanguages: 'en,fr,pt,sw',
-          autoDisplay: false,
-        },
-        'google_translate_element'
-      );
+      if (window.google && window.google.translate) {
+        new window.google.translate.TranslateElement(
+          {
+            pageLanguage: 'en',
+            includedLanguages: 'en,fr,pt,sw',
+            autoDisplay: false,
+          },
+          'google_translate_element'
+        );
+      }
     };
 
-    if (!window.google) {
-      addScript();
-    }
+    addScript();
 
     // Check for existing translation cookie
     const getCookie = (name: string) => {
@@ -56,20 +62,35 @@ const GoogleTranslate: React.FC = () => {
     if (googTrans) {
       const langCode = googTrans.split('/').pop();
       if (langCode) setCurrentLang(langCode);
+    } else {
+      // Sync with URL lang if no cookie
+      const langFromUrl = pathname.split('/')[1];
+      if (languages.some(l => l.code === langFromUrl)) {
+        setCurrentLang(langFromUrl);
+      }
     }
-  }, []);
+  }, [pathname]);
 
   const handleLanguageChange = (langCode: string) => {
     // Set the cookie for Google Translate
-    document.cookie = `googtrans=/en/${langCode}; path=/`;
-    document.cookie = `googtrans=/en/${langCode}; path=/; domain=.aferainnov.africa`;
+    const domain = window.location.hostname === 'localhost' ? '' : '; domain=.aferainnov.africa';
+    document.cookie = `googtrans=/en/${langCode}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT${domain}`;
     
-    // Reload to apply translation
-    window.location.reload();
+    // Also update the app's URL path segment for i18next
+    const segments = pathname.split('/');
+    if (segments.length > 1 && languages.some(l => l.code === segments[1])) {
+      segments[1] = langCode;
+      const newPath = segments.join('/');
+      
+      // Navigate to the new path and reload
+      window.location.href = newPath;
+    } else {
+      window.location.reload();
+    }
   };
 
   return (
-    <div className="relative inline-block text-left">
+    <div className="relative inline-block text-left notranslate">
       {/* Hidden Google Element */}
       <div id="google_translate_element" style={{ display: 'none' }}></div>
 
