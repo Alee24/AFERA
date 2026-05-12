@@ -192,6 +192,25 @@ export default function CourseDetailsPage() {
     }
   };
 
+  const isHTML = (str: string) => /<[a-z][\s\S]*>/i.test(str);
+
+  const outcomesArray = useMemo(() => {
+    if (!course || !course.learning_outcomes) {
+      return (course && Array.isArray(course.outcomes)) ? course.outcomes : [];
+    }
+    if (isHTML(course.learning_outcomes)) return [];
+    
+    // Try splitting by newline first
+    let parts = course.learning_outcomes.split('\n').map((s: any) => s.trim()).filter(Boolean);
+    
+    // If only one part, try common separators like semicolon or bullet points
+    if (parts.length <= 1) {
+      parts = course.learning_outcomes.split(/[;•]/).map((s: any) => s.trim()).filter(Boolean);
+    }
+    
+    return parts;
+  }, [course?.learning_outcomes, course?.outcomes]);
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center pt-24 bg-white dark:bg-slate-900">
        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
@@ -211,25 +230,6 @@ export default function CourseDetailsPage() {
   const currentLang = (lang as string) || 'en';
   const title = course[`title_${currentLang}`] || course.title_en || course.title || 'Specialized Program';
   const description = course[`description_${currentLang}`] || course.description_en || course.description || '';
-
-  const isHTML = (str: string) => /<[a-z][\s\S]*>/i.test(str);
-
-  const outcomesArray = useMemo(() => {
-    if (!course.learning_outcomes) {
-      return Array.isArray(course.outcomes) ? course.outcomes : [];
-    }
-    if (isHTML(course.learning_outcomes)) return [];
-    
-    // Try splitting by newline first
-    let parts = course.learning_outcomes.split('\n').map((s: any) => s.trim()).filter(Boolean);
-    
-    // If only one part, try common separators like semicolon or bullet points
-    if (parts.length <= 1) {
-      parts = course.learning_outcomes.split(/[;•]/).map((s: any) => s.trim()).filter(Boolean);
-    }
-    
-    return parts;
-  }, [course.learning_outcomes, course.outcomes]);
 
   return (
     <main className="pt-24 min-h-screen bg-gray-50/50 dark:bg-slate-950 pb-20 overflow-hidden text-left">
