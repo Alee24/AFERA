@@ -58,23 +58,51 @@ const GoogleTranslate: React.FC = () => {
       if (parts.length === 2) return parts.pop()?.split(';').shift();
     };
 
-    const googTrans = getCookie('googtrans');
-    if (googTrans) {
-      const langCode = googTrans.split('/').pop();
-      if (langCode) setCurrentLang(langCode);
+    // Prioritize URL language (Next.js route)
+    const langFromUrl = pathname.split('/')[1];
+    if (languages.some(l => l.code === langFromUrl)) {
+      setCurrentLang(langFromUrl);
+      
+      // Auto-sync Google Translate cookie to match URL segment
+      const googTrans = getCookie('googtrans');
+      const expectedCookie = `/en/${langFromUrl}`;
+      if (googTrans !== expectedCookie) {
+        document.cookie = `googtrans=/en/${langFromUrl}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+        
+        const hostname = window.location.hostname;
+        const isIP = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(hostname);
+        if (hostname !== 'localhost' && !isIP) {
+          const parts = hostname.split('.');
+          if (parts.length >= 2) {
+            const rootDomain = parts.slice(-2).join('.');
+            document.cookie = `googtrans=/en/${langFromUrl}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT; domain=.${rootDomain}`;
+          }
+        }
+      }
     } else {
-      // Sync with URL lang if no cookie
-      const langFromUrl = pathname.split('/')[1];
-      if (languages.some(l => l.code === langFromUrl)) {
-        setCurrentLang(langFromUrl);
+      // Fallback to cookie
+      const googTrans = getCookie('googtrans');
+      if (googTrans) {
+        const langCode = googTrans.split('/').pop();
+        if (langCode) setCurrentLang(langCode);
       }
     }
   }, [pathname]);
 
   const handleLanguageChange = (langCode: string) => {
-    // Set the cookie for Google Translate
-    const domain = window.location.hostname === 'localhost' ? '' : '; domain=.aferainnov.africa';
-    document.cookie = `googtrans=/en/${langCode}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT${domain}`;
+    // Set the cookie for Google Translate (current host)
+    document.cookie = `googtrans=/en/${langCode}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+    
+    // Also set for root domain
+    const hostname = window.location.hostname;
+    const isIP = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(hostname);
+    if (hostname !== 'localhost' && !isIP) {
+      const parts = hostname.split('.');
+      if (parts.length >= 2) {
+        const rootDomain = parts.slice(-2).join('.');
+        document.cookie = `googtrans=/en/${langCode}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT; domain=.${rootDomain}`;
+      }
+    }
     
     // Also update the app's URL path segment for i18next
     const segments = pathname.split('/');
