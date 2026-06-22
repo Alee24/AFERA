@@ -37,6 +37,16 @@ class Course extends Model {
   public curriculum_structure!: string;
 }
 
+const slugify = (text: string) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-');
+};
+
 Course.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   program_id: { type: DataTypes.UUID, allowNull: true },
@@ -71,6 +81,18 @@ Course.init({
   modelName: 'Course',
   tableName: 'courses',
   underscored: true,
+  hooks: {
+    beforeCreate: (course: Course) => {
+      if (course.title_en && !course.slug) {
+        course.slug = slugify(course.title_en);
+      }
+    },
+    beforeUpdate: (course: Course) => {
+      if (course.changed('title_en') && course.title_en) {
+        course.slug = slugify(course.title_en);
+      }
+    }
+  }
 });
 
 export class CourseUnit extends Model {

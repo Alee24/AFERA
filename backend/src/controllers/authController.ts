@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { User, Student, Staff, Program, Enrollment } from '../models';
+import { User, Student, Staff, Program, Enrollment, Course } from '../models';
 import { sendApplicationNotification } from '../services/mailService';
 import { logToCRM } from '../services/crmService';
 
@@ -37,15 +37,27 @@ export const register = async (req: Request, res: Response) => {
         status: 'pending'
       });
 
-      // Find the program and create an enrollment
-      const program = await Program.findOne({ where: { name: programName } });
-      if (program) {
+      // Find the course (representing the program/training) and create an enrollment
+      const course = await Course.findOne({ where: { title_en: programName } });
+      if (course) {
         await Enrollment.create({
           student_id: student.id,
-          program_id: program.id,
+          course_id: course.id,
+          program_id: course.program_id || null,
           status: 'pending_approval',
           academic_year: '2026'
         });
+      } else {
+        // Fallback to checking the Program table for backward compatibility
+        const program = await Program.findOne({ where: { name: programName } });
+        if (program) {
+          await Enrollment.create({
+            student_id: student.id,
+            program_id: program.id,
+            status: 'pending_approval',
+            academic_year: '2026'
+          });
+        }
       }
     }
 

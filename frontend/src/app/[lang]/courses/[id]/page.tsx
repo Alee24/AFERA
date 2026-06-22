@@ -463,18 +463,6 @@ export default function CourseDetailsPage() {
                 <p className="text-center text-[10px] text-gray-400 mt-6 leading-relaxed">
                    Admission is competitive. Secure your spot by completing the initial application phase.
                 </p>
-
-                <div className="mt-10 pt-8 border-t border-gray-50 dark:border-slate-800 space-y-4">
-                   <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center text-accent">
-                         <Users size={20} />
-                      </div>
-                      <div className="text-left">
-                         <p className="text-xs font-bold text-primary dark:text-white leading-none">Limited Cohort</p>
-                         <p className="text-[10px] text-gray-400 mt-1 uppercase">25 Seats Available</p>
-                      </div>
-                   </div>
-                </div>
              </div>
           </div>
 

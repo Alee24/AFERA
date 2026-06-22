@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/lib/AuthContext';
@@ -23,6 +23,24 @@ export default function RegisterPage() {
   const { showNotification } = useNotification();
   const router = useRouter();
   const { lang } = useParams();
+  const [courses, setCourses] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const res = await api.get('/courses');
+        if (Array.isArray(res.data)) {
+          setCourses(res.data);
+          if (res.data.length > 0) {
+            setProgram(res.data[0].title_en);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch courses:', err);
+      }
+    };
+    fetchCourses();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,8 +131,21 @@ export default function RegisterPage() {
                   value={program}
                   onChange={(e) => setProgram(e.target.value)}
                 >
-                  <option value="Specialized Master’s Degree in Resource Mobilization, Financing and Maintenance">Specialized Master's Degree (Resource Mobilization)</option>
-                  <option value="Specialist Certification in Results-Based Management (RBM)">Specialist Certification in RBM</option>
+                  {courses.length > 0 ? (
+                    courses.map((c) => (
+                      <option key={c.id} value={c.title_en}>
+                        {i18n.language === 'fr' && c.title_fr ? c.title_fr :
+                         i18n.language === 'pt' && c.title_pt ? c.title_pt :
+                         i18n.language === 'sw' && c.title_sw ? c.title_sw :
+                         c.title_en}
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="Specialized Master’s Degree in Resource Mobilization, Financing and Maintenance">Specialized Master's Degree (Resource Mobilization)</option>
+                      <option value="Specialist Certification in Results-Based Management (RBM)">Specialist Certification in RBM</option>
+                    </>
+                  )}
                 </select>
               </div>
             </div>

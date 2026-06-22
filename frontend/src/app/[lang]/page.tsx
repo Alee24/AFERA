@@ -49,12 +49,16 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
             Join thousands of students who are already shaping their future at AFERA INNOV ACADEMY. Applications for the next semester are now open.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Button variant="primary" size="lg" className="bg-white text-accent hover:bg-gray-100">
-              Apply for Admission
-            </Button>
-            <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
-              Download Prospectus
-            </Button>
+            <Link href={`/${lang}/register`}>
+              <Button variant="primary" size="lg" className="bg-white text-accent hover:bg-gray-100">
+                Apply for Admission
+              </Button>
+            </Link>
+            <a href="/Centre-Academy-AFERA-Innov.pptx" download>
+              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
+                Download Prospectus
+              </Button>
+            </a>
           </div>
         </div>
       </section>
