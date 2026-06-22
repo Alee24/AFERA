@@ -392,24 +392,17 @@ export default function StudentDashboard() {
                         </div>
                         <Button 
                           onClick={() => {
-                            const ref = prompt('Enter M-Pesa Transaction Reference:');
-                            if (ref) {
-                              const pendingInv = invoices.find(inv => inv.status === 'pending');
-                              if (pendingInv) {
-                                api.put(`/finance/mock-pay/${pendingInv.id}`)
-                                  .then(() => {
-                                    showNotification('Payment successful!', 'success');
-                                    fetchDashboardData();
-                                  })
-                                  .catch(() => showNotification('Payment failed', 'error'));
-                              } else {
-                                showNotification('No pending invoices found', 'info');
-                              }
+                            const pendingInv = invoices.find(inv => inv.status === 'pending');
+                            if (pendingInv) {
+                              setSelectedInvoice(pendingInv);
+                              setIsPaymentModalOpen(true);
+                            } else {
+                              showNotification('No pending invoices found', 'info');
                             }
                           }}
                           variant="accent" size="lg" className="rounded-2xl px-10 h-16 text-primary shadow-xl"
                         >
-                           <CreditCard size={20} className="mr-3" /> Pay Online
+                           <CreditCard size={20} className="mr-3" /> Pay / Bank Transfer
                         </Button>
                      </div>
                      <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
