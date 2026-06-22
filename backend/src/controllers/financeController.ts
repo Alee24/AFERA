@@ -55,22 +55,44 @@ export const getInvoiceById = async (req: any, res: Response) => {
 // PUT /api/finance/mock-pay/:id
 export const mockPayInvoice = async (req: any, res: Response) => {
   try {
-    const { Receipt } = require('../models');
+    const { Receipt, Payment, Enrollment } = require('../models');
     const invoice = await Invoice.findByPk(req.params.id);
     if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
 
+    // Find if there is a pending payment (like a bank transfer) to reuse the transaction reference
+    const associatedPayment = await Payment.findOne({
+      where: { invoice_id: invoice.id },
+      order: [['payment_date', 'DESC']]
+    });
+
+    let paymentMethod = 'Manual/Admin';
+    let transactionRef = `RCPT-${Date.now()}`;
+
+    if (associatedPayment) {
+      paymentMethod = associatedPayment.payment_method;
+      transactionRef = associatedPayment.transaction_ref;
+    }
+
     await invoice.update({ status: 'paid' });
 
-    // Auto-generate Receipt
+    // Create the official Receipt
     await Receipt.create({
       invoice_id: invoice.id,
       student_id: invoice.student_id,
       amount_paid: invoice.total_amount,
-      payment_method: 'Manual/Admin',
-      transaction_ref: `RCPT-${Date.now()}`
+      payment_method: paymentMethod,
+      transaction_ref: transactionRef
     });
 
-    res.json({ message: 'Invoice paid and receipt generated successfully' });
+    // Mark enrollment as enrolled if it exists
+    if (invoice.enrollment_id) {
+      const enrollment = await Enrollment.findByPk(invoice.enrollment_id);
+      if (enrollment) {
+        await enrollment.update({ status: 'enrolled' });
+      }
+    }
+
+    res.json({ message: 'Invoice marked paid and receipt generated successfully' });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -83,7 +105,7 @@ export const getAllInvoices = async (req: any, res: Response) => {
       return res.status(403).json({ message: 'Access denied' });
     }
 
-    const { User, Receipt } = require('../models');
+    const { User, Receipt, Payment } = require('../models');
 
     const invoices = await Invoice.findAll({
       include: [
@@ -95,7 +117,8 @@ export const getAllInvoices = async (req: any, res: Response) => {
           model: Enrollment,
           include: [{ model: Course, as: 'Course' }, { model: Program }]
         },
-        { model: Receipt }
+        { model: Receipt },
+        { model: Payment }
       ],
       order: [['created_at', 'DESC']]
     });

@@ -355,18 +355,29 @@ export default function FinanceDashboard() {
                          {invoice.billing_type === 'credit_note' ? '-' : ''}${Math.abs(invoice.amount).toLocaleString()}
                       </td>
                       <td className="px-12 py-8">
-                         <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                            invoice.status === 'paid' ? 'bg-emerald-50 text-emerald-500' : 
-                            invoice.status === 'overdue' ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-500'
-                         }`}>
-                            {invoice.status}
-                         </span>
+                         {invoice.status !== 'paid' && invoice.Payments?.[0] ? (
+                           <span className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-blue-50 text-blue-500 dark:bg-blue-900/20 dark:text-blue-400">
+                              Verification Pending
+                           </span>
+                         ) : (
+                           <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                              invoice.status === 'paid' ? 'bg-emerald-50 text-emerald-500' : 
+                              invoice.status === 'overdue' ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-500'
+                           }`}>
+                              {invoice.status}
+                           </span>
+                         )}
                       </td>
                       <td className="px-12 py-8 text-[10px] font-bold text-gray-500">
                          {invoice.Receipts?.[0] ? (
                            <div className="flex flex-col">
                               <span className="text-emerald-500">Paid via {invoice.Receipts[0].payment_method}</span>
-                              <span className="text-[8px] opacity-60">Ref: {invoice.Receipts[0].transaction_ref}</span>
+                              <span className="text-[8px] opacity-60 font-mono">Ref: {invoice.Receipts[0].transaction_ref}</span>
+                           </div>
+                         ) : invoice.Payments?.[0] ? (
+                           <div className="flex flex-col">
+                              <span className="text-blue-500 dark:text-blue-400">Bank Transfer Filed</span>
+                              <span className="text-[8px] opacity-60 font-mono">Ref: {invoice.Payments[0].transaction_ref}</span>
                            </div>
                          ) : 'Pending Settlement'}
                       </td>
@@ -376,7 +387,16 @@ export default function FinanceDashboard() {
                                <Printer size={18} className="group-hover/btn:scale-110 transition-transform" />
                             </Button>
                             {invoice.status !== 'paid' && (
-                              <Button onClick={() => handleMarkPaid(invoice.realId)} variant="ghost" className="p-2 hover:bg-emerald-50 text-emerald-600 rounded-lg">
+                              <Button 
+                                onClick={() => handleMarkPaid(invoice.realId)} 
+                                variant="ghost" 
+                                className={`p-2 rounded-lg transition-colors ${
+                                  invoice.Payments?.[0] 
+                                    ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 hover:bg-emerald-100' 
+                                    : 'hover:bg-emerald-50 text-emerald-600'
+                                }`}
+                                title={invoice.Payments?.[0] ? "Verify & Mark Paid" : "Mark Paid"}
+                              >
                                  <CheckCircle2 size={18} />
                               </Button>
                             )}

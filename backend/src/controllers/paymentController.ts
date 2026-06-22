@@ -42,8 +42,40 @@ export const initiatePayment = async (req: any, res: Response) => {
     const invoice = await Invoice.findByPk(invoice_id);
     if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
 
+    // Bank Transfer payment processing
+    if (gateway === 'bank_transfer') {
+      const { reference } = req.body;
+      if (!reference || !reference.trim()) {
+        return res.status(400).json({ message: 'Transaction reference is required for bank transfers.' });
+      }
+
+      const { Payment } = require('../models');
+      const existingPayment = await Payment.findOne({ where: { transaction_ref: reference } });
+      if (existingPayment) {
+        return res.status(400).json({ message: 'This transaction reference has already been submitted.' });
+      }
+
+      try {
+        await Payment.create({
+          student_id: invoice.student_id,
+          invoice_id: invoice.id,
+          amount: invoice.total_amount,
+          payment_method: 'bank_transfer',
+          transaction_ref: reference
+        });
+      } catch (pErr: any) {
+        console.error('Failed to log bank transfer payment entry:', pErr);
+        return res.status(500).json({ message: 'Failed to record bank transfer details.' });
+      }
+
+      return res.json({ 
+        message: 'Bank transfer reference submitted successfully! Pending verification by admin.', 
+        url: null 
+      });
+    }
+
     // Manual/Simulation payment overrides
-    if (gateway === 'simulation' || gateway === 'test' || gateway === 'bank_transfer' || gateway === 'scholarship') {
+    if (gateway === 'simulation' || gateway === 'test' || gateway === 'scholarship') {
       await invoice.update({ status: 'paid' });
       
       const { Enrollment, Payment } = require('../models');

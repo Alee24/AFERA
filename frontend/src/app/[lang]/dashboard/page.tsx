@@ -31,7 +31,8 @@ import {
   Puzzle,
   Type,
   Video,
-  File
+  File,
+  DollarSign
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
@@ -57,6 +58,7 @@ export default function StudentDashboard() {
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [mpesaPhone, setMpesaPhone] = useState('');
+  const [bankRef, setBankRef] = useState('');
   const [paying, setPaying] = useState(false);
   
   // H5P Viewer States
@@ -504,6 +506,7 @@ export default function StudentDashboard() {
                           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Select Gateway</p>
                           <div className="grid grid-cols-1 gap-3">
                             {[
+                              { id: 'bank_transfer', name: 'Bank Transfer', icon: DollarSign, color: 'indigo' },
                               { id: 'mpesa', name: 'M-Pesa STK Push', icon: Smartphone, color: 'emerald' },
                               { id: 'paypal', name: 'PayPal Global', icon: Globe, color: 'blue' },
                               { id: 'pesapal', name: 'PesaPal v3', icon: CreditCard, color: 'orange' }
@@ -536,9 +539,45 @@ export default function StudentDashboard() {
                               type="text" 
                               value={mpesaPhone}
                               onChange={(e) => setMpesaPhone(e.target.value)}
-                              className="w-full h-14 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-6 font-bold"
+                              className="w-full h-14 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-6 font-bold text-primary dark:text-white"
                               placeholder="e.g. 254712345678"
                             />
+                          </div>
+                        )}
+
+                        {paymentMethod === 'bank_transfer' && (
+                          <div className="space-y-4 text-left">
+                            <div className="bg-primary/5 dark:bg-slate-800/50 p-6 rounded-2xl border border-primary/10 dark:border-slate-700/50 space-y-3">
+                              <p className="text-xs font-black text-primary dark:text-accent uppercase tracking-widest border-b border-primary/10 dark:border-slate-700 pb-2">KCB Bank Details</p>
+                              <div className="grid grid-cols-2 gap-3 text-xs">
+                                <div>
+                                  <span className="text-gray-400 font-semibold block text-[10px] uppercase">Account Name</span>
+                                  <strong className="text-primary dark:text-white font-bold">ARMFA KENYA</strong>
+                                </div>
+                                <div>
+                                  <span className="text-gray-400 font-semibold block text-[10px] uppercase">Account Number</span>
+                                  <strong className="text-primary dark:text-white font-bold">128 419 0544</strong>
+                                </div>
+                                <div>
+                                  <span className="text-gray-400 font-semibold block text-[10px] uppercase">Bank Name</span>
+                                  <strong className="text-primary dark:text-white font-bold text-[10px]">KENYA COMMERCIAL BANK</strong>
+                                </div>
+                                <div>
+                                  <span className="text-gray-400 font-semibold block text-[10px] uppercase">Swift Code</span>
+                                  <strong className="text-primary dark:text-white font-bold">KCBLKENX</strong>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Transaction Reference / Receipt Code</label>
+                              <input 
+                                type="text" 
+                                value={bankRef}
+                                onChange={(e) => setBankRef(e.target.value)}
+                                className="w-full h-14 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-6 font-bold text-primary dark:text-white"
+                                placeholder="e.g. KCB12345678"
+                              />
+                            </div>
                           </div>
                         )}
 
@@ -549,21 +588,29 @@ export default function StudentDashboard() {
                               const res = await api.post('/payments/initiate', {
                                 invoice_id: selectedInvoice.id,
                                 gateway: paymentMethod,
-                                phone: mpesaPhone
+                                phone: paymentMethod === 'mpesa' ? mpesaPhone : undefined,
+                                reference: paymentMethod === 'bank_transfer' ? bankRef : undefined
                               });
                               showNotification(res.data.message, 'success');
                               if (res.data.url) window.location.href = res.data.url;
                               setIsPaymentModalOpen(false);
+                              // Refresh dashboard data so that invoice status and payment badges update
+                              fetchDashboardData();
                             } catch (err: any) {
                               showNotification(err.response?.data?.message || 'Payment initiation failed', 'error');
                             } finally {
                               setPaying(false);
                             }
                           }}
-                          disabled={!paymentMethod || paying || (paymentMethod === 'mpesa' && !mpesaPhone)}
+                          disabled={
+                            !paymentMethod || 
+                            paying || 
+                            (paymentMethod === 'mpesa' && !mpesaPhone) || 
+                            (paymentMethod === 'bank_transfer' && !bankRef.trim())
+                          }
                           className="w-full h-16 bg-primary text-white rounded-2xl font-black uppercase tracking-widest shadow-xl"
                         >
-                          {paying ? <Loader2 className="animate-spin" /> : `Complete Payment via ${paymentMethod?.toUpperCase()}`}
+                          {paying ? <Loader2 className="animate-spin" /> : `Complete Payment`}
                         </Button>
                       </div>
                     </motion.div>
