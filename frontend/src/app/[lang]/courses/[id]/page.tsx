@@ -118,7 +118,7 @@ export default function CourseDetailsPage() {
   // Payment States
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
-  const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<string | null>('bank_transfer');
   const [paying, setPaying] = useState(false);
   const [mpesaPhone, setMpesaPhone] = useState('');
   const [bankRef, setBankRef] = useState('');
@@ -493,10 +493,7 @@ export default function CourseDetailsPage() {
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Select Gateway</p>
                 <div className="grid grid-cols-1 gap-3">
                   {[
-                    { id: 'bank_transfer', name: 'Bank Transfer', icon: DollarSign, color: 'indigo' },
-                    { id: 'mpesa', name: 'M-Pesa STK Push', icon: Smartphone, color: 'emerald' },
-                    { id: 'paypal', name: 'PayPal Global', icon: Globe, color: 'blue' },
-                    { id: 'pesapal', name: 'PesaPal v3', icon: CreditCard, color: 'orange' }
+                    { id: 'bank_transfer', name: 'Bank Transfer', icon: DollarSign, color: 'indigo' }
                   ].map((g) => (
                     <button 
                       key={g.id}
