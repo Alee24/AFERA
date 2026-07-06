@@ -202,7 +202,7 @@ export default function RegisterPage() {
               )}
             </Button>
             <p className="text-xs text-gray-500 text-center mt-4">
-              By applying, you agree to our Terms of Service and Privacy Policy.
+              By applying, you agree to our <Link href={`/${lang}/terms`} className="underline font-semibold hover:text-accent transition-colors">Terms of Service</Link> and <Link href={`/${lang}/privacy`} className="underline font-semibold hover:text-accent transition-colors">Privacy Policy</Link>.
             </p>
           </form>
 

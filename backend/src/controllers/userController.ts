@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { User, Student, Enrollment, Course, Contact, Program } from '../models';
+import { sendAccountCreatedNotification } from '../services/mailService';
 
 // GET /api/users (admin)
 export const getAllUsers = async (req: Request, res: Response) => {
@@ -142,7 +143,8 @@ export const bulkCreateUsers = async (req: Request, res: Response) => {
       const existing = await User.findOne({ where: { email: u.email } });
       if (existing) continue;
 
-      const password_hash = await bcrypt.hash('Student123!', 10);
+      const tempPassword = `AFERA-${Math.floor(1000 + Math.random() * 9000)}-${Math.random().toString(36).slice(-4).toUpperCase()}!`;
+      const password_hash = await bcrypt.hash(tempPassword, 10);
       const user = await User.create({
         first_name: u.first_name,
         last_name: u.last_name,
@@ -160,6 +162,15 @@ export const bulkCreateUsers = async (req: Request, res: Response) => {
           status: 'pending'
         });
       }
+
+      // Send email with credentials
+      await sendAccountCreatedNotification({
+        first_name: u.first_name,
+        last_name: u.last_name,
+        email: u.email,
+        role: u.role || 'student'
+      }, tempPassword);
+
       createdUsers.push(user);
     }
     res.status(201).json({ message: `Successfully onboarded ${createdUsers.length} users.`, count: createdUsers.length });

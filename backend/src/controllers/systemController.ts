@@ -17,11 +17,11 @@ export const getSettings = async (req: Request, res: Response) => {
     const defaults = {
       site_name: 'Afera Innov Academy',
       site_description: 'Transforming road infrastructure systems across Africa.',
-      logo_url: '/logo.png',
-      footer_logo_url: '/logo-footer.png',
+      logo_url: '/LOGOMAIN.png',
+      footer_logo_url: '/LOGOMAIN.png',
       contact_email: 'info@aferainnov.africa',
       contact_phone: '+254 700 000000',
-      contact_address: 'Nairobi, Kenya',
+      contact_address: '4th Floor, Kenya Re Towers, Off Ragati Road, Upper Hill, Nairobi, Kenya',
       color_primary: '#051A31',
       color_accent: '#E7AB33'
     };

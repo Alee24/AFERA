@@ -120,8 +120,8 @@ export default function Footer() {
           <p>© 2026 AFERA INNOV ACADEMY. All rights reserved.</p>
           <p className="font-medium">Developed by <a href="https://www.kkdes.co.ke" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-accent transition-colors">KKDES</a></p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <Link href={`/${lang}/about`} className="hover:text-white">Privacy Policy</Link>
-            <Link href={`/${lang}/about`} className="hover:text-white">Terms of Service</Link>
+            <Link href={`/${lang}/privacy`} className="hover:text-white">Privacy Policy</Link>
+            <Link href={`/${lang}/terms`} className="hover:text-white">Terms of Service</Link>
           </div>
         </div>
       </div>

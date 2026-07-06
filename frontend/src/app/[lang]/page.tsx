@@ -54,7 +54,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                 Apply for Admission
               </Button>
             </Link>
-            <a href="/Centre-Academy-AFERA-Innov.pptx" download>
+            <a href={lang === 'fr' ? "/Centre-Academy-AFERA-Innov.pptx" : "/Centre-Academy-AFERA-Innov-EN.pdf"} download>
               <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
                 Download Prospectus
               </Button>

@@ -30,7 +30,7 @@ Workshop.init({
   image_url: { type: DataTypes.STRING },
   file_url: { type: DataTypes.STRING },
   category: { type: DataTypes.STRING, defaultValue: 'General' },
-  type: { type: DataTypes.STRING, defaultValue: 'PPTX' },
+  type: { type: DataTypes.STRING, defaultValue: 'PDF' },
 }, {
   sequelize,
   modelName: 'Workshop',

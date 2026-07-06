@@ -66,7 +66,7 @@ export default function CourseDetailsPage() {
         { order: 4, title: 'Research & Professional Project', duration_weeks: 16, description: 'Master’s dissertation and oral defense before an expert jury.' }
       ],
       partners: [
-        "CESAG (Dakar)", "CBK-IMS (Nairobi)", "KIHBT (Nairobi)", "ENSTP (Yaoundé)", "World Bank", "AfDB", "European Union"
+        "CESAG (Dakar)", "AFRALTI (Nairobi)", "CBK-IMS (Nairobi)", "KIHBT (Nairobi)", "ENSTP (Yaoundé)", "World Bank", "AfDB", "European Union"
       ]
     },
     'certificate-rbm': {
@@ -496,8 +496,7 @@ export default function CourseDetailsPage() {
                     { id: 'bank_transfer', name: 'Bank Transfer', icon: DollarSign, color: 'indigo' },
                     { id: 'mpesa', name: 'M-Pesa STK Push', icon: Smartphone, color: 'emerald' },
                     { id: 'paypal', name: 'PayPal Global', icon: Globe, color: 'blue' },
-                    { id: 'pesapal', name: 'PesaPal v3', icon: CreditCard, color: 'orange' },
-                    { id: 'scholarship', name: 'Scholarship Grant', icon: Award, color: 'violet' }
+                    { id: 'pesapal', name: 'PesaPal v3', icon: CreditCard, color: 'orange' }
                   ].map((g) => (
                     <button 
                       key={g.id}

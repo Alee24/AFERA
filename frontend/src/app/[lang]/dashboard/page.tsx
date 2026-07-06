@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/AuthContext';
@@ -25,6 +25,7 @@ import {
   CheckCircle2,
   AlertCircle,
   X,
+  Send,
   Smartphone,
   Globe,
   Loader2,
@@ -34,6 +35,7 @@ import {
   File,
   DollarSign
 } from 'lucide-react';
+import jsPDF from 'jspdf';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
 import { useNotification } from '@/lib/NotificationContext';
@@ -50,8 +52,16 @@ export default function StudentDashboard() {
   const [resources, setResources] = useState<any[]>([]);
   const [availableCourses, setAvailableCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'courses' | 'finance' | 'resources' | 'profile' | 'grades'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'courses' | 'finance' | 'resources' | 'profile' | 'grades' | 'messages'>('overview');
   const [grades, setGrades] = useState<any[]>([]);
+
+  // Chat States
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [chatUsers, setChatUsers] = useState<any[]>([]);
+  const [selectedChatUser, setSelectedChatUser] = useState<any>(null);
+  const [chatContent, setChatContent] = useState('');
+  const [chatSending, setChatSending] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Payment States
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -101,11 +111,174 @@ export default function StudentDashboard() {
   };
 
   const courses = enrollments.flatMap(e => e.Program?.Courses || []);
-  const totalBalance = enrollments.reduce((sum, e) => sum + (parseFloat(e.fee_amount) || 0), 0);
+  const totalBalance = invoices.reduce((acc, inv) => acc + parseFloat(inv.total_amount), 0);
+  const currentLang = i18n.language || 'en';
+
+  const fetchChatUsers = async () => {
+    try {
+      const res = await api.get('/users');
+      setChatUsers(res.data.filter((u: any) => u.id !== user?.id && (u.role === 'lecturer' || u.role === 'admin')));
+    } catch (err) {
+      console.error('Failed to load user list');
+    }
+  };
+
+  const fetchChatMessages = async () => {
+    try {
+      const res = await api.get('/messages');
+      setChatMessages(res.data);
+    } catch (err) {
+      console.error('Failed to load messages');
+    }
+  };
+
+  const handleSendChatMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedChatUser || !chatContent.trim()) return;
+    setChatSending(true);
+    try {
+      await api.post('/messages', {
+        receiver_id: selectedChatUser.id,
+        content: chatContent.trim()
+      });
+      setChatContent('');
+      fetchChatMessages();
+    } catch (err) {
+      showNotification('Failed to deliver message', 'error');
+    } finally {
+      setChatSending(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'messages') {
+      fetchChatUsers();
+      fetchChatMessages();
+      const interval = setInterval(fetchChatMessages, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'messages') {
+      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatMessages, selectedChatUser, activeTab]);
+
+  const gradePointsMap: Record<string, number> = {
+    'A': 4.0, 'A-': 3.7, 'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+    'C+': 2.3, 'C': 2.0, 'C-': 1.7, 'D+': 1.3, 'D': 1.0, 'F': 0.0
+  };
+
+  const calculateGPA = (gradesList: any[]) => {
+    if (!gradesList || gradesList.length === 0) return '0.00';
+    let totalPoints = 0;
+    let count = 0;
+    for (const g of gradesList) {
+      const gradeLetter = (g.grade || '').toUpperCase().trim();
+      if (gradeLetter) {
+        const points = gradePointsMap[gradeLetter] !== undefined ? gradePointsMap[gradeLetter] : 4.0;
+        totalPoints += points;
+        count++;
+      }
+    }
+    return count > 0 ? (totalPoints / count).toFixed(2) : '0.00';
+  };
+
+  const dynamicGPA = calculateGPA(grades);
+
+  const getAcademicStanding = (gpaVal: number) => {
+    if (gpaVal >= 3.7) return 'Distinction';
+    if (gpaVal >= 3.0) return 'Credit';
+    if (gpaVal >= 2.0) return 'Pass';
+    return 'Good Standing';
+  };
+
+  const completedUnits = grades.filter((g: any) => parseFloat(g.score) >= 50).length;
+  const completedUnitsText = `${completedUnits.toString().padStart(2, '0')}/12`;
+
+  const getPendingTasksCount = () => {
+    let count = 0;
+    const unpaidInvoices = invoices.filter((inv: any) => inv.status === 'pending');
+    count += unpaidInvoices.length;
+    
+    const pendingEnrollments = enrollments.filter((e: any) => e.status === 'pending_approval' || e.status === 'pending');
+    count += pendingEnrollments.length;
+    
+    if (user && user.role === 'student' && !user.StudentProfile?.nationality) {
+      count += 1;
+    }
+    return count;
+  };
+  const pendingTasksText = `${getPendingTasksCount().toString().padStart(2, '0')} Items`;
+
+  const downloadPDFInvoice = (inv: any) => {
+    try {
+      const doc = new jsPDF();
+      doc.setFillColor(5, 26, 49); 
+      doc.rect(0, 0, 210, 40, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.setFont('Helvetica', 'bold');
+      doc.text('AFERA INNOV ACADEMY', 15, 25);
+      
+      doc.setTextColor(50, 50, 50);
+      doc.setFontSize(16);
+      doc.text('OFFICIAL ACADEMIC INVOICE', 15, 60);
+      
+      doc.setFontSize(11);
+      doc.setFont('Helvetica', 'normal');
+      doc.text(`Invoice No: INV-${inv.id?.substring(0, 8).toUpperCase()}`, 15, 75);
+      doc.text(`Due Date: ${new Date(inv.due_date).toLocaleDateString()}`, 15, 82);
+      doc.text(`Status: ${inv.status.toUpperCase()}`, 15, 89);
+      
+      doc.setDrawColor(200, 200, 200);
+      doc.line(15, 95, 195, 95);
+      
+      doc.setFontSize(12);
+      doc.setFont('Helvetica', 'bold');
+      doc.text('Billed To:', 15, 110);
+      
+      doc.setFontSize(11);
+      doc.setFont('Helvetica', 'normal');
+      doc.text(`Scholar Name: ${user?.first_name} ${user?.last_name}`, 15, 118);
+      doc.text(`Scholar ID: ${user?.StudentProfile?.admission_number || 'N/A'}`, 15, 125);
+      doc.text(`Email: ${user?.email}`, 15, 132);
+      
+      doc.line(15, 140, 195, 140);
+      doc.setFont('Helvetica', 'bold');
+      doc.text('Description', 15, 150);
+      doc.text('Amount Due', 160, 150);
+      doc.line(15, 155, 195, 155);
+      
+      doc.setFont('Helvetica', 'normal');
+      const course = inv.Enrollment?.Course;
+      const programTitle = course?.[`title_${currentLang}`] || course?.title_en || 'Academic Program Enrolled';
+      doc.text(programTitle, 15, 165);
+      doc.text(`$${parseFloat(inv.total_amount).toLocaleString()}`, 160, 165);
+      
+      doc.line(15, 175, 195, 175);
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text('Total Invoice:', 115, 190);
+      doc.text(`$${parseFloat(inv.total_amount).toLocaleString()}`, 160, 190);
+      
+      doc.setFontSize(9);
+      doc.setFont('Helvetica', 'italic');
+      doc.setTextColor(150, 150, 150);
+      doc.text('Thank you for trusting Afera Innov Academy.', 105, 250, { align: 'center' });
+      doc.text('This is a computer-generated invoice, no signature required.', 105, 256, { align: 'center' });
+      
+      doc.save(`Invoice_${inv.id?.substring(0,8)}.pdf`);
+    } catch (err) {
+      showNotification('Failed to generate PDF invoice', 'error');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-slate-950 pt-20">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 print:hidden">
         
         {/* Modern Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-10 gap-6">
@@ -125,6 +298,7 @@ export default function StudentDashboard() {
                { id: 'finance', label: 'Finance', icon: CreditCard },
                { id: 'grades', label: 'Grades', icon: GraduationCap },
                { id: 'resources', label: 'Resources', icon: Megaphone },
+               { id: 'messages', label: 'Messages', icon: MessageSquare },
                { id: 'profile', label: 'Profile', icon: Settings }
              ].map((tab) => (
                <button
@@ -206,9 +380,9 @@ export default function StudentDashboard() {
                   {/* Performance Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     {[
-                      { label: 'Units Completed', value: '08/12', icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-                      { label: 'Current Average', value: '4.8 GPA', icon: GraduationCap, color: 'text-accent', bg: 'bg-accent/5' },
-                      { label: 'Pending Tasks', value: '03 Items', icon: Clock, color: 'text-amber-500', bg: 'bg-amber-50' }
+                      { label: 'Units Completed', value: completedUnitsText, icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+                      { label: 'Current Average', value: dynamicGPA !== '0.00' ? `${dynamicGPA} GPA` : 'N/A', icon: GraduationCap, color: 'text-accent', bg: 'bg-accent/5' },
+                      { label: 'Pending Tasks', value: pendingTasksText, icon: Clock, color: 'text-amber-500', bg: 'bg-amber-50' }
                     ].map((stat, i) => (
                       <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[32px] shadow-sm border border-gray-50 dark:border-slate-800 group hover:shadow-xl transition-all">
                         <div className={`w-12 h-12 ${stat.bg} rounded-2xl flex items-center justify-center ${stat.color} mb-4 group-hover:scale-110 transition-transform`}>
@@ -231,7 +405,6 @@ export default function StudentDashboard() {
                        {enrollments.length > 0 ? (
                          enrollments.filter(e => e.status === 'enrolled').slice(0, 2).map((enrollment, idx) => {
                            const course = enrollment.Course;
-                           const currentLang = i18n.language || 'en';
                            const title = course?.[`title_${currentLang}`] || course?.title_en || 'Specialized Program';
                            
                            return (
@@ -284,7 +457,6 @@ export default function StudentDashboard() {
                       <div className="space-y-10">
                         {enrollments.map((enrollment) => {
                           const course = enrollment.Course;
-                          const currentLang = i18n.language || 'en';
                           const title = course?.[`title_${currentLang}`] || course?.title_en || 'Specialized Program';
                           const modules = course?.Modules || [];
                           
@@ -414,7 +586,6 @@ export default function StudentDashboard() {
                         {invoices.length > 0 ? (
                           invoices.map((inv, i) => {
                             const course = inv.Enrollment?.Course;
-                            const currentLang = i18n.language || 'en';
                             const programTitle = course?.[`title_${currentLang}`] || course?.title_en || 'Specialized Program';
                             
                             return (
@@ -450,7 +621,7 @@ export default function StudentDashboard() {
                                         </Button>
                                       )}
                                       <button 
-                                        onClick={() => window.print()}
+                                        onClick={() => downloadPDFInvoice(inv)}
                                         className="p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm text-gray-400 hover:text-primary transition-all"
                                       >
                                          <Download size={18} />
@@ -712,7 +883,7 @@ export default function StudentDashboard() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                      <div className="bg-emerald-50 dark:bg-emerald-900/10 p-8 rounded-[40px] border border-emerald-100 dark:border-emerald-800">
                         <p className="text-[10px] font-black text-emerald-600/60 uppercase tracking-[0.2em] mb-2">Cumulative GPA</p>
-                        <h4 className="text-4xl font-black text-emerald-600">3.85</h4>
+                        <h4 className="text-4xl font-black text-emerald-600">{dynamicGPA}</h4>
                         <p className="text-xs text-emerald-600/80 mt-2 font-medium">Top 10% of your class</p>
                      </div>
                      <div className="bg-accent/5 dark:bg-accent/10 p-8 rounded-[40px] border border-accent/10 dark:border-accent/20">
@@ -769,7 +940,6 @@ export default function StudentDashboard() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                          {resources.length > 0 ? (
                            resources.map((res, i) => {
-                             const currentLang = i18n.language || 'en';
                              const title = res[`title_${currentLang}`] || res.title_en;
                              return (
                                <div key={i} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800 rounded-2xl group cursor-pointer hover:bg-primary hover:text-white transition-all">
@@ -895,9 +1065,121 @@ export default function StudentDashboard() {
                          </div>
                       </form>
                    </div>
+                 </motion.div>
+               )}
+
+              {activeTab === 'messages' && (
+                <motion.div 
+                  key="messages"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-8 h-[600px] flex flex-col print:hidden"
+                >
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1 min-h-0 overflow-hidden bg-white dark:bg-slate-900 rounded-[40px] shadow-sm border border-gray-50 dark:border-slate-800">
+                     {/* Contacts Sidebar */}
+                     <div className="lg:col-span-4 border-r border-gray-50 dark:border-slate-800 flex flex-col h-full overflow-hidden">
+                        <div className="p-6 border-b border-gray-50 dark:border-slate-800">
+                           <h4 className="font-bold text-primary dark:text-white mb-1">Academic Mentors</h4>
+                           <p className="text-[10px] text-gray-400 font-medium">Select a lecturer or administrator to message.</p>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                           {chatUsers.map((u) => (
+                             <div 
+                               key={u.id}
+                               onClick={() => setSelectedChatUser(u)}
+                               className={`p-4 rounded-3xl cursor-pointer transition-all flex items-center space-x-4 border ${
+                                 selectedChatUser?.id === u.id 
+                                   ? 'bg-primary border-primary text-white shadow-xl shadow-primary/20' 
+                                   : 'bg-transparent border-transparent hover:bg-gray-50 dark:hover:bg-slate-800 text-primary dark:text-white'
+                               }`}
+                             >
+                                <div className="w-10 h-10 bg-gray-100 dark:bg-slate-800 text-primary dark:text-white rounded-xl flex items-center justify-center font-bold uppercase shrink-0">
+                                   {u.first_name?.[0]}{u.last_name?.[0]}
+                                </div>
+                                <div className="flex-grow min-w-0">
+                                   <p className="font-bold text-sm truncate">{u.first_name} {u.last_name}</p>
+                                   <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${
+                                     selectedChatUser?.id === u.id ? 'bg-white/20 text-white' : 'bg-primary/5 text-primary dark:text-accent'
+                                   }`}>
+                                      {u.role}
+                                   </span>
+                                </div>
+                             </div>
+                           ))}
+                        </div>
+                     </div>
+
+                     {/* Chat Area */}
+                     <div className="lg:col-span-8 flex flex-col h-full overflow-hidden">
+                        {selectedChatUser ? (
+                          <>
+                            <div className="p-6 border-b border-gray-50 dark:border-slate-800 flex items-center space-x-4 bg-gray-50/50 dark:bg-slate-800/20 shrink-0">
+                               <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center font-bold uppercase">
+                                  {selectedChatUser.first_name?.[0]}{selectedChatUser.last_name?.[0]}
+                               </div>
+                               <div>
+                                  <h4 className="font-bold text-sm text-primary dark:text-white">{selectedChatUser.first_name} {selectedChatUser.last_name}</h4>
+                                  <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">{selectedChatUser.email}</p>
+                               </div>
+                            </div>
+
+                            <div className="flex-grow overflow-y-auto p-8 space-y-6">
+                               {chatMessages
+                                 .filter(m => 
+                                   (m.sender_id === user?.id && m.receiver_id === selectedChatUser.id) ||
+                                   (m.sender_id === selectedChatUser.id && m.receiver_id === user?.id)
+                                 )
+                                 .map((m, index) => {
+                                   const isMine = m.sender_id === user?.id;
+                                   return (
+                                     <div key={index} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+                                        <div className={`max-w-md p-5 rounded-3xl text-xs font-medium shadow-sm ${
+                                          isMine 
+                                            ? 'bg-primary text-white rounded-br-none shadow-primary/10' 
+                                            : 'bg-gray-50 dark:bg-slate-800 text-primary dark:text-white rounded-bl-none'
+                                        }`}>
+                                           <p>{m.content}</p>
+                                           <p className={`text-[8px] font-bold uppercase tracking-widest mt-2 ${isMine ? 'text-white/60' : 'text-gray-400'}`}>
+                                              {new Date(m.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                           </p>
+                                        </div>
+                                     </div>
+                                   );
+                                 })}
+                               <div ref={chatEndRef} />
+                            </div>
+
+                            <form onSubmit={handleSendChatMessage} className="p-6 border-t border-gray-50 dark:border-slate-800 flex items-center space-x-4 shrink-0">
+                               <input 
+                                 type="text"
+                                 value={chatContent}
+                                 onChange={(e) => setChatContent(e.target.value)}
+                                 placeholder={`Message ${selectedChatUser.first_name}...`}
+                                 className="flex-1 px-5 h-12 bg-gray-50 dark:bg-slate-800 border-none rounded-xl text-xs font-medium focus:ring-4 focus:ring-primary/5 transition-all outline-none"
+                                 required
+                                />
+                               <Button 
+                                 type="submit"
+                                 disabled={chatSending || !chatContent.trim()}
+                                 className="w-12 h-12 bg-primary text-white rounded-xl flex items-center justify-center p-0 shadow-lg shadow-primary/20 hover:scale-[1.05] active:scale-[0.95] transition-all shrink-0"
+                               >
+                                  {chatSending ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
+                               </Button>
+                            </form>
+                          </>
+                        ) : (
+                          <div className="flex-grow flex flex-col items-center justify-center p-10 text-gray-400">
+                             <MessageSquare size={48} className="mb-4 stroke-1 opacity-50 text-accent" />
+                             <p className="font-bold text-sm text-primary dark:text-white">Your Conversations</p>
+                             <p className="text-xs font-medium text-gray-400 mt-1">Select an academic mentor or administrator from the sidebar to chat.</p>
+                          </div>
+                        )}
+                     </div>
+                  </div>
                 </motion.div>
               )}
-            </AnimatePresence>
+           </AnimatePresence>
           </div>
 
           {/* Sidebar Area */}
@@ -958,7 +1240,7 @@ export default function StudentDashboard() {
                 <div className="relative z-10">
                    <h3 className="text-lg font-black mb-2 uppercase tracking-tight">Need Support?</h3>
                    <p className="text-primary/70 text-xs font-bold mb-6 leading-relaxed">Our mentors are online to help with your academic journey.</p>
-                   <button className="w-full py-4 bg-primary text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-slate-900 transition-all shadow-xl flex items-center justify-center">
+                   <button onClick={() => setActiveTab('messages')} className="w-full py-4 bg-primary text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-slate-900 transition-all shadow-xl flex items-center justify-center">
                       <MessageSquare size={16} className="mr-2" /> Start Chat
                    </button>
                 </div>
@@ -1021,21 +1303,25 @@ export default function StudentDashboard() {
                    <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100">
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Student Identity</p>
                       <p className="text-2xl font-black text-primary uppercase">{user?.first_name} {user?.last_name}</p>
-                      <p className="text-sm font-bold text-accent mt-1">Enrollment ID: AFR-2026-901</p>
+                      <p className="text-sm font-bold text-accent mt-1">Enrollment ID: {user?.StudentProfile?.admission_number || 'N/A'}</p>
                    </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                    <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Nationality</p>
-                      <p className="text-xs font-bold">Kenyan</p>
+                      <p className="text-xs font-bold">{user?.StudentProfile?.nationality || 'N/A'}</p>
                    </div>
                    <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Gender</p>
-                      <p className="text-xs font-bold">Male</p>
+                      <p className="text-xs font-bold">{user?.StudentProfile?.gender || 'N/A'}</p>
                    </div>
                    <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Date of Birth</p>
-                      <p className="text-xs font-bold">12 May 1998</p>
+                      <p className="text-xs font-bold">
+                        {user?.StudentProfile?.date_of_birth 
+                          ? new Date(user.StudentProfile.date_of_birth).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
+                          : 'N/A'}
+                      </p>
                    </div>
                    <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Issue Date</p>
@@ -1087,11 +1373,11 @@ export default function StudentDashboard() {
                    <div className="flex space-x-12">
                       <div>
                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Cumulative GPA</p>
-                         <p className="text-3xl font-black text-primary">3.85 <span className="text-sm font-bold text-gray-400">/ 4.0</span></p>
+                         <p className="text-3xl font-black text-primary">{dynamicGPA} <span className="text-sm font-bold text-gray-400">/ 4.0</span></p>
                       </div>
                       <div>
                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Academic Standing</p>
-                         <p className="text-xl font-black text-emerald-600 uppercase italic">Distinction</p>
+                         <p className="text-xl font-black text-emerald-600 uppercase italic">{getAcademicStanding(parseFloat(dynamicGPA))}</p>
                       </div>
                    </div>
                    <div className="bg-gray-900 text-white p-6 rounded-3xl inline-block">

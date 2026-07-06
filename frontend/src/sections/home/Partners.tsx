@@ -10,6 +10,7 @@ const partners = [
   { src: "/P3.jpg", alt: "Partner 3" },
   { src: "/P4.jpg", alt: "Partner 4" },
   { src: "/P5.png", alt: "Partner 5" },
+  { src: "/afralti_logo.png", alt: "AFRALTI" },
 ];
 
 export default function Partners() {

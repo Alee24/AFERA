@@ -59,13 +59,16 @@ export default function Programs() {
                        {course.course_type || 'Program'}
                     </span>
                   </div>
-                  <CardTitle className="group-hover:text-accent transition-colors leading-tight text-xl">
+                  <CardTitle className="group-hover:text-accent transition-colors leading-tight text-xl break-words text-left">
                     {course[`title_${lang}`] || course.title_en || course.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pb-6 flex-1">
-                   <p className="text-sm text-gray-500 mb-6 line-clamp-2">
-                     {course[`description_${lang}`] || course.description_en || course.description}
+                   <p className="text-sm text-gray-500 mb-6 line-clamp-3 break-words text-left leading-relaxed">
+                     {(() => {
+                       const desc = course[`description_${lang}`] || course.description_en || course.description || '';
+                       return desc.replace(/<[^>]*>?/gm, '');
+                     })()}
                    </p>
                    <div className="flex items-center space-x-6 text-xs font-bold text-gray-400 uppercase tracking-widest">
                       <div className="flex items-center"><Clock size={14} className="mr-1.5 text-accent" /> {course.duration}</div>

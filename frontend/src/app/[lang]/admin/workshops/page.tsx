@@ -32,7 +32,7 @@ export default function AdminWorkshopsPage() {
     title_en: '',
     description_en: '',
     category: 'Technical Workshop',
-    type: 'PPTX',
+    type: 'PDF',
     image_url: '',
     file_url: ''
   });
@@ -98,7 +98,7 @@ export default function AdminWorkshopsPage() {
         title_en: '',
         description_en: '',
         category: 'Technical Workshop',
-        type: 'PPTX',
+        type: 'PDF',
         image_url: '',
         file_url: ''
       });
@@ -180,9 +180,9 @@ export default function AdminWorkshopsPage() {
                          onChange={e => setFormData({...formData, type: e.target.value})} 
                          className="w-full h-16 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl px-6 font-bold"
                        >
-                         <option>PPTX</option>
-                         <option>PDF</option>
-                         <option>DOCX</option>
+                          <option>PDF</option>
+                          <option>PPTX</option>
+                          <option>DOCX</option>
                        </select>
                     </div>
                   </div>
@@ -237,6 +237,7 @@ export default function AdminWorkshopsPage() {
                                {uploadingFile ? <Loader2 className="animate-spin h-4 w-4" /> : <><Upload size={14} className="mr-1" /> Upload</>}
                                <input 
                                  type="file" 
+                                 accept=".pdf,.pptx,.docx"
                                  className="hidden" 
                                  onChange={e => handleFileUpload(e, 'file_url')} 
                                />
@@ -266,7 +267,7 @@ export default function AdminWorkshopsPage() {
           <h1 className="text-4xl font-black text-primary dark:text-white tracking-tight">Thematic <span className="text-accent italic">Workshops</span></h1>
           <p className="text-gray-500 mt-2 font-medium">Manage the resource library and academic presentations.</p>
         </div>
-        <Button onClick={() => { setIsModalOpen(true); setEditingWorkshop(null); setFormData({ title_en: '', description_en: '', category: 'Technical Workshop', type: 'PPTX', image_url: '', file_url: '' }); }} className="bg-primary text-white rounded-[24px] px-8 h-16 font-bold shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+        <Button onClick={() => { setIsModalOpen(true); setEditingWorkshop(null); setFormData({ title_en: '', description_en: '', category: 'Technical Workshop', type: 'PDF', image_url: '', file_url: '' }); }} className="bg-primary text-white rounded-[24px] px-8 h-16 font-bold shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
            <Plus size={20} className="mr-3" /> Add New Item
         </Button>
       </div>

@@ -130,3 +130,52 @@ export const sendAdmissionStatusUpdate = async (studentData: any, status: string
     console.error('Error sending admission update notification:', error);
   }
 };
+
+export const sendAccountCreatedNotification = async (userData: any, pass: string) => {
+  try {
+    const mailOptions = {
+      from: '"AFERA INNOV ACADEMY" <admissions@aferainnov.africa>',
+      to: userData.email,
+      subject: 'Your AFERA INNOV ACADEMY Account Details',
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <h2 style="color: #1e3a8a;">Welcome to AFERA INNOV ACADEMY</h2>
+          <p>Dear ${userData.first_name} ${userData.last_name || ''},</p>
+          
+          <p>An institutional account has been successfully created for you on the AFERA Innov Platform. Below are your login credentials and activation instructions:</p>
+          
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 12px; margin: 25px 0; border: 1px solid #e5e7eb;">
+            <h3 style="margin-top: 0; color: #111827; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;">Your Credentials:</h3>
+            <p><strong>Login Email:</strong> <span style="font-family: monospace; font-size: 14px;">${userData.email}</span></p>
+            <p><strong>Temporary Password:</strong> <span style="font-family: monospace; font-size: 14px; background: #e5e7eb; padding: 2px 6px; border-radius: 4px;">${pass}</span></p>
+            <p><strong>Assigned Role:</strong> ${userData.role || 'Student'}</p>
+          </div>
+
+          <h3 style="color: #1e3a8a;">Activation & Setup Instructions:</h3>
+          <ol style="line-height: 1.6; color: #374151;">
+            <li>Click the access portal button below or navigate to <a href="https://aferainnov.africa/login">https://aferainnov.africa/login</a>.</li>
+            <li>Log in using your email address and the temporary password provided above.</li>
+            <li>If you are logging in for the first time as a student, you will be prompted to complete the <strong>Onboarding Profile Wizard</strong> to finalize your academic record.</li>
+            <li>We highly recommend changing your password to a secure personal one immediately under your <strong>Profile Settings</strong> after logging in.</li>
+          </ol>
+          
+          <div style="margin: 30px 0; text-align: center;">
+            <a href="https://aferainnov.africa/login" style="background-color: #f59e0b; color: #1e3a8a; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">Access Student Portal</a>
+          </div>
+          
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
+          <p style="font-size: 12px; color: #6b7280;">
+            This is an official communication from AFERA INNOV ACADEMY.<br />
+            For any queries or academic support, please reply to this email or contact us at <a href="mailto:info@aferainnov.africa">info@aferainnov.africa</a>.
+          </p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Account creation email sent successfully to ${userData.email}`);
+  } catch (error) {
+    console.error('Error sending account creation email:', error);
+  }
+};
+

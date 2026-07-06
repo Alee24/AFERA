@@ -66,7 +66,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-lg mb-1 text-primary dark:text-white">Our Location</h3>
-                    <p className="text-gray-600 dark:text-gray-400">123 University Avenue,<br />Nairobi, Kenya</p>
+                    <p className="text-gray-600 dark:text-gray-400">4th Floor, Kenya Re Towers,<br />Off Ragati Road, Upper Hill, Nairobi, Kenya</p>
                   </div>
                 </div>
               </Card>

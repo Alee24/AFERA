@@ -141,18 +141,21 @@ export default function CoursesPage({ params }: { params: any }) {
                       </div>
                    </div>
 
-                   <h3 className="text-2xl font-bold text-primary mb-4 leading-tight group-hover:text-accent transition-colors">
-                     {course[`title_${currentLang}`] || course.title_en || course.title}
-                   </h3>
+                    <h3 className="text-2xl font-bold text-primary mb-4 leading-tight group-hover:text-accent transition-colors break-words text-left">
+                      {course[`title_${currentLang}`] || course.title_en || course.title}
+                    </h3>
 
-                   <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">
-                      <div className="flex items-center"><Clock size={14} className="mr-1.5 text-accent" /> {course.duration}</div>
-                      <div className="flex items-center"><Globe size={14} className="mr-1.5 text-accent" /> {course.modality}</div>
-                   </div>
+                    <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">
+                       <div className="flex items-center"><Clock size={14} className="mr-1.5 text-accent" /> {course.duration}</div>
+                       <div className="flex items-center"><Globe size={14} className="mr-1.5 text-accent" /> {course.modality}</div>
+                    </div>
 
-                   <p className="text-gray-500 text-sm mb-8 flex-1 leading-relaxed line-clamp-3">
-                     {course[`description_${currentLang}`] || course.description_en || course.description}
-                   </p>
+                    <p className="text-gray-500 text-sm mb-8 flex-1 leading-relaxed line-clamp-3 break-words text-left">
+                      {(() => {
+                        const desc = course[`description_${currentLang}`] || course.description_en || course.description || '';
+                        return desc.replace(/<[^>]*>?/gm, '');
+                      })()}
+                    </p>
 
                    <Link href={`/${currentLang}/courses/${course.id}`} className="mt-auto">
                       <Button variant="primary" className="w-full py-4 text-xs font-bold uppercase tracking-widest rounded-2xl group-hover:bg-accent transition-colors flex items-center justify-center">

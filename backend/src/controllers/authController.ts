@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User, Student, Staff, Program, Enrollment, Course } from '../models';
-import { sendApplicationNotification } from '../services/mailService';
+import { sendApplicationNotification, sendAccountCreatedNotification } from '../services/mailService';
 import { logToCRM } from '../services/crmService';
 
 export const register = async (req: Request, res: Response) => {
@@ -131,7 +131,9 @@ export const adminCreateUser = async (req: Request, res: Response) => {
     const existing = await User.findOne({ where: { email } });
     if (existing) return res.status(400).json({ message: 'User with this email already exists' });
     
-    const hash = await bcrypt.hash(password || 'Afera123!', 10);
+    // Generate secure temporary password if not provided
+    const tempPassword = password || `AFERA-${Math.floor(1000 + Math.random() * 9000)}-${Math.random().toString(36).slice(-4).toUpperCase()}!`;
+    const hash = await bcrypt.hash(tempPassword, 10);
     const user = await User.create({ first_name, last_name, email, password_hash: hash, role: role || 'student' });
     
     if (role === 'student') {
@@ -139,6 +141,9 @@ export const adminCreateUser = async (req: Request, res: Response) => {
     } else if (['lecturer', 'finance', 'admissions'].includes(role)) {
       await Staff.create({ user_id: user.id, staff_number: 'STF' + Math.floor(1000 + Math.random() * 9000), position: role.toUpperCase() });
     }
+    
+    // Send email with credentials
+    await sendAccountCreatedNotification({ first_name, last_name, email, role: role || 'student' }, tempPassword);
     
     res.status(201).json({ message: 'User created successfully', user });
   } catch (err: any) {
