@@ -1,11 +1,43 @@
 import nodemailer from 'nodemailer';
+import { SystemSetting } from '../models';
 
-// Use local sendmail on the VPS for zero-config email sending
-const transporter = nodemailer.createTransport({
-  sendmail: true,
-  newline: 'unix',
-  path: '/usr/sbin/sendmail',
-});
+const getTransporter = async () => {
+  try {
+    const hostSetting = await SystemSetting.findOne({ where: { key: 'smtp_host' } });
+    const portSetting = await SystemSetting.findOne({ where: { key: 'smtp_port' } });
+    const userSetting = await SystemSetting.findOne({ where: { key: 'smtp_user' } });
+    const passSetting = await SystemSetting.findOne({ where: { key: 'smtp_pass' } });
+    const secureSetting = await SystemSetting.findOne({ where: { key: 'smtp_secure' } });
+
+    if (hostSetting && hostSetting.value && userSetting && userSetting.value && passSetting && passSetting.value) {
+      const host = JSON.parse(hostSetting.value);
+      const port = portSetting ? parseInt(JSON.parse(portSetting.value)) : 587;
+      const user = JSON.parse(userSetting.value);
+      const pass = JSON.parse(passSetting.value);
+      const secure = secureSetting ? JSON.parse(secureSetting.value) === true || JSON.parse(secureSetting.value) === 'true' : false;
+
+      if (host && user && pass) {
+        return nodemailer.createTransport({
+          host,
+          port,
+          secure,
+          auth: {
+            user,
+            pass,
+          },
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching SMTP settings from DB, falling back to local sendmail:', error);
+  }
+
+  return nodemailer.createTransport({
+    sendmail: true,
+    newline: 'unix',
+    path: '/usr/sbin/sendmail',
+  });
+};
 
 export const sendApplicationNotification = async (userData: any) => {
   try {
@@ -36,8 +68,9 @@ export const sendApplicationNotification = async (userData: any) => {
       `,
     };
 
+    const transporter = await getTransporter();
     await transporter.sendMail(mailOptions);
-    console.log(`Notification email sent via local sendmail to ceo@armfa.info for ${userData.email}`);
+    console.log(`Notification email sent to ceo@armfa.info for ${userData.email}`);
   } catch (error) {
     console.error('Error sending application notification:', error);
   }
@@ -73,8 +106,9 @@ export const sendContactNotification = async (contactData: any) => {
       `,
     };
 
+    const transporter = await getTransporter();
     await transporter.sendMail(mailOptions);
-    console.log(`Contact notification email sent via local sendmail to ceo@armfa.info from ${contactData.email}`);
+    console.log(`Contact notification email sent to ceo@armfa.info from ${contactData.email}`);
   } catch (error) {
     console.error('Error sending contact notification:', error);
   }
@@ -124,6 +158,7 @@ export const sendAdmissionStatusUpdate = async (studentData: any, status: string
       `,
     };
 
+    const transporter = await getTransporter();
     await transporter.sendMail(mailOptions);
     console.log(`Admission update email sent to ${studentData.email} (Status: ${status})`);
   } catch (error) {
@@ -172,10 +207,54 @@ export const sendAccountCreatedNotification = async (userData: any, pass: string
       `,
     };
 
+    const transporter = await getTransporter();
     await transporter.sendMail(mailOptions);
     console.log(`Account creation email sent successfully to ${userData.email}`);
   } catch (error) {
     console.error('Error sending account creation email:', error);
+  }
+};
+
+export const sendRegistrationConfirmationNotification = async (studentData: any) => {
+  try {
+    const transporter = await getTransporter();
+    const mailOptions = {
+      from: '"AFERA INNOV ACADEMY" <admissions@aferainnov.africa>',
+      to: studentData.email,
+      subject: 'AFERA INNOV ACADEMY - Application Received',
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <h2 style="color: #1e3a8a;">Thank You for Your Application</h2>
+          <p>Dear ${studentData.first_name} ${studentData.last_name || ''},</p>
+          
+          <p>We have successfully received your application for enrollment at AFERA INNOV ACADEMY. Our admissions registry team is currently reviewing your credentials.</p>
+          
+          <div style="background-color: #f9fafb; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #eee;">
+            <p><strong>Selected Program:</strong> ${studentData.program || 'Academic Program'}</p>
+            <p><strong>Status:</strong> Pending Administrative Review</p>
+          </div>
+          
+          <p>Once your application has been verified and approved, you will receive another email detailing your onboarding instructions and official credentials. You can access your applicant workspace using the link below:</p>
+          
+          <div style="margin: 25px 0; text-align: center;">
+            <a href="https://aferainnov.africa/login" style="background-color: #f59e0b; color: #1e3a8a; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Access Applicant Portal</a>
+          </div>
+          
+          <p>If you did not submit this application, please ignore this email.</p>
+          
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+          <p style="font-size: 11px; color: #6b7280;">
+            This is an official communication from AFERA INNOV ACADEMY admissions office.<br />
+            For questions or support, contact us at <a href="mailto:info@aferainnov.africa">info@aferainnov.africa</a>.
+          </p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Registration confirmation email sent to ${studentData.email}`);
+  } catch (error) {
+    console.error('Error sending registration confirmation email:', error);
   }
 };
 

@@ -20,7 +20,12 @@ export default function SystemSettings() {
     contact_phone: '',
     contact_address: '',
     color_primary: '#051A31',
-    color_accent: '#E7AB33'
+    color_accent: '#E7AB33',
+    smtp_host: '',
+    smtp_port: '587',
+    smtp_user: '',
+    smtp_pass: '',
+    smtp_secure: 'false'
   });
 
   useEffect(() => {
@@ -286,6 +291,77 @@ export default function SystemSettings() {
                   className="flex-1 h-12 bg-gray-50 dark:bg-slate-800 border-none rounded-xl px-4 font-bold text-sm text-primary dark:text-white"
                 />
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* SMTP Server Credentials */}
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-sm border border-gray-50 dark:border-slate-800 space-y-6">
+          <div className="flex items-center space-x-3 border-b border-gray-100 dark:border-slate-800 pb-4">
+            <Mail className="text-primary w-5 h-5" />
+            <h3 className="text-lg font-bold text-primary dark:text-white">SMTP Mail Server Credentials</h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <div className="md:col-span-6">
+              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">SMTP Host</label>
+              <input 
+                type="text" 
+                name="smtp_host"
+                value={settings.smtp_host || ''}
+                onChange={handleChange}
+                placeholder="smtp.mailtrap.io"
+                className="w-full h-12 bg-gray-50 dark:bg-slate-800 border-none rounded-xl px-4 font-bold text-sm text-primary dark:text-white focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            <div className="md:col-span-3">
+              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">SMTP Port</label>
+              <input 
+                type="text" 
+                name="smtp_port"
+                value={settings.smtp_port || ''}
+                onChange={handleChange}
+                placeholder="587"
+                className="w-full h-12 bg-gray-50 dark:bg-slate-800 border-none rounded-xl px-4 font-bold text-sm text-primary dark:text-white focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            <div className="md:col-span-3">
+              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Secure SSL/TLS</label>
+              <select 
+                name="smtp_secure"
+                value={settings.smtp_secure || 'false'}
+                onChange={handleChange as any}
+                className="w-full h-12 bg-gray-50 dark:bg-slate-800 border-none rounded-xl px-4 font-bold text-sm text-primary dark:text-white focus:ring-2 focus:ring-primary"
+              >
+                <option value="false">FALSE (TLS / STARTTLS)</option>
+                <option value="true">TRUE (SSL)</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-6">
+              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">SMTP Username</label>
+              <input 
+                type="text" 
+                name="smtp_user"
+                value={settings.smtp_user || ''}
+                onChange={handleChange}
+                placeholder="info@aferainnov.africa"
+                className="w-full h-12 bg-gray-50 dark:bg-slate-800 border-none rounded-xl px-4 font-bold text-sm text-primary dark:text-white focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            <div className="md:col-span-6">
+              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">SMTP Password</label>
+              <input 
+                type="password" 
+                name="smtp_pass"
+                value={settings.smtp_pass || ''}
+                onChange={handleChange}
+                placeholder="••••••••••••"
+                className="w-full h-12 bg-gray-50 dark:bg-slate-800 border-none rounded-xl px-4 font-bold text-sm text-primary dark:text-white focus:ring-2 focus:ring-primary"
+              />
             </div>
           </div>
         </div>

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User, Student, Staff, Program, Enrollment, Course } from '../models';
-import { sendApplicationNotification, sendAccountCreatedNotification } from '../services/mailService';
+import { sendApplicationNotification, sendAccountCreatedNotification, sendRegistrationConfirmationNotification } from '../services/mailService';
 import { logToCRM } from '../services/crmService';
 
 export const register = async (req: Request, res: Response) => {
@@ -67,8 +67,9 @@ export const register = async (req: Request, res: Response) => {
       { expiresIn: '24h' }
     );
 
-    // Send notification email to CEO
+    // Send notification email to CEO and confirmation to applicant
     sendApplicationNotification({ name, email, program: programName });
+    sendRegistrationConfirmationNotification({ first_name, last_name, email, program: programName });
 
     // Log to CRM
     await logToCRM(email, name || `${first_name} ${last_name}`, 'event', 'Account Registration', `Registered as ${role || 'student'} for program ${programName || 'N/A'}`, 'System');
