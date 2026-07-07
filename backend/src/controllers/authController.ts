@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User, Student, Staff, Program, Enrollment, Course } from '../models';
-import { sendApplicationNotification, sendAccountCreatedNotification, sendRegistrationConfirmationNotification } from '../services/mailService';
+import { sendApplicationNotification, sendAccountCreatedNotification, sendRegistrationConfirmationNotification, sendPasswordResetNotification } from '../services/mailService';
 import { logToCRM } from '../services/crmService';
 
 export const register = async (req: Request, res: Response) => {
@@ -179,6 +179,10 @@ export const adminResetPassword = async (req: Request, res: Response) => {
     
     const hash = await bcrypt.hash(newPassword, 10);
     await user.update({ password_hash: hash });
+    
+    // Send password reset confirmation email
+    await sendPasswordResetNotification(user, newPassword);
+    
     res.json({ message: 'Password reset successfully' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });

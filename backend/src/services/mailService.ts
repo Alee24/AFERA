@@ -258,3 +258,44 @@ export const sendRegistrationConfirmationNotification = async (studentData: any)
   }
 };
 
+export const sendPasswordResetNotification = async (userData: any, pass: string) => {
+  try {
+    const transporter = await getTransporter();
+    const mailOptions = {
+      from: '"AFERA INNOV ACADEMY" <noreply@aferainnov.africa>',
+      to: userData.email,
+      subject: 'Your Password Has Been Reset',
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <h2 style="color: #1e3a8a;">Password Reset Confirmation</h2>
+          <p>Dear ${userData.first_name} ${userData.last_name || ''},</p>
+          
+          <p>An administrator has successfully reset your password on the AFERA Innov Platform. Below are your new temporary credentials:</p>
+          
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 12px; margin: 25px 0; border: 1px solid #e5e7eb;">
+            <p><strong>Login Email:</strong> <span style="font-family: monospace; font-size: 14px;">${userData.email}</span></p>
+            <p><strong>New Temporary Password:</strong> <span style="font-family: monospace; font-size: 14px; background: #e5e7eb; padding: 2px 6px; border-radius: 4px;">${pass}</span></p>
+          </div>
+
+          <p>Please log in using your new credentials. We highly recommend changing your password to a secure personal one immediately under your <strong>Profile Settings</strong> after logging in.</p>
+          
+          <div style="margin: 30px 0; text-align: center;">
+            <a href="https://aferainnov.africa/login" style="background-color: #f59e0b; color: #1e3a8a; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Access Portal</a>
+          </div>
+          
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
+          <p style="font-size: 12px; color: #6b7280;">
+            This is an official communication from AFERA INNOV ACADEMY.<br />
+            If you did not request this change, please contact the academy support office at <a href="mailto:info@aferainnov.africa">info@aferainnov.africa</a>.
+          </p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Password reset confirmation email sent to ${userData.email}`);
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+  }
+};
+
