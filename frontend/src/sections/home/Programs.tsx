@@ -67,7 +67,15 @@ export default function Programs() {
                    <p className="text-sm text-gray-500 mb-6 line-clamp-3 break-words text-left leading-relaxed">
                      {(() => {
                        const desc = course[`description_${lang}`] || course.description_en || course.description || '';
-                       return desc.replace(/<[^>]*>?/gm, '');
+                       return desc
+                         .replace(/<[^>]*>?/gm, '')
+                         .replace(/&nbsp;/g, ' ')
+                         .replace(/&amp;/g, '&')
+                         .replace(/&lt;/g, '<')
+                         .replace(/&gt;/g, '>')
+                         .replace(/&quot;/g, '"')
+                         .replace(/&#39;/g, "'")
+                         .replace(/&apos;/g, "'");
                      })()}
                    </p>
                    <div className="flex items-center space-x-6 text-xs font-bold text-gray-400 uppercase tracking-widest">

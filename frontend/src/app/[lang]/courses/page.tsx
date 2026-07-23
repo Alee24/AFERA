@@ -153,7 +153,15 @@ export default function CoursesPage({ params }: { params: any }) {
                     <p className="text-gray-500 text-sm mb-8 flex-1 leading-relaxed line-clamp-3 break-words text-left">
                       {(() => {
                         const desc = course[`description_${currentLang}`] || course.description_en || course.description || '';
-                        return desc.replace(/<[^>]*>?/gm, '');
+                        return desc
+                          .replace(/<[^>]*>?/gm, '')
+                          .replace(/&nbsp;/g, ' ')
+                          .replace(/&amp;/g, '&')
+                          .replace(/&lt;/g, '<')
+                          .replace(/&gt;/g, '>')
+                          .replace(/&quot;/g, '"')
+                          .replace(/&#39;/g, "'")
+                          .replace(/&apos;/g, "'");
                       })()}
                     </p>
 

@@ -300,7 +300,15 @@ export default function AdminWorkshopsPage() {
             >
                <div className="h-48 bg-gray-100 dark:bg-slate-800 relative">
                   {workshop.image_url ? (
-                    <img src={workshop.image_url} alt={workshop.title_en} className="w-full h-full object-cover" />
+                    <img 
+                      src={workshop.image_url} 
+                      alt={workshop.title_en} 
+                      className="w-full h-full object-cover" 
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/LOGOMAIN.png';
+                        (e.target as HTMLImageElement).className = 'w-full h-full object-contain p-8 bg-gray-50';
+                      }}
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-300">
                       <Presentation size={48} />

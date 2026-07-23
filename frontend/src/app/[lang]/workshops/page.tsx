@@ -244,6 +244,10 @@ export default function WorkshopsPage() {
                          src={doc.thumbnail} 
                          alt={doc.title} 
                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                         onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/LOGOMAIN.png';
+                            (e.target as HTMLImageElement).className = 'w-full h-full object-contain p-8 bg-gray-50';
+                          }}
                        />
                     ) : (
                        <div className="w-full h-full bg-gray-50 flex items-center justify-center p-12">
