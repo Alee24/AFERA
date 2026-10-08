@@ -19,6 +19,7 @@ const navLinks = [
   { key: 'courses', href: '/courses' },
   { key: 'workshops', href: '/workshops' },
   { key: 'contact', href: '/contact' },
+  { key: 'lms', href: 'https://lms.aferaacademy.africa/', isExternal: true },
 ];
 
 const languages = [
@@ -69,6 +70,21 @@ export default function Navbar() {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-8">
             {navLinks.map((link) => {
+              if (link.isExternal) {
+                return (
+                  <a
+                    key={link.key}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-bold tracking-wider uppercase transition-colors hover:text-primary relative py-2 notranslate text-gray-500 dark:text-gray-400"
+                  >
+                    {/* Fallback to uppercase string if translation doesn't exist */}
+                    {t(`navbar.${link.key}`, link.key.toUpperCase())}
+                  </a>
+                );
+              }
+
               const fullHref = link.href === '/' ? `/${currentLang}` : `/${currentLang}${link.href}`;
               const isActive = pathname === fullHref || (pathname.startsWith(`/${currentLang}${link.href}`) && link.href !== '/');
               return (
@@ -151,6 +167,21 @@ export default function Navbar() {
           >
             <div className="container mx-auto px-4 py-6 space-y-4">
               {navLinks.map((link) => {
+                if (link.isExternal) {
+                  return (
+                    <a
+                      key={link.key}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsOpen(false)}
+                      className="block text-sm font-bold tracking-wider uppercase text-primary dark:text-white hover:text-accent border-b border-gray-50 dark:border-slate-800 pb-3 notranslate"
+                    >
+                      {t(`navbar.${link.key}`, link.key.toUpperCase())}
+                    </a>
+                  );
+                }
+
                 const fullHref = link.href === '/' ? `/${currentLang}` : `/${currentLang}${link.href}`;
                 return (
                   <Link
